@@ -70,7 +70,7 @@ I did look at other options but none were particularly compelling.
 
 ## Matt's New Hardware
 
-Quite lately during the PyCon craziness!
+Quiet lately during the PyCon craziness!
 
 ### Makerdiary i.MX RT1011 Nano Kit
 
