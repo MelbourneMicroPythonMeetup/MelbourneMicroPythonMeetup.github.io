@@ -98,7 +98,6 @@ def worldclock_url(year, month):
 def build_message(year, month, luma_url=None):
     """Build the announcement message text with randomised variations."""
     month_name = calendar.month_name[month]
-    wc_url = worldclock_url(year, month)
     d = fourth_wednesday(year, month)
     date_str = d.strftime("%-d %B")
 
@@ -113,8 +112,6 @@ def build_message(year, month, luma_url=None):
         lines.append("")
         lines.append(luma_url)
 
-    lines.append("")
-    lines.append(f"Time in your timezone: {wc_url}")
     lines.append("")
     lines.append(closer)
 
@@ -178,7 +175,9 @@ def post_bluesky(message):
             "record": record,
         },
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        print(f"  Bluesky: error {resp.status_code}: {resp.text}", file=sys.stderr)
+        return False
     result = resp.json()
     print(f"  Bluesky: posted ({result['uri']})")
     return True
@@ -352,7 +351,9 @@ def main():
         try:
             handler(message, args.luma_url)
         except Exception as e:
+            import traceback
             print(f"  {platform}: FAILED — {e}", file=sys.stderr)
+            traceback.print_exc()
 
 
 if __name__ == "__main__":
