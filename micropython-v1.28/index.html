@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MicroPython v1.28.0 Release Notes</title>
+<style>
+/* ===== CSS Reset & Variables ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --max-width: 900px;
+  --sidebar-width: 220px;
+  --transition: 0.3s ease;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-card: #1c2129;
+  --bg-code: #1a1e25;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --accent: #58a6ff;
+  --accent-glow: rgba(88, 166, 255, 0.15);
+  --accent-green: #3fb950;
+  --accent-green-glow: rgba(63, 185, 80, 0.15);
+  --accent-orange: #d29922;
+  --accent-red: #f85149;
+  --accent-purple: #bc8cff;
+  --border: #30363d;
+  --border-highlight: #58a6ff;
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+  --pwm-high: #3fb950;
+  --pwm-low: #21262d;
+  --pwm-line: #58a6ff;
+}
+
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #eaeef2;
+  --bg-card: #f6f8fa;
+  --bg-code: #f0f3f6;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --accent: #0969da;
+  --accent-glow: rgba(9, 105, 218, 0.1);
+  --accent-green: #1a7f37;
+  --accent-green-glow: rgba(26, 127, 55, 0.1);
+  --accent-orange: #9a6700;
+  --accent-red: #cf222e;
+  --accent-purple: #8250df;
+  --border: #d0d7de;
+  --border-highlight: #0969da;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --pwm-high: #1a7f37;
+  --pwm-low: #eaeef2;
+  --pwm-line: #0969da;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background var(--transition), color var(--transition);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== Theme Toggle ===== */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all var(--transition);
+  color: var(--text-primary);
+}
+.theme-toggle:hover { border-color: var(--accent); }
+
+/* ===== Sidebar / TOC ===== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform 0.3s ease, background var(--transition);
+}
+
+.sidebar-logo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.sidebar-version {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.toc { list-style: none; }
+.toc li { margin-bottom: 2px; }
+.toc a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+}
+.toc a:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  text-decoration: none;
+}
+.toc a.active {
+  color: var(--accent);
+  background: var(--accent-glow);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.toc-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 10px;
+}
+
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Main Content ===== */
+.main {
+  margin-left: var(--sidebar-width);
+  max-width: calc(var(--max-width) + 80px);
+  padding: 0 40px;
+}
+
+/* ===== Hero Section ===== */
+.hero {
+  padding: 80px 0 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -50%; right: -50%; bottom: 0;
+  background: radial-gradient(ellipse at 50% 0%, var(--accent-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  margin-bottom: 20px;
+  animation: pulse-border 3s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(88, 166, 255, 0); }
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+.hero h1 span { color: var(--accent); }
+
+.hero-tagline {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto 16px;
+}
+
+.hero-date {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ===== Summary Cards ===== */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.summary-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.summary-card .card-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: block;
+}
+.summary-card .card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.summary-card .card-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Stats ribbon */
+.stats-ribbon {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 20px 0 40px;
+  flex-wrap: wrap;
+}
+.stat-item {
+  text-align: center;
+}
+.stat-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  display: block;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Section Styling ===== */
+.section {
+  padding: 64px 0;
+  border-top: 1px solid var(--border);
+}
+
+.section-header {
+  margin-bottom: 32px;
+}
+.section-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+.section-badge.new {
+  color: var(--accent-green);
+  background: var(--accent-green-glow);
+}
+.section-badge.improved {
+  color: var(--accent-orange);
+  background: rgba(210, 153, 34, 0.15);
+}
+
+.section h2 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.section-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin-bottom: 24px;
+}
+
+/* ===== Code Blocks ===== */
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 16px 0;
+  position: relative;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.copy-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+.copy-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+.copy-btn.copied { color: var(--accent-green); border-color: var(--accent-green); }
+
+pre {
+  padding: 16px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Syntax highlighting */
+.kw { color: var(--accent-purple); font-weight: 600; }
+.fn { color: #d2a8ff; }
+.str { color: #a5d6ff; }
+.num { color: #79c0ff; }
+.cmt { color: var(--text-muted); font-style: italic; }
+.op { color: var(--accent-red); }
+.bi { color: #ffa657; }
+
+[data-theme="light"] .kw { color: #8250df; }
+[data-theme="light"] .fn { color: #8250df; }
+[data-theme="light"] .str { color: #0a3069; }
+[data-theme="light"] .num { color: #0550ae; }
+[data-theme="light"] .cmt { color: #6e7781; }
+[data-theme="light"] .op { color: #cf222e; }
+[data-theme="light"] .bi { color: #953800; }
+
+/* ===== Demo Containers ===== */
+.demo-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  box-shadow: var(--shadow);
+}
+.demo-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+/* ===== PWM Demo ===== */
+.pwm-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.pwm-slider-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.pwm-slider-group .slider-value {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 8px;
+}
+input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(88, 166, 255, 0.4);
+}
+
+.pwm-waveform-wrap {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+#pwm-canvas {
+  width: 100%;
+  height: 120px;
+  display: block;
+}
+
+.port-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 20px;
+}
+.port-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.port-chip .check {
+  color: var(--accent-green);
+  font-weight: bold;
+}
+.port-chip.new-in-128 {
+  border-color: var(--accent-green);
+  background: var(--accent-green-glow);
+  animation: chip-glow 2s ease-in-out 1;
+}
+@keyframes chip-glow {
+  0% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.4); }
+  50% { box-shadow: 0 0 12px 4px rgba(63, 185, 80, 0.2); }
+  100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+}
+
+/* ===== CAN Demo ===== */
+.can-demo-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.can-bus-svg {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.can-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.btn-secondary:hover { border-color: var(--accent); }
+
+.can-log {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+  max-height: 120px;
+  overflow-y: auto;
+  color: var(--text-secondary);
+}
+.can-log .log-tx { color: var(--accent); }
+.can-log .log-rx { color: var(--accent-green); }
+
+.can-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.badge.active {
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  background: var(--accent-green-glow);
+}
+.badge.coming {
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+/* ===== T-String Demo ===== */
+.tstring-toggle {
+  display: flex;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+.tstring-toggle button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.tstring-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.tstring-output {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.tstring-pane {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.tstring-pane h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.template-obj {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.template-obj .t-label { color: var(--accent-purple); font-weight: 600; }
+.template-obj .t-string { color: #a5d6ff; }
+.template-obj .t-interp { color: var(--accent-orange); }
+.template-obj .t-expr { color: var(--accent-green); }
+
+.callout {
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+.callout-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+/* ===== Weakref / GC Demo ===== */
+.gc-demo-area {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.gc-visual {
+  flex: 1;
+  min-height: 280px;
+  position: relative;
+}
+.gc-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.gc-object {
+  position: absolute;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  transition: all 0.6s ease;
+  text-align: center;
+  min-width: 90px;
+}
+.gc-object.alive { border-color: var(--accent-green); }
+.gc-object.weak-ref { border-color: var(--accent-orange); border-style: dashed; }
+.gc-object.collected {
+  opacity: 0;
+  transform: scale(0.5);
+  border-color: var(--accent-red);
+}
+.gc-object .obj-type {
+  font-size: 10px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.gc-arrow {
+  position: absolute;
+  pointer-events: none;
+}
+
+.gc-console {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 12px;
+  min-height: 60px;
+  color: var(--text-secondary);
+}
+.gc-console .gc-msg { color: var(--accent-green); }
+.gc-console .gc-warn { color: var(--accent-orange); }
+
+.gc-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.gc-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.gc-legend .legend-line {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.gc-legend .strong { background: var(--accent-green); }
+.gc-legend .weak { background: var(--accent-orange); border: none; border-top: 2px dashed var(--accent-orange); height: 0; }
+
+/* ===== Highlights Grid ===== */
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.highlight-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+.highlight-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.highlight-card .hl-icon {
+  font-size: 24px;
+  margin-bottom: 10px;
+  display: block;
+}
+.highlight-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.highlight-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.highlight-card .hl-ports {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.highlight-card .hl-port-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+/* ===== By the Numbers ===== */
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.number-card {
+  text-align: center;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.number-card .big-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--accent);
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.number-card .number-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.code-size-chart {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+}
+.code-size-chart h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.cs-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 80px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.cs-row:last-child { border-bottom: none; }
+.cs-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 12px;
+}
+.cs-bar-wrap {
+  height: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.cs-bar {
+  height: 14px;
+  border-radius: 3px;
+  transition: width 1s ease;
+  position: relative;
+}
+.cs-bar.positive { background: var(--accent-orange); }
+.cs-bar.negative { background: var(--accent-green); }
+.cs-value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+}
+.cs-bar-wrap .cs-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: var(--shadow);
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.cs-row:hover .cs-tooltip { display: block; }
+
+/* ===== Board Gallery ===== */
+.board-gallery {
+  margin-top: 16px;
+}
+.board-port-group {
+  margin-bottom: 16px;
+}
+.board-port-group h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.board-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.board-chip {
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+.board-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+/* ===== Footer ===== */
+.footer {
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.footer-links a:hover { color: var(--accent); }
+
+.funding {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.8;
+}
+.funding strong { color: var(--text-secondary); }
+
+.contributors-toggle {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 13px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-family: var(--font-sans);
+  transition: all 0.2s;
+}
+.contributors-toggle:hover { border-color: var(--accent); }
+
+.contributors-list {
+  display: none;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 2;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.contributors-list.open { display: block; }
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .mobile-menu-btn { display: flex; }
+  .main { margin-left: 0; }
+}
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 32px; }
+  .summary-cards { grid-template-columns: repeat(2, 1fr); }
+  .pwm-controls { grid-template-columns: 1fr; }
+  .can-demo-layout { grid-template-columns: 1fr; }
+  .tstring-output { grid-template-columns: 1fr; }
+  .gc-demo-area { flex-direction: column; }
+  .gc-sidebar { width: 100%; }
+  .numbers-grid { grid-template-columns: 1fr; }
+  .cs-row { grid-template-columns: 80px 1fr 60px; }
+  .main { padding: 0 20px; }
+}
+
+@media (max-width: 480px) {
+  .summary-cards { grid-template-columns: 1fr; }
+  .stats-ribbon { gap: 16px; }
+}
+/* ===== PyScript Editor Overrides ===== */
+.live-playground {
+  margin-top: 24px;
+}
+.live-playground .demo-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.live-playground .demo-label .pyscript-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--accent-green-glow);
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.playground-intro {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.playground-group {
+  margin-bottom: 24px;
+}
+.playground-group h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.playground-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Live editor + output panels */
+.mpy-code-editor {
+  width: 100%;
+  min-height: 120px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px 8px 0 0;
+  background: var(--bg-code);
+  color: var(--text-primary);
+  tab-size: 4;
+  resize: vertical;
+  outline: none;
+  display: block;
+}
+.mpy-code-editor:focus {
+  border-color: var(--accent);
+}
+.mpy-btn-row {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  align-items: center;
+}
+.mpy-btn-row .mpy-run-btn {
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent-green);
+  color: #fff;
+  transition: opacity 0.2s;
+}
+.mpy-btn-row .mpy-run-btn:hover { opacity: 0.85; }
+.mpy-btn-row .mpy-clear-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.mpy-btn-row .mpy-clear-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+.mpy-btn-row .mpy-status {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.mpy-output {
+  margin-top: 8px;
+  padding: 12px;
+  min-height: 20px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  background: var(--bg-code);
+  color: var(--accent-green);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.mpy-output:empty { display: none; }
+.mpy-output.has-error { color: var(--accent-red); }
+
+.mpy-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.mpy-banner-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+.mpy-banner-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.mpy-banner-text strong {
+  color: var(--text-primary);
+}
+.mpy-banner-text code {
+  background: var(--bg-tertiary);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+</style>
+<link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css">
+<script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+  <span id="theme-icon">&#9790;</span>
+</button>
+
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" onclick="toggleSidebar()">&#9776;</button>
+
+<!-- Sidebar / TOC -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">MicroPython</div>
+  <div class="sidebar-version">v1.28.0 Release Notes</div>
+  <ul class="toc">
+    <li><a href="#hero" data-section="hero">Overview</a></li>
+    <div class="toc-divider"></div>
+    <li><a href="#pwm" data-section="pwm">machine.PWM</a></li>
+    <li><a href="#can" data-section="can">machine.CAN</a></li>
+    <li><a href="#tstrings" data-section="tstrings">Template Strings</a></li>
+    <li><a href="#weakref" data-section="weakref">weakref Module</a></li>
+    <div class="toc-divider"></div>
+    <div class="toc-divider"></div>
+    <li><a href="#highlights" data-section="highlights">Highlights</a></li>
+    <li><a href="#boards" data-section="boards">New Boards</a></li>
+    <li><a href="#numbers" data-section="numbers">By the Numbers</a></li>
+  </ul>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-badge">New Release</div>
+    <h1>MicroPython <span>v1.28</span></h1>
+    <p class="hero-tagline">PWM on alif and stm32, a new standardized machine.CAN API, PEP 750 template strings, and the weakref module.</p>
+    <p class="hero-date">Released April 6, 2026</p>
+  </section>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <a class="summary-card" href="#pwm" style="text-decoration:none">
+      <span class="card-icon">&#9889;</span>
+      <div class="card-title">machine.PWM</div>
+      <div class="card-desc">PWM on every Tier 1 &amp; 2 port</div>
+    </a>
+    <a class="summary-card" href="#can" style="text-decoration:none">
+      <span class="card-icon">&#128674;</span>
+      <div class="card-title">machine.CAN</div>
+      <div class="card-desc">Standardized CAN bus API</div>
+    </a>
+    <a class="summary-card" href="#tstrings" style="text-decoration:none">
+      <span class="card-icon">&#128196;</span>
+      <div class="card-title">t-strings</div>
+      <div class="card-desc">PEP 750 template strings</div>
+    </a>
+    <a class="summary-card" href="#weakref" style="text-decoration:none">
+      <span class="card-icon">&#128279;</span>
+      <div class="card-title">weakref</div>
+      <div class="card-desc">GC callbacks &amp; weak references</div>
+    </a>
+  </div>
+
+  <!-- Stats Ribbon -->
+  <div class="stats-ribbon">
+    <div class="stat-item">
+      <span class="stat-number counter" data-target="40">0</span>
+      <span class="stat-label">Contributors</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number counter" data-target="14">0</span>
+      <span class="stat-label">Timezones</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number counter" data-target="11">0</span>
+      <span class="stat-label">New Boards</span>
+    </div>
+  </div>
+
+  <!-- MicroPython-in-browser banner -->
+  <div class="mpy-banner">
+    <span class="mpy-banner-icon">&#9889;</span>
+    <div class="mpy-banner-text">
+      <strong>The t-string and weakref output on this page is generated by real MicroPython</strong>
+      running in your browser via <a href="https://pyscript.net/" target="_blank">PyScript</a>.
+      MicroPython is compiled to WebAssembly (~170 KB) and executes live as the page loads &mdash;
+      no server required.
+    </div>
+  </div>
+
+  <!-- ===== SECTION: PWM ===== -->
+  <section class="section" id="pwm">
+    <div class="section-header">
+      <span class="section-badge new">New</span>
+      <h2>machine.PWM &mdash; PWM Everywhere</h2>
+      <p class="section-desc">
+        PWM support has finally been added to the stm32 and alif ports, completing coverage across
+        <strong>all Tier 1 and Tier 2 microcontroller-based ports</strong>. Create and control PWM outputs
+        in a consistent way, no matter which board you're running on.
+      </p>
+    </div>
+
+    <!-- Interactive PWM Demo -->
+    <div class="demo-container">
+      <div class="demo-label">Interactive Demo &mdash; PWM Waveform Playground</div>
+
+      <div class="pwm-controls">
+        <div class="pwm-slider-group">
+          <label>Frequency</label>
+          <span class="slider-value" id="freq-display">1000 Hz</span>
+          <input type="range" id="freq-slider" min="100" max="10000" value="1000" step="100">
+        </div>
+        <div class="pwm-slider-group">
+          <label>Duty Cycle (duty_u16)</label>
+          <span class="slider-value" id="duty-display">32768 (50%)</span>
+          <input type="range" id="duty-slider" min="0" max="65535" value="32768" step="256">
+        </div>
+      </div>
+
+      <div class="pwm-waveform-wrap">
+        <canvas id="pwm-canvas"></canvas>
+      </div>
+
+      <!-- Live code -->
+      <div class="code-block" id="pwm-code-block">
+        <div class="code-header">
+          <span>main.py</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre id="pwm-live-code"><span class="kw">from</span> machine <span class="kw">import</span> Pin, PWM
+
+pwm = PWM(Pin(<span class="num">0</span>), freq=<span class="num">1000</span>, duty_u16=<span class="num">32768</span>)
+<span class="cmt"># 50.0% duty cycle at 1000 Hz</span>
+<span class="cmt"># Pulse width: 500000 ns</span></pre>
+      </div>
+    </div>
+
+    <!-- Port Support Matrix -->
+    <h3 style="font-size:18px; margin-bottom:12px; margin-top:8px;">PWM Port Support</h3>
+    <p style="font-size:14px; color:var(--text-secondary); margin-bottom:12px;">
+      All Tier 1 and Tier 2 ports now have <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:12px;">machine.PWM</code> support.
+      Ports added in v1.28 are highlighted.
+    </p>
+    <div class="port-matrix" id="port-matrix">
+      <div class="port-chip"><span class="check">&#10003;</span> esp32</div>
+      <div class="port-chip"><span class="check">&#10003;</span> esp8266</div>
+      <div class="port-chip"><span class="check">&#10003;</span> rp2</div>
+      <div class="port-chip"><span class="check">&#10003;</span> nrf</div>
+      <div class="port-chip"><span class="check">&#10003;</span> samd</div>
+      <div class="port-chip"><span class="check">&#10003;</span> mimxrt</div>
+      <div class="port-chip"><span class="check">&#10003;</span> renesas-ra</div>
+      <div class="port-chip new-in-128"><span class="check">&#10003;</span> stm32 <small style="color:var(--accent-green);">NEW</small></div>
+      <div class="port-chip new-in-128"><span class="check">&#10003;</span> alif <small style="color:var(--accent-green);">NEW</small></div>
+    </div>
+
+    <div class="callout" style="margin-top:24px;">
+      <div class="callout-title">stm32 Highlight</div>
+      The stm32 implementation works across all 14 MCU families. A heuristic statically assigns the
+      optimal TIM and channel to each pin to maximise independent PWM outputs. Supports
+      <code style="font-size:12px;">freq()</code>, <code style="font-size:12px;">duty_u16()</code>,
+      <code style="font-size:12px;">duty_ns()</code>, and output inversion.
+    </div>
+  </section>
+
+  <!-- ===== SECTION: CAN ===== -->
+  <section class="section" id="can">
+    <div class="section-header">
+      <span class="section-badge new">New</span>
+      <h2>machine.CAN &mdash; CAN Bus Goes Standard</h2>
+      <p class="section-desc">
+        After years of development, MicroPython now has a finalized, standardized CAN bus API with
+        documentation, comprehensive tests, and an implementation for the stm32 port. A consistent
+        way to use CAN across all ports&mdash;other implementations will follow soon.
+      </p>
+    </div>
+
+    <div class="demo-container">
+      <div class="demo-label">Interactive Demo &mdash; CAN Bus Network</div>
+
+      <div class="can-demo-layout">
+        <div>
+          <svg class="can-bus-svg" viewBox="0 0 400 220" id="can-svg">
+            <!-- CAN Bus Line -->
+            <line x1="40" y1="110" x2="360" y2="110" stroke="var(--text-muted)" stroke-width="3" stroke-dasharray="8,4"/>
+            <text x="200" y="130" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">CAN Bus (500 kbit/s)</text>
+
+            <!-- Node A -->
+            <rect x="20" y="30" width="100" height="50" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent)" stroke-width="2" id="can-node-a"/>
+            <text x="70" y="52" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="bold" font-family="var(--font-sans)">Node A</text>
+            <text x="70" y="68" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">STM32 (bxCAN)</text>
+            <line x1="70" y1="80" x2="70" y2="110" stroke="var(--accent)" stroke-width="2"/>
+
+            <!-- Node B -->
+            <rect x="150" y="30" width="100" height="50" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-green)" stroke-width="2" id="can-node-b"/>
+            <text x="200" y="52" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="bold" font-family="var(--font-sans)">Node B</text>
+            <text x="200" y="68" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">STM32 (FD-CAN)</text>
+            <line x1="200" y1="80" x2="200" y2="110" stroke="var(--accent-green)" stroke-width="2"/>
+
+            <!-- Node C -->
+            <rect x="280" y="30" width="100" height="50" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-purple)" stroke-width="2" id="can-node-c"/>
+            <text x="330" y="52" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="bold" font-family="var(--font-sans)">Node C</text>
+            <text x="330" y="68" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">Coming Soon</text>
+            <line x1="330" y1="80" x2="330" y2="110" stroke="var(--accent-purple)" stroke-width="2" stroke-dasharray="4,3"/>
+
+            <!-- Termination -->
+            <rect x="20" y="150" width="40" height="24" rx="4" fill="var(--bg-tertiary)" stroke="var(--border)" stroke-width="1"/>
+            <text x="40" y="166" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-family="var(--font-mono)">120&#8486;</text>
+            <line x1="40" y1="110" x2="40" y2="150" stroke="var(--text-muted)" stroke-width="1"/>
+
+            <rect x="340" y="150" width="40" height="24" rx="4" fill="var(--bg-tertiary)" stroke="var(--border)" stroke-width="1"/>
+            <text x="360" y="166" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-family="var(--font-mono)">120&#8486;</text>
+            <line x1="360" y1="110" x2="360" y2="150" stroke="var(--text-muted)" stroke-width="1"/>
+
+            <!-- Message packet (animated) -->
+            <g id="can-packet" style="display:none;">
+              <rect x="-20" y="-10" width="40" height="20" rx="4" fill="var(--accent)" opacity="0.9"/>
+              <text x="0" y="4" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="var(--font-mono)">0x123</text>
+            </g>
+          </svg>
+
+          <div class="can-controls">
+            <button class="btn btn-primary" onclick="canSendMessage('a-to-b')">A &#8594; B: Send</button>
+            <button class="btn btn-secondary" onclick="canSendMessage('b-to-a')">B &#8594; A: Reply</button>
+          </div>
+
+          <div class="can-log" id="can-log">
+            <div style="color:var(--text-muted);">&#8250; Ready. Click Send to transmit a CAN frame.</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="code-block">
+            <div class="code-header">
+              <span>can_example.py</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><span class="kw">from</span> machine <span class="kw">import</span> CAN
+
+<span class="cmt"># Initialize CAN bus</span>
+can = CAN(<span class="num">1</span>, CAN.NORMAL, baudrate=<span class="num">500_000</span>)
+
+<span class="cmt"># Send a message</span>
+can.send(<span class="str">b'\x01\x02\x03'</span>, id=<span class="num">0x123</span>)
+
+<span class="cmt"># Receive a message</span>
+msg = can.recv()
+<span class="bi">print</span>(<span class="str">f"ID: </span>{msg[<span class="num">0</span>]:<span class="str">#x}, Data: </span>{msg[<span class="num">1</span>]}<span class="str">"</span>)</pre>
+          </div>
+
+          <div class="can-badges">
+            <span class="badge active">bxCAN</span>
+            <span class="badge active">FD-CAN</span>
+            <span class="badge coming">esp32 &mdash; Coming Soon</span>
+            <span class="badge coming">rp2 &mdash; Coming Soon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: T-STRINGS ===== -->
+  <section class="section" id="tstrings">
+    <div class="section-header">
+      <span class="section-badge new">New &mdash; PEP 750</span>
+      <h2>Template Strings (t-strings)</h2>
+      <p class="section-desc">
+        Template strings are a new string literal type that keeps interpolation components as separate
+        objects within a <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">Template</code>,
+        rather than concatenating them like f-strings. This enables safer string processing, custom renderers,
+        and structured string handling.
+      </p>
+    </div>
+
+    <div class="demo-container">
+      <div class="demo-label">Interactive Demo &mdash; f-string vs t-string</div>
+
+      <div class="tstring-toggle">
+        <button class="active" onclick="switchTstringMode('fstring', this)">f"..."</button>
+        <button onclick="switchTstringMode('tstring', this)">t"..."</button>
+      </div>
+
+      <div class="tstring-output">
+        <div class="tstring-pane">
+          <h4>Input Code</h4>
+          <div id="tstring-input" style="font-family:var(--font-mono); font-size:13px; line-height:1.8;">
+            name = <span class="str">"MicroPython"</span><br>
+            version = <span class="num">1.28</span><br><br>
+            result = <span class="kw" id="tstring-prefix">f</span><span class="str">"Welcome to {name} v{version}"</span>
+          </div>
+        </div>
+        <div class="tstring-pane">
+          <h4 id="tstring-output-title">Output &mdash; String</h4>
+          <div id="tstring-result" class="template-obj">
+            <span class="str">"Welcome to MicroPython v1.28"</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:20px;">
+        <div class="callout-title">Bonus: Nested f-strings now work!</div>
+        As a byproduct of the t-string parser, f-strings can now be nested within f-string expressions:<br>
+        <code style="font-family:var(--font-mono); font-size:12px; margin-top:6px; display:inline-block; color:var(--accent);">
+          f"{'yes' if f'{x}' == '1' else 'no'}"
+        </code>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span>tstring_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">from</span> string.templatelib <span class="kw">import</span> Template
+
+name = <span class="str">"MicroPython"</span>
+version = <span class="num">1.28</span>
+
+<span class="cmt"># f-string: produces a concatenated string</span>
+greeting = <span class="str">f"Welcome to </span>{name}<span class="str"> v</span>{version}<span class="str">"</span>
+<span class="cmt"># &rarr; "Welcome to MicroPython v1.28"</span>
+
+<span class="cmt"># t-string: produces a Template object</span>
+template = <span class="str">t"Welcome to </span>{name}<span class="str"> v</span>{version}<span class="str">"</span>
+<span class="cmt"># &rarr; Template(strings=('Welcome to ', ' v', ''),</span>
+<span class="cmt">#              interpolations=(Interpolation('MicroPython', 'name'),</span>
+<span class="cmt">#                              Interpolation(1.28, 'version')))</span>
+
+<span class="cmt"># Process template components individually</span>
+<span class="kw">for</span> part <span class="kw">in</span> template:
+    <span class="bi">print</span>(<span class="bi">type</span>(part), <span class="bi">repr</span>(part))</pre>
+    </div>
+
+    <!-- Live Playground: t-strings (editable, real MicroPython via PyScript) -->
+    <div class="demo-container live-playground" id="try-live">
+      <div class="demo-label">
+        Try It Live &mdash; Real MicroPython in Your Browser
+        <span class="pyscript-tag">PyScript</span>
+      </div>
+      <p class="playground-intro">
+        Edit the code below and click <strong>Run</strong> to execute it with real MicroPython
+        compiled to WebAssembly (~170 KB). No server required.
+      </p>
+
+      <div class="playground-group">
+        <h4>f-string vs t-string</h4>
+        <textarea class="mpy-code-editor" id="mpy-code-tstring" rows="12">name = "MicroPython"
+version = 1.28
+
+# f-string: concatenates into a str
+greeting = f"Welcome to {name} v{version}"
+print(f"f-string type:  {type(greeting)}")
+print(f"f-string value: {greeting}")
+print()
+
+# t-string: keeps structure as a Template object
+template = t"Welcome to {name} v{version}"
+print(f"t-string type:  {type(template)}")
+print()
+for i, part in enumerate(template):
+    print(f"  part {i}: {type(part).__name__:15s} {part!r}")</textarea>
+        <div class="mpy-btn-row">
+          <button class="mpy-run-btn" id="run-tstring">Run</button>
+          <button class="mpy-clear-btn" id="clear-tstring">Clear</button>
+          <span class="mpy-status" id="mpy-status">Loading MicroPython...</span>
+        </div>
+        <div class="mpy-output" id="out-tstring"></div>
+      </div>
+
+      <div class="playground-group">
+        <h4>Nested f-strings</h4>
+        <textarea class="mpy-code-editor" id="mpy-code-nested" rows="7">x = 42
+
+# Nested f-strings now work in v1.28!
+result = f"{'even' if f'{x % 2}' == '0' else 'odd'}"
+print(f"{x} is {result}")
+
+items = ["PWM", "CAN", "t-strings"]
+print(f"New in v1.28: {f', '.join(items)}")</textarea>
+        <div class="mpy-btn-row">
+          <button class="mpy-run-btn" id="run-nested">Run</button>
+          <button class="mpy-clear-btn" id="clear-nested">Clear</button>
+        </div>
+        <div class="mpy-output" id="out-nested"></div>
+      </div>
+    </div>
+
+    <p style="font-size:14px; color:var(--text-secondary); margin-top:16px;">
+      Enabled on: <strong>alif</strong>, <strong>mimxrt</strong>, <strong>samd</strong> (SAMD51), and <strong>webassembly</strong> (pyscript) ports.
+    </p>
+  </section>
+
+  <!-- ===== SECTION: WEAKREF ===== -->
+  <section class="section" id="weakref">
+    <div class="section-header">
+      <span class="section-badge new">New</span>
+      <h2>weakref Module</h2>
+      <p class="section-desc">
+        The new <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">weakref</code>
+        module adds <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">weakref.ref</code>
+        and <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">weakref.finalize</code>
+        for registering callbacks when objects are reclaimed by the garbage collector. Follows CPython semantics closely.
+      </p>
+    </div>
+
+    <div class="demo-container">
+      <div class="demo-label">Interactive Demo &mdash; GC Lifecycle Visualizer</div>
+
+      <div class="gc-demo-area">
+        <div class="gc-visual" id="gc-visual">
+          <svg width="100%" height="280" id="gc-svg" style="position:absolute; top:0; left:0; pointer-events:none;">
+            <!-- Arrows drawn by JS -->
+          </svg>
+          <!-- Objects positioned by CSS -->
+          <div class="gc-object alive" id="gc-app" style="left:10px; top:10px;">
+            <span class="obj-type">module</span>app
+          </div>
+          <div class="gc-object alive" id="gc-sensor" style="left:160px; top:10px;">
+            <span class="obj-type">Sensor</span>sensor
+          </div>
+          <div class="gc-object alive" id="gc-buffer" style="left:160px; top:100px;">
+            <span class="obj-type">bytearray</span>buffer
+          </div>
+          <div class="gc-object weak-ref" id="gc-weakref" style="left:10px; top:100px;">
+            <span class="obj-type">weakref</span>ref(sensor)
+          </div>
+          <div class="gc-object alive" id="gc-finalize" style="left:10px; top:190px;">
+            <span class="obj-type">weakref</span>finalize
+          </div>
+        </div>
+
+        <div class="gc-sidebar">
+          <button class="btn btn-primary" id="gc-step-btn" onclick="gcStep()" style="width:100%; margin-bottom:8px;">
+            Step 1: Delete strong ref
+          </button>
+          <button class="btn btn-secondary" onclick="gcReset()" style="width:100%;">Reset</button>
+
+          <div class="gc-console" id="gc-console">
+            <div style="color:var(--text-muted);">&#8250; All objects are alive.</div>
+            <div style="color:var(--text-muted);">&#8250; app holds a strong ref to sensor.</div>
+            <div style="color:var(--text-muted);">&#8250; weakref.ref tracks sensor (dashed).</div>
+          </div>
+
+          <div class="gc-legend">
+            <span><span class="legend-line strong"></span> Strong ref</span>
+            <span><span class="legend-line weak"></span> Weak ref</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span>weakref_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">import</span> weakref
+
+<span class="kw">class</span> <span class="fn">Sensor</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, pin):
+        self.pin = pin
+        self.buffer = <span class="bi">bytearray</span>(<span class="num">1024</span>)
+
+<span class="cmt"># Create sensor and register cleanup callback</span>
+sensor = Sensor(<span class="num">4</span>)
+weakref.finalize(sensor, <span class="kw">lambda</span> p: <span class="bi">print</span>(<span class="str">f"Pin </span>{p}<span class="str"> sensor cleaned up"</span>), <span class="num">4</span>)
+
+<span class="cmt"># Create a weak reference</span>
+ref = weakref.ref(sensor)
+<span class="bi">print</span>(ref())       <span class="cmt"># &lt;Sensor object&gt;</span>
+
+<span class="cmt"># Delete the strong reference</span>
+<span class="kw">del</span> sensor
+<span class="cmt"># When GC runs: "Pin 4 sensor cleaned up"</span>
+<span class="bi">print</span>(ref())       <span class="cmt"># None</span></pre>
+    </div>
+
+    <!-- Live Playground: weakref (editable, real MicroPython via PyScript) -->
+    <div class="demo-container live-playground">
+      <div class="demo-label">
+        Try It Live &mdash; weakref in Action
+        <span class="pyscript-tag">PyScript</span>
+      </div>
+      <p class="playground-intro">
+        The <code style="background:var(--bg-tertiary); padding:1px 5px; border-radius:3px; font-size:12px;">weakref</code>
+        module is enabled on the webassembly/pyscript port &mdash; edit and run this code right in your browser.
+      </p>
+
+      <div class="playground-group">
+        <h4>weakref.ref and weakref.finalize</h4>
+        <textarea class="mpy-code-editor" id="mpy-code-weakref" rows="18">import weakref
+import gc
+
+class Sensor:
+    def __init__(self, pin):
+        self.pin = pin
+        self.buffer = bytearray(64)
+    def __repr__(self):
+        return f"Sensor(pin={self.pin})"
+
+def cleanup(pin_num):
+    print(f"  -> finalize: Sensor on pin {pin_num} cleaned up!")
+
+sensor = Sensor(4)
+weakref.finalize(sensor, cleanup, 4)
+ref = weakref.ref(sensor)
+
+print(f"Before del: ref() = {ref()}")
+
+del sensor
+print("Running gc.collect()...")
+gc.collect()
+
+print(f"After GC:   ref() = {ref()}")</textarea>
+        <div class="mpy-btn-row">
+          <button class="mpy-run-btn" id="run-weakref">Run</button>
+          <button class="mpy-clear-btn" id="clear-weakref">Clear</button>
+        </div>
+        <div class="mpy-output" id="out-weakref"></div>
+      </div>
+    </div>
+
+    <p style="font-size:14px; color:var(--text-secondary); margin-top:16px;">
+      Currently enabled on the <strong>webassembly</strong> (pyscript) port. Can be manually enabled on any port.
+    </p>
+  </section>
+
+  <!-- ===== SECTION: HIGHLIGHTS ===== -->
+  <section class="section" id="highlights">
+    <div class="section-header">
+      <h2>Highlights</h2>
+      <p class="section-desc">Other notable improvements in this release.</p>
+    </div>
+
+    <div class="highlights-grid">
+      <div class="highlight-card">
+        <span class="hl-icon">&#128190;</span>
+        <h3>VfsRom Filesystem Expansion</h3>
+        <p>ROM filesystem support is now available on more ports, making it easier to include read-only assets in your firmware.</p>
+        <div class="hl-ports">
+          <span class="hl-port-tag">mimxrt</span>
+          <span class="hl-port-tag">nrf</span>
+          <span class="hl-port-tag">renesas-ra</span>
+          <span class="hl-port-tag">samd</span>
+        </div>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128260;</span>
+        <h3>machine.Counter &amp; Encoder</h3>
+        <p>The mimxrt port now implements quadrature encoder and counter classes with IRQ callbacks, index/reset/match pins, and cycle counting.</p>
+        <div class="hl-ports">
+          <span class="hl-port-tag">mimxrt</span>
+        </div>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128230;</span>
+        <h3>RISC-V Zcmp Opcodes</h3>
+        <p>Compressed instructions for RV32 targets produce smaller native code. Enabled for ESP32-P4 and RP2350 in RV32 mode.</p>
+        <div class="hl-ports">
+          <span class="hl-port-tag">esp32</span>
+          <span class="hl-port-tag">rp2</span>
+        </div>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#127769;</span>
+        <h3>alif Deep Sleep</h3>
+        <p>Improved deepsleep power saving with wake-up from a falling GPIO edge or RTC alarm via the standard <code style="font-size:12px;">machine.deepsleep(timeout_ms)</code>.</p>
+        <div class="hl-ports">
+          <span class="hl-port-tag">alif</span>
+        </div>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128640;</span>
+        <h3>mimxrt Upgrades</h3>
+        <p>PSRAM support, DP83867 PHY Ethernet driver, and RTC resolution increased from 1 second to 1/32768 seconds. SDK updated to MCUX 2.16.100.</p>
+        <div class="hl-ports">
+          <span class="hl-port-tag">mimxrt</span>
+        </div>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128736;</span>
+        <h3>pico-sdk 2.2.0</h3>
+        <p>The rp2 port has been updated to pico-sdk 2.2.0, switching all RNG sources from ROSC to the new <code style="font-size:12px;">pico_rand</code> component.</p>
+        <div class="hl-ports">
+          <span class="hl-port-tag">rp2</span>
+        </div>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#129517;</span>
+        <h3>Xtensa Inline Assembler</h3>
+        <p>Inline assembler support extended to windowed Xtensa cores, expanding native code capabilities on the esp32.</p>
+        <div class="hl-ports">
+          <span class="hl-port-tag">esp32</span>
+        </div>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#129500;</span>
+        <h3>Design Values</h3>
+        <p>A new section in the main README articulating MicroPython's design philosophy. All users and developers are encouraged to <a href="https://github.com/micropython/micropython/blob/master/README.md#micropython-design-values" target="_blank">read it</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: NEW BOARDS ===== -->
+  <section class="section" id="boards">
+    <div class="section-header">
+      <h2>New Boards</h2>
+      <p class="section-desc">11 new board definitions added across 4 ports.</p>
+    </div>
+
+    <div class="board-gallery">
+      <div class="board-port-group">
+        <h4>rp2 (7 boards)</h4>
+        <div class="board-list">
+          <span class="board-chip">CYTRON_NANOXRP_CONTROLLER</span>
+          <span class="board-chip">CYTRON_MOTION_2350_PRO</span>
+          <span class="board-chip">WAVESHARE_RP2350B_CORE</span>
+          <span class="board-chip">WAVESHARE_RP2040_LCD_0_96</span>
+          <span class="board-chip">WAVESHARE_RP2040_PLUS</span>
+          <span class="board-chip">WAVESHARE_RP2040_ZERO</span>
+          <span class="board-chip">SEEED_XIAO_RP2040</span>
+        </div>
+      </div>
+      <div class="board-port-group">
+        <h4>esp32 (2 boards)</h4>
+        <div class="board-list">
+          <span class="board-chip">SPARKFUN_THINGPLUS_ESP32C5</span>
+          <span class="board-chip">SEEED_XIAO_ESP32C6</span>
+        </div>
+      </div>
+      <div class="board-port-group">
+        <h4>stm32 (2 boards)</h4>
+        <div class="board-list">
+          <span class="board-chip">NUCLEO_H753ZI</span>
+          <span class="board-chip">WEACTSTUDIO_MINI_STM32U585</span>
+        </div>
+      </div>
+      <div class="board-port-group">
+        <h4>mimxrt (1 board)</h4>
+        <div class="board-list">
+          <span class="board-chip">PHYBOARD_RT1170</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: BY THE NUMBERS ===== -->
+  <section class="section" id="numbers">
+    <div class="section-header">
+      <h2>By the Numbers</h2>
+    </div>
+
+    <div class="numbers-grid">
+      <div class="number-card">
+        <span class="big-number counter" data-target="40">0</span>
+        <span class="number-label">Contributors</span>
+      </div>
+      <div class="number-card">
+        <span class="big-number counter" data-target="14">0</span>
+        <span class="number-label">Timezones</span>
+      </div>
+      <div class="number-card">
+        <span class="big-number counter" data-target="11">0</span>
+        <span class="number-label">New Boards</span>
+      </div>
+    </div>
+
+    <div class="code-size-chart">
+      <h3>Code Size Changes</h3>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">
+        Change in .text section size since v1.27. Hover for details.
+      </p>
+
+      <div id="code-size-rows">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/micropython/micropython/releases/tag/v1.28.0" target="_blank">Full Changelog on GitHub</a>
+      <a href="https://micropython.org/download/" target="_blank">Download Firmware</a>
+      <a href="https://docs.micropython.org/" target="_blank">Documentation</a>
+      <a href="https://github.com/micropython/micropython" target="_blank">Source Code</a>
+    </div>
+
+    <div class="funding">
+      Funded in part through <strong>GitHub Sponsors</strong>, and in part by
+      <strong>George Robotics</strong>, <strong>Espressif</strong>, <strong>Arduino</strong>,
+      <strong>OpenMV</strong>, and <strong>Planet Innovation</strong>.
+    </div>
+
+    <button class="contributors-toggle" onclick="toggleContributors()">Show all 40 contributors</button>
+    <div class="contributors-list" id="contributors-list">
+      Alessandro Gatti, Algy Tynan, Alon Bar-Lev, Andrew Leech, Angus Gratton, Anson Mansfield,
+      Antonio Galea, Artem Makarov, Chris Webb, Damien George, Daniel van de Giessen, Didier C,
+      Dryw Wade, Elvis Pfutzenreuter, EngWill, FH, Fin Maass, iabdalkader, Jack Whitham,
+      Jacob Williams, Jeff Epler, jetpax, Jos Verlinde, Koudai Aono, Kwabena W. Agyeman,
+      Matt Trentini, Matthias Urlichs, mdaeron, Michel Le Bihan, Ned Konz, Oliver Joos,
+      Paul Grayson, Peter Harper, Phil Howard, robert-hh, stijn, sync-on-luma, Thomas Kiss,
+      Thomas Propst, Yuuki NAGAO.
+    </div>
+
+    <p style="margin-top:32px; font-size:12px; color:var(--text-muted);">
+      MicroPython is an Open Source project &bull; MIT License<br>
+      Interactive examples powered by <a href="https://pyscript.net/" target="_blank">PyScript</a>
+      &mdash; MicroPython running in your browser via WebAssembly
+    </p>
+  </footer>
+
+<!-- PyScript: single MicroPython block wiring up all editable playgrounds -->
+<script type="mpy">
+from pyscript import document, when
+import sys
+
+# Update status
+status_el = document.querySelector("#mpy-status")
+if status_el:
+    status_el.innerText = f"MicroPython {sys.version} ready"
+
+def run_editor(code_id, out_id):
+    """Read code from textarea, exec with captured print, write output."""
+    code = document.querySelector("#" + code_id).value
+    out_el = document.querySelector("#" + out_id)
+    out_el.classList.remove("has-error")
+
+    lines = []
+    def _print(*args, sep=" ", end="\n"):
+        lines.append(sep.join(str(a) for a in args) + end)
+
+    try:
+        exec(code, {"print": _print})
+        output = "".join(lines)
+        if not output:
+            output = "(no output)"
+    except Exception as e:
+        output = type(e).__name__ + ": " + str(e)
+        out_el.classList.add("has-error")
+
+    out_el.innerText = output
+
+# --- t-string editors ---
+@when("click", "#run-tstring")
+def _r1(ev):
+    run_editor("mpy-code-tstring", "out-tstring")
+
+@when("click", "#clear-tstring")
+def _c1(ev):
+    document.querySelector("#out-tstring").innerText = ""
+
+@when("click", "#run-nested")
+def _r2(ev):
+    run_editor("mpy-code-nested", "out-nested")
+
+@when("click", "#clear-nested")
+def _c2(ev):
+    document.querySelector("#out-nested").innerText = ""
+
+# --- weakref editor ---
+@when("click", "#run-weakref")
+def _r3(ev):
+    run_editor("mpy-code-weakref", "out-weakref")
+
+@when("click", "#clear-weakref")
+def _c3(ev):
+    document.querySelector("#out-weakref").innerText = ""
+
+# Auto-run the first editor on load so users see output immediately
+run_editor("mpy-code-tstring", "out-tstring")
+</script>
+
+</div><!-- end .main -->
+
+<script>
+// ===== Theme Toggle =====
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-icon').innerHTML = next === 'dark' ? '&#9790;' : '&#9728;';
+  // Redraw PWM canvas for theme change
+  drawPWM();
+  drawGCArrows();
+}
+
+// ===== Mobile Sidebar Toggle =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ===== Scrollspy =====
+const sections = document.querySelectorAll('.section, .hero');
+const tocLinks = document.querySelectorAll('.toc a');
+
+const scrollObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      tocLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-section') === id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(section => scrollObserver.observe(section));
+
+// Close sidebar on mobile when clicking a link
+tocLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 1024) {
+      document.getElementById('sidebar').classList.remove('open');
+    }
+  });
+});
+
+// ===== Copy Code =====
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ===== PWM Waveform Demo =====
+const freqSlider = document.getElementById('freq-slider');
+const dutySlider = document.getElementById('duty-slider');
+const freqDisplay = document.getElementById('freq-display');
+const dutyDisplay = document.getElementById('duty-display');
+const pwmCanvas = document.getElementById('pwm-canvas');
+const pwmCtx = pwmCanvas.getContext('2d');
+
+function drawPWM() {
+  const rect = pwmCanvas.parentElement.getBoundingClientRect();
+  pwmCanvas.width = rect.width - 32;
+  pwmCanvas.height = 120;
+
+  const freq = parseInt(freqSlider.value);
+  const duty = parseInt(dutySlider.value);
+  const dutyFrac = duty / 65535;
+  const dutyPercent = (dutyFrac * 100).toFixed(1);
+  const pulseNs = Math.round((dutyFrac / freq) * 1e9);
+
+  freqDisplay.textContent = freq >= 1000 ? (freq / 1000).toFixed(1) + ' kHz' : freq + ' Hz';
+  dutyDisplay.textContent = duty + ' (' + dutyPercent + '%)';
+
+  // Update live code
+  document.getElementById('pwm-live-code').innerHTML =
+    '<span class="kw">from</span> machine <span class="kw">import</span> Pin, PWM\n\n' +
+    'pwm = PWM(Pin(<span class="num">0</span>), freq=<span class="num">' + freq + '</span>, duty_u16=<span class="num">' + duty + '</span>)\n' +
+    '<span class="cmt"># ' + dutyPercent + '% duty cycle at ' + freq + ' Hz</span>\n' +
+    '<span class="cmt"># Pulse width: ' + pulseNs.toLocaleString() + ' ns</span>';
+
+  const w = pwmCanvas.width;
+  const h = pwmCanvas.height;
+  const padding = 16;
+  const waveH = h - padding * 2;
+  const highY = padding + 10;
+  const lowY = h - padding - 10;
+
+  // Styling
+  const style = getComputedStyle(document.documentElement);
+  const lineColor = style.getPropertyValue('--pwm-line').trim();
+  const highColor = style.getPropertyValue('--pwm-high').trim();
+  const gridColor = style.getPropertyValue('--border').trim();
+  const textColor = style.getPropertyValue('--text-muted').trim();
+
+  pwmCtx.clearRect(0, 0, w, h);
+
+  // Grid lines
+  pwmCtx.strokeStyle = gridColor;
+  pwmCtx.lineWidth = 0.5;
+  pwmCtx.setLineDash([4, 4]);
+  pwmCtx.beginPath();
+  pwmCtx.moveTo(padding, highY); pwmCtx.lineTo(w - padding, highY);
+  pwmCtx.moveTo(padding, lowY); pwmCtx.lineTo(w - padding, lowY);
+  pwmCtx.stroke();
+  pwmCtx.setLineDash([]);
+
+  // Labels
+  pwmCtx.fillStyle = textColor;
+  pwmCtx.font = '10px monospace';
+  pwmCtx.textAlign = 'right';
+  pwmCtx.fillText('HIGH', padding - 4, highY + 4);
+  pwmCtx.fillText('LOW', padding - 4, lowY + 4);
+
+  // Draw waveform
+  // Scale cycles with frequency: 2 at 100Hz, up to ~20 at 10kHz
+  const drawWidth = w - padding * 2;
+  const minCycleW = 30; // minimum pixels per cycle to stay legible
+  const maxCycles = Math.floor(drawWidth / minCycleW);
+  const numCycles = Math.min(Math.max(2, Math.round(freq / 400)), maxCycles);
+  const cycleW = drawWidth / numCycles;
+  const highW = cycleW * dutyFrac;
+
+  pwmCtx.beginPath();
+  pwmCtx.strokeStyle = lineColor;
+  pwmCtx.lineWidth = 2.5;
+  pwmCtx.lineJoin = 'miter';
+
+  let x = padding;
+  pwmCtx.moveTo(x, lowY);
+
+  for (let i = 0; i < numCycles; i++) {
+    // Rising edge
+    pwmCtx.lineTo(x, highY);
+    // High period
+    pwmCtx.lineTo(x + highW, highY);
+    // Falling edge
+    pwmCtx.lineTo(x + highW, lowY);
+    // Low period
+    pwmCtx.lineTo(x + cycleW, lowY);
+    x += cycleW;
+  }
+  pwmCtx.stroke();
+
+  // Fill high regions with semi-transparent green
+  pwmCtx.fillStyle = highColor + '30';
+  x = padding;
+  for (let i = 0; i < numCycles; i++) {
+    pwmCtx.fillRect(x, highY, highW, lowY - highY);
+    x += cycleW;
+  }
+
+  // Period annotation on first cycle
+  if (cycleW > 60) {
+    const annotY = lowY + 18;
+    pwmCtx.fillStyle = textColor;
+    pwmCtx.font = '10px monospace';
+    pwmCtx.textAlign = 'center';
+    const periodUs = (1e6 / freq).toFixed(freq < 1000 ? 0 : 1);
+    pwmCtx.fillText('T = ' + periodUs + ' \u00B5s', padding + cycleW / 2, annotY);
+  }
+}
+
+freqSlider.addEventListener('input', drawPWM);
+dutySlider.addEventListener('input', drawPWM);
+window.addEventListener('resize', () => { drawPWM(); drawGCArrows(); });
+drawPWM();
+
+// ===== CAN Bus Demo =====
+let canAnimating = false;
+let canMsgCount = 0;
+
+function canSendMessage(direction) {
+  if (canAnimating) return;
+  canAnimating = true;
+  canMsgCount++;
+
+  const packet = document.getElementById('can-packet');
+  const log = document.getElementById('can-log');
+  const svg = document.getElementById('can-svg');
+
+  const startX = direction === 'a-to-b' ? 70 : 200;
+  const endX = direction === 'a-to-b' ? 200 : 70;
+  const y = 110;
+
+  const fromNode = direction === 'a-to-b' ? 'A' : 'B';
+  const toNode = direction === 'a-to-b' ? 'B' : 'A';
+  const msgId = direction === 'a-to-b' ? '0x123' : '0x456';
+  const data = direction === 'a-to-b' ? '01 02 03' : 'FF 00 AB';
+
+  // Highlight source node
+  const sourceRect = document.getElementById(direction === 'a-to-b' ? 'can-node-a' : 'can-node-b');
+  sourceRect.style.filter = 'drop-shadow(0 0 8px var(--accent))';
+
+  // Show and position packet
+  packet.style.display = '';
+  packet.querySelector('text').textContent = msgId;
+
+  let progress = 0;
+  const duration = 800;
+  const startTime = performance.now();
+
+  function animate(time) {
+    progress = Math.min((time - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const currentX = startX + (endX - startX) * eased;
+
+    packet.setAttribute('transform', `translate(${currentX}, ${y})`);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // Done
+      packet.style.display = 'none';
+      sourceRect.style.filter = '';
+
+      // Flash destination
+      const destRect = document.getElementById(direction === 'a-to-b' ? 'can-node-b' : 'can-node-a');
+      destRect.style.filter = 'drop-shadow(0 0 8px var(--accent-green))';
+      setTimeout(() => destRect.style.filter = '', 500);
+
+      // Log entry
+      const txLine = document.createElement('div');
+      txLine.innerHTML = `<span class="log-tx">[TX] Node ${fromNode} &rarr; id=${msgId} data=[${data}]</span>`;
+      log.appendChild(txLine);
+
+      const rxLine = document.createElement('div');
+      rxLine.innerHTML = `<span class="log-rx">[RX] Node ${toNode} &larr; id=${msgId} len=${data.split(' ').length}</span>`;
+      log.appendChild(rxLine);
+      log.scrollTop = log.scrollHeight;
+
+      canAnimating = false;
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ===== T-String Demo =====
+function switchTstringMode(mode, btn) {
+  // Toggle buttons
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const prefix = document.getElementById('tstring-prefix');
+  const title = document.getElementById('tstring-output-title');
+  const result = document.getElementById('tstring-result');
+
+  if (mode === 'fstring') {
+    prefix.textContent = 'f';
+    title.textContent = 'Output \u2014 String';
+    result.innerHTML = '<span class="str">"Welcome to MicroPython v1.28"</span>';
+  } else {
+    prefix.textContent = 't';
+    title.textContent = 'Output \u2014 Template Object';
+    result.innerHTML =
+      '<span class="t-label">Template</span>(\n' +
+      '  strings=(\n' +
+      '    <span class="t-string">\'Welcome to \'</span>,\n' +
+      '    <span class="t-string">\' v\'</span>,\n' +
+      '    <span class="t-string">\'\'</span>\n' +
+      '  ),\n' +
+      '  interpolations=(\n' +
+      '    <span class="t-interp">Interpolation</span>(\n' +
+      '      value=<span class="t-expr">\'MicroPython\'</span>,\n' +
+      '      expr=<span class="t-string">\'name\'</span>\n' +
+      '    ),\n' +
+      '    <span class="t-interp">Interpolation</span>(\n' +
+      '      value=<span class="t-expr">1.28</span>,\n' +
+      '      expr=<span class="t-string">\'version\'</span>\n' +
+      '    )\n' +
+      '  )\n' +
+      ')';
+  }
+}
+
+// ===== Weakref / GC Demo =====
+let gcState = 0;
+
+function drawGCArrows() {
+  const svg = document.getElementById('gc-svg');
+  const visual = document.getElementById('gc-visual');
+  if (!visual || !svg) return;
+
+  svg.innerHTML = '';
+
+  // Helper to get center of element relative to parent
+  function getPos(id) {
+    const el = document.getElementById(id);
+    if (!el) return { x: 0, y: 0, w: 0, h: 0 };
+    return {
+      x: el.offsetLeft,
+      y: el.offsetTop,
+      w: el.offsetWidth,
+      h: el.offsetHeight
+    };
+  }
+
+  const app = getPos('gc-app');
+  const sensor = getPos('gc-sensor');
+  const buffer = getPos('gc-buffer');
+  const wr = getPos('gc-weakref');
+  const fin = getPos('gc-finalize');
+
+  function drawArrow(x1, y1, x2, y2, color, dashed) {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', color);
+    line.setAttribute('stroke-width', '2');
+    if (dashed) line.setAttribute('stroke-dasharray', '6,4');
+
+    // Arrowhead
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    const headLen = 8;
+    const head = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    const hx1 = x2 - headLen * Math.cos(angle - 0.4);
+    const hy1 = y2 - headLen * Math.sin(angle - 0.4);
+    const hx2 = x2 - headLen * Math.cos(angle + 0.4);
+    const hy2 = y2 - headLen * Math.sin(angle + 0.4);
+    head.setAttribute('points', `${x2},${y2} ${hx1},${hy1} ${hx2},${hy2}`);
+    head.setAttribute('fill', color);
+
+    svg.appendChild(line);
+    svg.appendChild(head);
+  }
+
+  const style = getComputedStyle(document.documentElement);
+  const green = style.getPropertyValue('--accent-green').trim();
+  const orange = style.getPropertyValue('--accent-orange').trim();
+
+  // app -> sensor (strong ref, may be removed)
+  if (gcState < 1) {
+    drawArrow(app.x + app.w, app.y + app.h / 2, sensor.x, sensor.y + sensor.h / 2, green, false);
+  }
+
+  // sensor -> buffer (strong ref)
+  if (gcState < 2) {
+    drawArrow(sensor.x + sensor.w / 2, sensor.y + sensor.h, buffer.x + buffer.w / 2, buffer.y, green, false);
+  }
+
+  // weakref -> sensor (weak ref)
+  if (gcState < 2) {
+    drawArrow(wr.x + wr.w, wr.y + wr.h / 2, sensor.x, sensor.y + sensor.h / 2 + 10, orange, true);
+  }
+
+  // finalize -> sensor (weak ref)
+  if (gcState < 2) {
+    drawArrow(fin.x + fin.w, fin.y + 5, sensor.x, sensor.y + sensor.h, orange, true);
+  }
+}
+
+function gcStep() {
+  const btn = document.getElementById('gc-step-btn');
+  const console = document.getElementById('gc-console');
+  const sensorEl = document.getElementById('gc-sensor');
+  const bufferEl = document.getElementById('gc-buffer');
+  const wrEl = document.getElementById('gc-weakref');
+
+  if (gcState === 0) {
+    // Step 1: Delete strong reference
+    gcState = 1;
+    btn.textContent = 'Step 2: Run GC';
+
+    console.innerHTML +=
+      '<div class="gc-warn">&gt; del app.sensor</div>' +
+      '<div style="color:var(--text-muted)">&gt; Strong reference removed.</div>' +
+      '<div style="color:var(--text-muted)">&gt; sensor is only reachable via weakref.</div>';
+
+    drawGCArrows();
+    console.scrollTop = console.scrollHeight;
+
+  } else if (gcState === 1) {
+    // Step 2: Run GC
+    gcState = 2;
+    btn.textContent = 'Done';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+
+    // Animate collection
+    sensorEl.classList.remove('alive');
+    sensorEl.classList.add('collected');
+    bufferEl.classList.remove('alive');
+    bufferEl.classList.add('collected');
+
+    wrEl.style.borderColor = 'var(--accent-red)';
+
+    drawGCArrows();
+
+    console.innerHTML +=
+      '<div class="gc-warn">&gt; gc.collect()</div>' +
+      '<div class="gc-msg">&gt; finalize: "Pin 4 sensor cleaned up"</div>' +
+      '<div style="color:var(--text-muted)">&gt; sensor and buffer reclaimed.</div>' +
+      '<div style="color:var(--text-muted)">&gt; weakref.ref() now returns None.</div>';
+
+    console.scrollTop = console.scrollHeight;
+  }
+}
+
+function gcReset() {
+  gcState = 0;
+  const btn = document.getElementById('gc-step-btn');
+  btn.textContent = 'Step 1: Delete strong ref';
+  btn.disabled = false;
+  btn.style.opacity = '1';
+
+  const sensorEl = document.getElementById('gc-sensor');
+  const bufferEl = document.getElementById('gc-buffer');
+  const wrEl = document.getElementById('gc-weakref');
+
+  sensorEl.classList.remove('collected');
+  sensorEl.classList.add('alive');
+  bufferEl.classList.remove('collected');
+  bufferEl.classList.add('alive');
+  wrEl.style.borderColor = '';
+
+  document.getElementById('gc-console').innerHTML =
+    '<div style="color:var(--text-muted)">&#8250; All objects are alive.</div>' +
+    '<div style="color:var(--text-muted)">&#8250; app holds a strong ref to sensor.</div>' +
+    '<div style="color:var(--text-muted)">&#8250; weakref.ref tracks sensor (dashed).</div>';
+
+  drawGCArrows();
+}
+
+// Initial GC arrows
+setTimeout(drawGCArrows, 100);
+
+// ===== Animated Counters =====
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      if (el.dataset.counted) return;
+      el.dataset.counted = 'true';
+
+      const target = parseInt(el.dataset.target);
+      const duration = 1200;
+      const startTime = performance.now();
+
+      function tick(time) {
+        const progress = Math.min((time - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
+
+// ===== Code Size Chart =====
+const codeSizeData = [
+  { name: 'bare-arm', bytes: -52, pct: '-0.092%', reason: 'Inlined tuple/list helpers' },
+  { name: 'minimal x86', bytes: -321, pct: '-0.173%', reason: 'Inlined tuple/list helpers' },
+  { name: 'unix x64', bytes: -104, pct: '-0.012%', reason: 'Inlined tuple/list helpers' },
+  { name: 'stm32', bytes: 7028, pct: '+1.782%', reason: 'New machine.PWM and machine.CAN' },
+  { name: 'esp32', bytes: 844, pct: '+0.048%', reason: 'Detailed TLS error strings, fixes' },
+  { name: 'mimxrt', bytes: 10072, pct: '+2.685%', reason: 'VfsRom, t-strings, Counter/Encoder' },
+  { name: 'renesas-ra', bytes: 1816, pct: '+0.289%', reason: 'VfsRom filesystem support' },
+  { name: 'nrf', bytes: 1788, pct: '+0.947%', reason: 'VfsRom filesystem support' },
+  { name: 'rp2', bytes: 356, pct: '+0.104%', reason: 'pico_rand RNG, pin struct changes' },
+  { name: 'rp2 (Pico2W)', bytes: -1552, pct: '-0.172%', reason: 'Pin structure footprint reduction' },
+  { name: 'samd', bytes: 3492, pct: '+1.288%', reason: 'VfsRom, t-strings support' },
+];
+
+const maxAbsBytes = Math.max(...codeSizeData.map(d => Math.abs(d.bytes)));
+
+function renderCodeSize() {
+  const container = document.getElementById('code-size-rows');
+  container.innerHTML = codeSizeData.map(d => {
+    const barWidth = Math.max(2, (Math.abs(d.bytes) / maxAbsBytes) * 100);
+    const isPositive = d.bytes > 0;
+    const sign = isPositive ? '+' : '';
+    return `
+      <div class="cs-row">
+        <span class="cs-name">${d.name}</span>
+        <div class="cs-bar-wrap">
+          <div class="cs-bar ${isPositive ? 'positive' : 'negative'}" style="width:${barWidth}%"></div>
+          <div class="cs-tooltip">${d.reason}</div>
+        </div>
+        <span class="cs-value">${sign}${d.bytes.toLocaleString()}</span>
+      </div>
+    `;
+  }).join('');
+}
+renderCodeSize();
+
+// ===== Contributors Toggle =====
+function toggleContributors() {
+  const list = document.getElementById('contributors-list');
+  const btn = list.previousElementSibling;
+  list.classList.toggle('open');
+  btn.textContent = list.classList.contains('open') ? 'Hide contributors' : 'Show all 40 contributors';
+}
+</script>
+</body>
+</html>
