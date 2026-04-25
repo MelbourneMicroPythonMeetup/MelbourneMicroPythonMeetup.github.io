@@ -1,0 +1,8 @@
+<div class="stats-ribbon">
+  {% for stat in page.stats %}
+  <div class="stat-item">
+    <span class="stat-number counter" data-target="{{ stat.value }}">0</span>
+    <span class="stat-label">{{ stat.label }}</span>
+  </div>
+  {% endfor %}
+</div>

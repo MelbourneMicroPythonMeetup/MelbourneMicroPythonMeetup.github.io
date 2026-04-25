@@ -1,0 +1,637 @@
+---
+layout: release-notes
+title: MicroPython v1.27.0 Release Notes
+version: v1.27.0
+pyscript: true
+page_css: /micropython-v1.27/v1.27.css
+page_js: /micropython-v1.27/v1.27.js
+
+hero:
+  version: "v1.27"
+  tagline: "Three new MCU families, formal port Tier levels, and a unified REPL on every port."
+  date: "December 10, 2025"
+
+summary_cards:
+  - { icon: "&#127894;",  title: "Port Tiers",    desc: "20 ports, 4 formal tiers", target: "tiers" }
+  - { icon: "&#128187;",  title: "ESP32-C5 / P4", desc: "Standalone and co-processor", target: "espnew" }
+  - { icon: "&#9889;",    title: "STM32U5",       desc: "Low-power, high-performance",  target: "stm32u5" }
+  - { icon: "&#128241;",  title: "Unified REPL",  desc: "Raw REPL on unix and windows", target: "repl" }
+
+stats:
+  - { value: 49, label: "Contributors" }
+  - { value: 15, label: "Timezones" }
+  - { value: 14, label: "New Boards" }
+
+mpy_banner:
+  headline: "The language demos on this page run real MicroPython in your browser."
+  body: "MicroPython is compiled to WebAssembly via PyScript and executes live as the page loads &mdash; no server required."
+
+toc:
+  - { id: "tiers",    label: "Port Tiers" }
+  - { id: "espnew",   label: "ESP32-C5 / P4" }
+  - { id: "stm32u5",  label: "STM32U5" }
+  - { id: "repl",     label: "Unified REPL" }
+  - { id: "timers",   label: "Hard IRQ Timers" }
+  - { id: "language", label: "Language Tweaks" }
+  - { id: "highlights", label: "Highlights" }
+
+boards:
+  summary: "14 new board definitions across 3 ports."
+  groups:
+    - port: "esp32"
+      boards:
+        - "ESP32_GENERIC_C2 / FLASH_2M"
+        - "ESP32_GENERIC_C5"
+        - "ESP32_GENERIC_P4"
+        - "ESP32_GENERIC_P4 / C5_WIFI"
+        - "ESP32_GENERIC_P4 / C6_WIFI"
+        - "SIL_MANT1S"
+        - "SOLDERED_NULA_MINI"
+    - port: "stm32"
+      boards:
+        - "NUCLEO_H7A3ZI_Q"
+        - "NUCLEO_U5A5ZJ_Q"
+        - "STM32F469DISC"
+        - "WEACTSTUDIO_MINI_STM32H743"
+    - port: "zephyr"
+      boards:
+        - "pocketbeagle_2"
+        - "xiao_ble_nrf52840_sense"
+        - "mimxrt1020_evk"
+
+numbers:
+  summary: "v1.27 in numbers. esp32 grew most, driven by ESP-IDF v5.5.1 and the new RMT API."
+  cards:
+    - { value: 49, label: "Contributors" }
+    - { value: 15, label: "Timezones" }
+    - { value: 14, label: "New Boards" }
+  code_size:
+    title: "Code size delta vs v1.26 (.text section, bytes)"
+    rows:
+      - { port: "esp32",        delta_bytes: 36210, bar_pct: 100, tooltip: "+2.12% &mdash; IDF 5.5.1 + new RMT API" }
+      - { port: "rp2 (PICO)",   delta_bytes: 3836,  bar_pct: 11, tooltip: "+1.12% &mdash; hashlib.md5, TinyUSB update" }
+      - { port: "unix x64",     delta_bytes: 2608,  bar_pct: 7,  tooltip: "+0.31% &mdash; standard bare-metal REPL" }
+      - { port: "rp2 (PICO_W)", delta_bytes: 1020,  bar_pct: 3,  tooltip: "+0.11% &mdash; TinyUSB update" }
+      - { port: "minimal x86",  delta_bytes: 867,   bar_pct: 3,  tooltip: "+0.47% &mdash; sys module enabled" }
+      - { port: "samd",         delta_bytes: 596,   bar_pct: 2,  tooltip: "+0.22% &mdash; TinyUSB update" }
+      - { port: "esp8266",      delta_bytes: 472,   bar_pct: 2,  tooltip: "+0.07% &mdash; hard IRQ timer callbacks" }
+      - { port: "mimxrt",       delta_bytes: 280,   bar_pct: 1,  tooltip: "+0.08% &mdash; TinyUSB, re start/end" }
+      - { port: "nrf",          delta_bytes: 124,   bar_pct: 1,  tooltip: "+0.07% &mdash; SPI baudrate print, UART timeouts" }
+      - { port: "cc3200",       delta_bytes: 112,   bar_pct: 1,  tooltip: "+0.06% &mdash; leading-zero formatting, re start/end" }
+      - { port: "renesas-ra",   delta_bytes: 104,   bar_pct: 1,  tooltip: "+0.02% &mdash; leading-zero formatting" }
+      - { port: "stm32",        delta_bytes: -68,   bar_pct: 1,  tooltip: "-0.02% &mdash; soft IRQ refactor offset gains" }
+      - { port: "bare-arm",     delta_bytes: -180,  bar_pct: 1,  tooltip: "-0.32% &mdash; mul-overflow intrinsic" }
+  contributors: |
+    Alessandro Gatti, Alex Tran, Andrew Leech, Angus Gratton, Anson Mansfield,
+    Ayush Singh, Chris Liechti, Chris Mason, Chris Webb, Christian Clauss,
+    Craftzman7, Damien George, Dani&euml;l van de Giessen, David Lechner,
+    David Schneider, Dryw Wade, Elvis Pfutzenreuter, ennyKey, Florent, garywill,
+    iabdalkader, Ihor Nehrutsa, Jared Hancock, Jeff Epler, Jimisola Laursen,
+    John Smith, Jos Verlinde, Josip &Scaron;imun Ku&ccaron;i, Kwabena W. Agyeman,
+    Matt Trentini, Maureen Helm, Meir Armon, Mike Tolkachev, Mike Wang, Ned Konz,
+    Patrick Van Oosterwijck, Peter Harper, Phil Howard, robert-hh, Steve Sanbeg,
+    stijn, Thomas Watson, Tico06, Vdragon, Vincent1-python, Yanfeng Liu,
+    Yilin Sun, yuan_mo, Yuuki NAGAO.
+
+pyscript_block: |
+  from pyscript import document, when
+  import sys
+
+  def run_editor(code_id, out_id):
+      code = document.querySelector("#" + code_id).value
+      out_el = document.querySelector("#" + out_id)
+      out_el.classList.remove("has-error")
+      lines = []
+      def _print(*args, sep=" ", end="\n"):
+          lines.append(sep.join(str(a) for a in args) + end)
+      try:
+          exec(code, {"print": _print})
+          output = "".join(lines) or "(no output)"
+      except Exception as e:
+          output = type(e).__name__ + ": " + str(e)
+          out_el.classList.add("has-error")
+      out_el.innerText = output
+
+  @when("click", "#lang-run")
+  def _r_lang(ev):
+      run_editor("lang-editor", "lang-output")
+
+  for s in document.querySelectorAll(".mpy-status"):
+      s.innerText = f"MicroPython {sys.version} ready"
+---
+
+<!-- ===== SECTION: PORT TIERS ===== -->
+<section class="section" id="tiers">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>Port Tier Levels</h2>
+    <p class="section-desc">
+      MicroPython supports more than twenty ports. v1.27 formalises that landscape:
+      every port is now classified into one of <strong>four Tier levels</strong>, setting
+      expectations for how mature it is, how actively it's tested, and what level of
+      support contributors should expect. The classification also lowers the bar for new
+      ports to land &mdash; they can enter at a low Tier and graduate upward.
+    </p>
+  </div>
+
+  <div class="demo-container">
+    <div class="demo-label">Interactive Demo &mdash; Click a Tier to Filter</div>
+
+    <div class="tier-legend">
+      <button class="tier-legend-btn active" data-tier="all">All ports</button>
+      <button class="tier-legend-btn" data-tier="1">
+        <span class="tier-swatch tier-1"></span>Tier 1 &mdash; mature, fully tested
+      </button>
+      <button class="tier-legend-btn" data-tier="2">
+        <span class="tier-swatch tier-2"></span>Tier 2 &mdash; supported
+      </button>
+      <button class="tier-legend-btn" data-tier="3">
+        <span class="tier-swatch tier-3"></span>Tier 3 &mdash; built in CI
+      </button>
+      <button class="tier-legend-btn" data-tier="M">
+        <span class="tier-swatch tier-M"></span>Tier M &mdash; maintenance
+      </button>
+    </div>
+
+    <div class="tier-grid" id="tier-grid">
+      <!-- Tier 1 -->
+      <div class="tier-node tier-1" data-tier="1" data-port="esp32" data-vendor="true">
+        <div class="tier-node-name">esp32</div>
+        <div class="tier-node-target">Espressif ESP32 family</div>
+        <div class="tier-node-tag">Tier 1</div>
+      </div>
+      <div class="tier-node tier-1" data-tier="1" data-port="mimxrt">
+        <div class="tier-node-name">mimxrt</div>
+        <div class="tier-node-target">NXP i.MX RT</div>
+        <div class="tier-node-tag">Tier 1</div>
+      </div>
+      <div class="tier-node tier-1" data-tier="1" data-port="rp2">
+        <div class="tier-node-name">rp2</div>
+        <div class="tier-node-target">Raspberry Pi RP2040 / RP2350</div>
+        <div class="tier-node-tag">Tier 1</div>
+      </div>
+      <div class="tier-node tier-1" data-tier="1" data-port="samd">
+        <div class="tier-node-name">samd</div>
+        <div class="tier-node-target">Microchip SAMD21 / SAMD51</div>
+        <div class="tier-node-tag">Tier 1</div>
+      </div>
+      <div class="tier-node tier-1" data-tier="1" data-port="stm32">
+        <div class="tier-node-name">stm32</div>
+        <div class="tier-node-target">ST STM32 (F0/F4/F7/G0/G4/H5/H7/L0/L1/L4/N6/WB/WL)</div>
+        <div class="tier-node-tag">Tier 1</div>
+      </div>
+      <div class="tier-node tier-1" data-tier="1" data-port="unix">
+        <div class="tier-node-name">unix</div>
+        <div class="tier-node-target">Linux, BSD, macOS, WSL</div>
+        <div class="tier-node-tag">Tier 1</div>
+      </div>
+      <div class="tier-node tier-1" data-tier="1" data-port="windows">
+        <div class="tier-node-name">windows</div>
+        <div class="tier-node-target">Microsoft Windows</div>
+        <div class="tier-node-tag">Tier 1</div>
+      </div>
+
+      <!-- Tier 2 -->
+      <div class="tier-node tier-2" data-tier="2" data-port="alif">
+        <div class="tier-node-name">alif</div>
+        <div class="tier-node-target">Alif Ensemble (E3, E7)</div>
+        <div class="tier-node-tag">Tier 2</div>
+      </div>
+      <div class="tier-node tier-2" data-tier="2" data-port="embed">
+        <div class="tier-node-name">embed</div>
+        <div class="tier-node-target">Embeddable .c/.h sources</div>
+        <div class="tier-node-tag">Tier 2</div>
+      </div>
+      <div class="tier-node tier-2" data-tier="2" data-port="nrf">
+        <div class="tier-node-name">nrf</div>
+        <div class="tier-node-target">Nordic nRF51 / nRF52</div>
+        <div class="tier-node-tag">Tier 2</div>
+      </div>
+      <div class="tier-node tier-2" data-tier="2" data-port="renesas-ra">
+        <div class="tier-node-name">renesas-ra</div>
+        <div class="tier-node-target">Renesas RA family</div>
+        <div class="tier-node-tag">Tier 2</div>
+      </div>
+      <div class="tier-node tier-2" data-tier="2" data-port="webassembly">
+        <div class="tier-node-name">webassembly</div>
+        <div class="tier-node-target">Browsers and Node.js (PyScript runs here!)</div>
+        <div class="tier-node-tag">Tier 2</div>
+      </div>
+      <div class="tier-node tier-2" data-tier="2" data-port="zephyr">
+        <div class="tier-node-name">zephyr</div>
+        <div class="tier-node-target">Zephyr RTOS</div>
+        <div class="tier-node-tag">Tier 2</div>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="tier-node tier-3" data-tier="3" data-port="cc3200">
+        <div class="tier-node-name">cc3200</div>
+        <div class="tier-node-target">TI CC3200</div>
+        <div class="tier-node-tag">Tier 3</div>
+      </div>
+      <div class="tier-node tier-3" data-tier="3" data-port="esp8266">
+        <div class="tier-node-name">esp8266</div>
+        <div class="tier-node-target">Espressif ESP8266</div>
+        <div class="tier-node-tag">Tier 3</div>
+      </div>
+      <div class="tier-node tier-3" data-tier="3" data-port="pic16bit">
+        <div class="tier-node-name">pic16bit</div>
+        <div class="tier-node-target">Microchip PIC 16-bit</div>
+        <div class="tier-node-tag">Tier 3</div>
+      </div>
+      <div class="tier-node tier-3" data-tier="3" data-port="powerpc">
+        <div class="tier-node-name">powerpc</div>
+        <div class="tier-node-target">IBM PowerPC (incl. Microwatt)</div>
+        <div class="tier-node-tag">Tier 3</div>
+      </div>
+
+      <!-- Tier M -->
+      <div class="tier-node tier-M" data-tier="M" data-port="bare-arm">
+        <div class="tier-node-name">bare-arm</div>
+        <div class="tier-node-target">Minimum config &mdash; tracks core size</div>
+        <div class="tier-node-tag">Tier M</div>
+      </div>
+      <div class="tier-node tier-M" data-tier="M" data-port="minimal">
+        <div class="tier-node-name">minimal</div>
+        <div class="tier-node-target">Reference for new ports</div>
+        <div class="tier-node-tag">Tier M</div>
+      </div>
+      <div class="tier-node tier-M" data-tier="M" data-port="qemu">
+        <div class="tier-node-name">qemu</div>
+        <div class="tier-node-target">Cortex-A/M, RISC-V 32 &amp; 64 emulation</div>
+        <div class="tier-node-tag">Tier M</div>
+      </div>
+    </div>
+
+    <div class="tier-summary">
+      <div><strong id="tier-count-1">7</strong> Tier 1</div>
+      <div><strong id="tier-count-2">6</strong> Tier 2</div>
+      <div><strong id="tier-count-3">4</strong> Tier 3</div>
+      <div><strong id="tier-count-M">3</strong> Tier M</div>
+      <div class="tier-summary-total">= <strong>20</strong> total</div>
+    </div>
+
+    <p class="tier-note">
+      Note: <code>esp32</code> has ongoing financial support from Espressif.
+      Full tier definitions live in the
+      <a href="https://docs.micropython.org/en/latest/develop/support_tiers.html" target="_blank">MicroPython support tiers documentation</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ===== SECTION: ESP32-C5 / P4 ===== -->
+<section class="section" id="espnew">
+  <div class="section-header">
+    <span class="section-badge new">New MCUs</span>
+    <h2>ESP32-C5 &amp; ESP32-P4 &mdash; standalone or paired</h2>
+    <p class="section-desc">
+      v1.27 adds two new RISC-V ESP32 family members. The <strong>ESP32-P4</strong>
+      is a higher-performance application processor that has no built-in radio &mdash;
+      so for wireless, it's paired with a <strong>C5</strong> (WiFi 6) or <strong>C6</strong>
+      (WiFi 4 + 802.15.4) co-processor. Board profiles ship for all three configurations.
+    </p>
+  </div>
+
+  <div class="demo-container">
+    <div class="demo-label">Interactive Demo &mdash; ESP32-P4 Configurations</div>
+
+    <div class="esp-config-toggle">
+      <button class="active" data-config="standalone">P4 standalone</button>
+      <button data-config="c5wifi">P4 + C5 (WiFi 6)</button>
+      <button data-config="c6wifi">P4 + C6 (WiFi 4 + 802.15.4)</button>
+      <button data-config="c5">C5 standalone</button>
+    </div>
+
+    <div class="esp-stage">
+      <svg class="esp-svg" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet" id="esp-svg">
+        <!-- Main MCU (always present) -->
+        <rect x="160" y="80" width="160" height="120" class="esp-mcu" id="esp-main"/>
+        <text x="240" y="120" class="esp-mcu-label" id="esp-main-label">ESP32-P4</text>
+        <text x="240" y="142" class="esp-mcu-sublabel" id="esp-main-sub1">Dual-core RV32</text>
+        <text x="240" y="158" class="esp-mcu-sublabel" id="esp-main-sub2">High-performance</text>
+        <text x="240" y="180" class="esp-mcu-tag" id="esp-main-tag">Application processor</text>
+
+        <!-- Radio co-processor (visible in paired modes) -->
+        <g id="esp-radio-group" style="display:none;">
+          <line x1="320" y1="140" x2="430" y2="140" class="esp-bus-line"/>
+          <text x="375" y="135" class="esp-bus-label">SDIO / SPI</text>
+          <rect x="430" y="100" width="120" height="80" class="esp-radio-mcu" id="esp-radio-mcu"/>
+          <text x="490" y="130" class="esp-radio-label" id="esp-radio-label">ESP32-C5</text>
+          <text x="490" y="148" class="esp-radio-sub" id="esp-radio-sub1">RV32 + WiFi 6</text>
+          <text x="490" y="164" class="esp-radio-sub" id="esp-radio-sub2">Co-processor</text>
+        </g>
+
+        <!-- Antenna (for radio modes) -->
+        <g id="esp-antenna" style="display:none;">
+          <path d="M 490 100 L 480 70 L 500 70 Z" class="esp-antenna-path"/>
+          <line x1="490" y1="70" x2="490" y2="50" class="esp-antenna-line"/>
+          <circle cx="490" cy="48" r="3" class="esp-antenna-tip"/>
+        </g>
+
+        <!-- Standalone-mode 'no radio' annotation -->
+        <g id="esp-noradio" style="display:none;">
+          <text x="490" y="140" class="esp-no-radio">no radio</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="esp-info">
+      <div class="esp-info-card">
+        <div class="esp-info-label">Use case</div>
+        <div class="esp-info-value" id="esp-info-usecase">High-performance compute, no wireless required</div>
+      </div>
+      <div class="esp-info-card">
+        <div class="esp-info-label">Board profile</div>
+        <div class="esp-info-value" id="esp-info-board">ESP32_GENERIC_P4</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">A new pattern</div>
+    Pairing a high-performance compute MCU with a small wireless co-processor is a
+    departure from the usual all-in-one ESP32 design. The C5 also ships standalone
+    with its own application code &mdash; <code>ESP32_GENERIC_C5</code>.
+  </div>
+</section>
+
+<!-- ===== SECTION: STM32U5 ===== -->
+<section class="section" id="stm32u5">
+  <div class="section-header">
+    <span class="section-badge new">New MCU</span>
+    <h2>STM32U5xx series</h2>
+    <p class="section-desc">
+      Support for STMicroelectronics' low-power, high-performance U5 series &mdash;
+      Cortex-M33 with TrustZone, generous RAM, and competitive power numbers. v1.27
+      brings up USB, ADC, DAC, UART, I2C, SPI and RTC, with a board profile for the
+      <code>NUCLEO-U5A5ZJ-Q</code>.
+    </p>
+  </div>
+
+  <div class="mcu-spec-cards">
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>STM32U5</h3>
+        <span class="badge active">Cortex-M33</span>
+      </div>
+      <div class="mcu-spec-strip">
+        <div><span class="mcu-spec-num">M33</span> + TZ</div>
+        <div><span class="mcu-spec-num">low</span> power</div>
+        <div><span class="mcu-spec-num">USB</span> +DAC +RTC</div>
+      </div>
+      <p class="mcu-spec-desc">
+        Targeted at battery-powered IoT applications. v1.27's port supports the core
+        peripherals; expect more (Ethernet, advanced power modes) in subsequent
+        releases. STM32 also gets the F469 disco board, NUCLEO-H7A3ZI-Q, and a
+        WeAct mini H743 in this release.
+      </p>
+      <div class="mcu-spec-boards">
+        <span class="board-chip">NUCLEO_U5A5ZJ_Q</span>
+      </div>
+    </div>
+
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>STM32 family additions</h3>
+        <span class="badge active">v1.27 cross-cutting</span>
+      </div>
+      <ul class="stm32-bullets">
+        <li><strong>STM32G0xx</strong> &mdash; DAC support; ADC, Timer(4), RTC wakeup fixes.</li>
+        <li><strong>STM32G4xx</strong> &mdash; hardware I2C (was bit-banged).</li>
+        <li><strong>STM32L4xx</strong> &mdash; <code>I2CTarget</code> (the v1.26 feature, now on L4).</li>
+        <li><strong>STM32N6xx</strong> &mdash; LAN works, including gigabit Ethernet via RTL8211 PHY.</li>
+        <li><strong>Optional TinyUSB</strong> &mdash; opt-in TinyUSB stack alongside the existing STM USB stack.
+            Eventually the default; allows defining USB devices in Python.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: UNIFIED REPL ===== -->
+<section class="section" id="repl">
+  <div class="section-header">
+    <span class="section-badge improved">Improved</span>
+    <h2>Unified REPL on unix &amp; windows</h2>
+    <p class="section-desc">
+      The unix and windows ports' main REPL loop has been replaced with the same
+      <code>pyexec</code> code that all bare-metal ports use. Behaviour is now
+      consistent across the entire MicroPython family &mdash; and crucially,
+      <strong>raw REPL is now supported on unix and windows</strong>, which means
+      <code>mpremote</code> works against a unix MicroPython build the same way it
+      works against a board.
+    </p>
+  </div>
+
+  <div class="repl-side-by-side">
+    <div class="repl-pane">
+      <div class="repl-pane-label">Bare metal &mdash; works since forever</div>
+<pre class="repl-pre"><span class="cmt">$ mpremote connect /dev/ttyACM0</span>
+&gt;&gt;&gt; <span class="kw">import</span> sys
+&gt;&gt;&gt; <span class="bi">print</span>(sys.platform)
+rp2
+&gt;&gt;&gt; </pre>
+    </div>
+    <div class="repl-pane">
+      <div class="repl-pane-label">Unix port &mdash; <strong>now works the same way in v1.27</strong></div>
+<pre class="repl-pre"><span class="cmt">$ mpremote connect ./build-standard/micropython</span>
+&gt;&gt;&gt; <span class="kw">import</span> sys
+&gt;&gt;&gt; <span class="bi">print</span>(sys.platform)
+linux
+&gt;&gt;&gt; </pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Why it matters</div>
+    The unix port is widely used for testing, scripting and CI. With raw-REPL parity,
+    every workflow that uses <code>mpremote</code> against a board now works against
+    a unix build too &mdash; including <code>mpremote run</code>, <code>mpremote cp</code>,
+    and the test harness.
+  </div>
+</section>
+
+<!-- ===== SECTION: HARD IRQ TIMERS ===== -->
+<section class="section" id="timers">
+  <div class="section-header">
+    <span class="section-badge new">Cross-port</span>
+    <h2>Hard IRQ Timer Callbacks &mdash; almost everywhere</h2>
+    <p class="section-desc">
+      <code>machine.Timer(...).init(callback=fn, hard=True)</code> now runs your
+      callback inside the actual hardware interrupt context (no scheduler hop), so
+      the latency is sub-microsecond. v1.27 brings hard-IRQ timer support to most
+      ports. <strong>esp32 remains soft-IRQ only.</strong>
+    </p>
+  </div>
+
+  <div class="port-matrix">
+    <div class="port-chip"><span class="check">&#10003;</span> alif</div>
+    <div class="port-chip"><span class="check">&#10003;</span> mimxrt</div>
+    <div class="port-chip"><span class="check">&#10003;</span> nrf</div>
+    <div class="port-chip"><span class="check">&#10003;</span> renesas-ra</div>
+    <div class="port-chip"><span class="check">&#10003;</span> rp2</div>
+    <div class="port-chip"><span class="check">&#10003;</span> samd</div>
+    <div class="port-chip"><span class="check">&#10003;</span> stm32</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> esp8266 (new)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> zephyr (new)</div>
+    <div class="port-chip" style="opacity: 0.6;">esp32 (soft only)</div>
+  </div>
+
+  <div class="code-block" style="margin-top:24px;">
+    <div class="code-header">
+      <span>main.py</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+<pre><span class="kw">from</span> machine <span class="kw">import</span> Timer
+
+<span class="kw">def</span> <span class="fn">on_tick</span>(t):
+    <span class="cmt"># Runs in ISR context: no allocation, no try/except, no print to UART</span>
+    pin.toggle()
+
+t = Timer(<span class="num">0</span>)
+t.init(freq=<span class="num">10_000</span>, callback=on_tick, hard=<span class="bi">True</span>)</pre>
+  </div>
+</section>
+
+<!-- ===== SECTION: LANGUAGE TWEAKS ===== -->
+<section class="section" id="language">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>Python language tweaks</h2>
+    <p class="section-desc">
+      Four small core-language additions in v1.27. Pick one from the dropdown to load
+      the example into the editor, then run it live.
+    </p>
+  </div>
+
+  <div class="demo-container live-playground">
+    <div class="demo-label">
+      Live demo
+      <span class="pyscript-tag">PyScript</span>
+    </div>
+
+    <div class="example-picker-row">
+      <label for="lang-picker">Example:</label>
+      <select id="lang-picker" class="example-picker">
+        <option value="re_pos">re.match / search start &amp; end positions</option>
+        <option value="dict_views">bool() and len() on dict views</option>
+        <option value="custom_import">Relative imports in custom __import__</option>
+        <option value="grouping_lz">Leading-zero digit grouping</option>
+      </select>
+    </div>
+
+    <textarea class="mpy-code-editor" id="lang-editor" spellcheck="false"></textarea>
+    <div class="mpy-btn-row">
+      <button class="mpy-run-btn" id="lang-run">Run &#9654;</button>
+      <button class="mpy-clear-btn" id="lang-reset">Reset example</button>
+      <span class="mpy-status">Loading MicroPython&hellip;</span>
+    </div>
+    <div class="mpy-output" id="lang-output"></div>
+
+    <p class="playground-note" id="lang-note"></p>
+  </div>
+</section>
+
+<!-- ===== SECTION: HIGHLIGHTS ===== -->
+<section class="section" id="highlights">
+  <div class="section-header">
+    <h2>Highlights</h2>
+    <p class="section-desc">Other notable improvements in v1.27.</p>
+  </div>
+
+  <div class="highlights-grid">
+    <div class="highlight-card">
+      <span class="hl-icon">&#9989;</span>
+      <h3>Test suite + CI overhaul</h3>
+      <p>Auto-detect unicode/float/native, always run stress tests, ASan + UBSan
+        builds, full suite on unix-minimal and zephyr CI.</p>
+      <div class="hl-ports"><span class="hl-port-tag">tests</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128279;</span>
+      <h3>target_wiring.py</h3>
+      <p>Per-board test-wiring config in one file. <code>machine.UART</code> tests
+        already converted; pattern extends to other peripherals.</p>
+      <div class="hl-ports"><span class="hl-port-tag">tests</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128483;</span>
+      <h3>Drop Python 2.7 support</h3>
+      <p>EOL since January 2020. Build scripts and tools now require Python 3.</p>
+      <div class="hl-ports"><span class="hl-port-tag">build</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128268;</span>
+      <h3>esp32.wake_on_gpio()</h3>
+      <p>Wake the SoC from deep sleep via GPIO pins on the esp32 port.</p>
+      <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127911;</span>
+      <h3>I2S enabled on all ESP32-C6 boards</h3>
+      <p>Audio I/O ships out of the box on every C6 board profile.</p>
+      <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128296;</span>
+      <h3>RP2350 PIO + alt-function fixes</h3>
+      <p>PIO supports pin wrapping; RP2350B upper-bank pins now usable; alt
+        functions fixed for pins &gt; 31. New UART_AUX, XIP_CS1, CORESIGHT_TRACE
+        and HSTX alt functions.</p>
+      <div class="hl-ports"><span class="hl-port-tag">rp2</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127760;</span>
+      <h3>asyncio.start_server() IPv6</h3>
+      <p>The asyncio server can now bind IPv6 sockets directly.</p>
+      <div class="hl-ports"><span class="hl-port-tag">asyncio</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128202;</span>
+      <h3>RISC-V Zba opcodes</h3>
+      <p>Native emitter generates better 32-bit RISC-V code &mdash; useful on RP2350
+        in RV mode and on the ESP32-C-series.</p>
+      <div class="hl-ports"><span class="hl-port-tag">rv32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127817;</span>
+      <h3>QEMU adds RV64 + Cortex-M55</h3>
+      <p>New VIRT_RV64, MPS2_AN500 (M7) and MPS3_AN547 (M55) qemu boards
+        broaden architecture testing.</p>
+      <div class="hl-ports"><span class="hl-port-tag">qemu</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128269;</span>
+      <h3>Zephyr v4.2.0</h3>
+      <p>Zephyr port adds <code>machine.ADC</code>, native Zephyr filesystem
+        VFS, GC split heap, hard IRQ timer callbacks, sensor attribute
+        get/set, default-flash auto-format on boot.</p>
+      <div class="hl-ports"><span class="hl-port-tag">zephyr</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#9201;</span>
+      <h3>alif RTC + time_ns</h3>
+      <p><code>machine.RTC.datetime()</code> get/set, <code>time.time_ns()</code>,
+        plus USB device-address and SPI.init() fixes.</p>
+      <div class="hl-ports"><span class="hl-port-tag">alif</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128737;</span>
+      <h3>ESP32 USB CDC stability</h3>
+      <p>TinyUSB ZLP fix that affected REPL reliability, plus a fix for blank
+        USB HID reports on PSRAM boards. <code>network.PPP</code> thread-safety
+        fixes.</p>
+      <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+    </div>
+  </div>
+</section>

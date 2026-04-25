@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ page.title }}</title>
+<link rel="stylesheet" href="{{ '/assets/css/release-notes.css' | relative_url }}">
+{% if page.page_css %}<link rel="stylesheet" href="{{ page.page_css | relative_url }}">{% endif %}
+{% if page.extra_css %}<style>{{ page.extra_css }}</style>{% endif %}
+{% if page.pyscript %}
+<link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css">
+<script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
+{% endif %}
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+  <span id="theme-icon">&#9790;</span>
+</button>
+
+<button class="mobile-menu-btn" onclick="toggleSidebar()">&#9776;</button>
+
+{% include release-notes/sidebar.html %}
+
+<div class="main">
+
+  {% include release-notes/hero.html %}
+
+  {% if page.summary_cards %}{% include release-notes/summary-cards.html %}{% endif %}
+
+  {% if page.stats %}{% include release-notes/stats-ribbon.html %}{% endif %}
+
+  {% if page.mpy_banner %}{% include release-notes/mpy-banner.html %}{% endif %}
+
+  {{ content }}
+
+  {% if page.boards %}{% include release-notes/boards-grid.html %}{% endif %}
+
+  {% if page.numbers %}{% include release-notes/by-the-numbers.html %}{% endif %}
+
+  {% include release-notes/footer.html %}
+
+</div>
+
+{% if page.pyscript_block %}
+<script type="mpy">
+{{ page.pyscript_block }}
+</script>
+{% endif %}
+
+<script src="{{ '/assets/js/release-notes.js' | relative_url }}"></script>
+{% if page.page_js %}<script src="{{ page.page_js | relative_url }}"></script>{% endif %}
+{% if page.extra_js %}<script>{{ page.extra_js }}</script>{% endif %}
+
+</body>
+</html>

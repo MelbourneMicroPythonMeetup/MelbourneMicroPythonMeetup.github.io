@@ -1,0 +1,9 @@
+<div class="summary-cards">
+  {% for card in page.summary_cards %}
+  <a class="summary-card" href="#{{ card.target }}" style="text-decoration:none">
+    <span class="card-icon">{{ card.icon }}</span>
+    <div class="card-title">{{ card.title }}</div>
+    <div class="card-desc">{{ card.desc }}</div>
+  </a>
+  {% endfor %}
+</div>

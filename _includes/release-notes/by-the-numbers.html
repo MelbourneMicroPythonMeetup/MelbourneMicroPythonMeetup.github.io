@@ -1,0 +1,46 @@
+<section class="section" id="numbers">
+  <div class="section-header">
+    <h2>By the Numbers</h2>
+    <p class="section-desc">{{ page.numbers.summary }}</p>
+  </div>
+
+  <div class="numbers-grid">
+    {% for card in page.numbers.cards %}
+    <div class="number-card">
+      <span class="big-number counter" data-target="{{ card.value }}">0</span>
+      <div class="number-label">{{ card.label }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if page.numbers.code_size %}
+  <div class="code-size-chart">
+    <h3>{{ page.numbers.code_size.title | default: "Code Size Impact" }}</h3>
+    {% for row in page.numbers.code_size.rows %}
+    <div class="cs-row">
+      <div class="cs-name">{{ row.port }}</div>
+      <div class="cs-bar-wrap">
+        {% if row.delta_bytes < 0 %}
+          <div class="cs-bar negative" style="width: {{ row.bar_pct }}%;"></div>
+        {% else %}
+          <div class="cs-bar positive" style="width: {{ row.bar_pct }}%;"></div>
+        {% endif %}
+        {% if row.tooltip %}<div class="cs-tooltip">{{ row.tooltip }}</div>{% endif %}
+      </div>
+      <div class="cs-value">{% if row.delta_bytes > 0 %}+{% endif %}{{ row.delta_bytes }} B</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if page.numbers.contributors %}
+  <div style="margin-top:32px; text-align:center;">
+    <button id="contributors-btn" class="contributors-toggle" onclick="toggleContributors()">
+      Show all contributors
+    </button>
+    <div id="contributors-list" class="contributors-list">
+      {{ page.numbers.contributors }}
+    </div>
+  </div>
+  {% endif %}
+</section>
