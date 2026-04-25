@@ -1,0 +1,298 @@
+/* ============================================================
+   v1.27 page-specific styles
+   ESP32-C5/P4 family SVG, REPL side-by-side, STM32 bullets,
+   language picker (reuses v1.26's pattern).
+
+   The port-Tier chart styles live in assets/css/release-notes.css
+   since the same chart is reused on the /releases/ index page.
+   ============================================================ */
+
+/* ===== ESP32-C5 / P4 family ===== */
+.esp-config-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+.esp-config-toggle button {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.esp-config-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.esp-stage {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.esp-svg {
+  width: 100%;
+  height: 280px;
+  display: block;
+}
+
+.esp-mcu, .esp-radio-mcu {
+  fill: var(--bg-tertiary);
+  stroke: var(--accent);
+  stroke-width: 2;
+  rx: 8;
+}
+.esp-radio-mcu {
+  stroke: var(--accent-green);
+}
+.esp-mcu-label, .esp-radio-label {
+  fill: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+.esp-mcu-sublabel, .esp-radio-sub {
+  fill: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  text-anchor: middle;
+}
+.esp-mcu-tag {
+  fill: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.esp-bus-line {
+  stroke: var(--accent-green);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+.esp-bus-label {
+  fill: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.esp-antenna-path {
+  fill: var(--accent-green);
+}
+.esp-antenna-line {
+  stroke: var(--accent-green);
+  stroke-width: 2;
+}
+.esp-antenna-tip {
+  fill: var(--accent-green);
+}
+
+.esp-no-radio {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-style: italic;
+  text-anchor: middle;
+}
+
+.esp-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.esp-info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.esp-info-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+.esp-info-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+/* ===== STM32 bullets ===== */
+.stm32-bullets {
+  list-style: none;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.stm32-bullets li {
+  padding: 4px 0;
+  position: relative;
+  padding-left: 20px;
+}
+.stm32-bullets li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  color: var(--accent);
+}
+.stm32-bullets strong {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+/* ===== REPL side-by-side ===== */
+.repl-side-by-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.repl-pane {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.repl-pane-label {
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+.repl-pane-label strong {
+  color: var(--accent-green);
+}
+.repl-pre {
+  padding: 14px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+/* ===== Language Picker (matches v1.26 pattern) ===== */
+.example-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.example-picker-row label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.example-picker {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  flex: 1;
+  max-width: 360px;
+}
+.example-picker:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ===== MCU spec cards (mirrors v1.26 pattern) ===== */
+.mcu-spec-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+.mcu-spec-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+.mcu-spec-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.mcu-spec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.mcu-spec-header h3 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+.mcu-spec-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.mcu-spec-strip > div {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.mcu-spec-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.mcu-spec-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.mcu-spec-boards {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .repl-side-by-side { grid-template-columns: 1fr; }
+  .esp-info { grid-template-columns: 1fr; }
+  .tier-grid { grid-template-columns: 1fr 1fr; }
+  .esp-config-toggle { flex-direction: column; }
+  .esp-config-toggle button { min-width: 0; }
+}

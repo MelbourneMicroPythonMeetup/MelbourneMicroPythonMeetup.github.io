@@ -1,0 +1,14 @@
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">MicroPython</div>
+  <div class="sidebar-version">{{ page.version }} Release Notes</div>
+  <ul class="toc">
+    <li><a href="#hero" data-section="hero">Overview</a></li>
+    <div class="toc-divider"></div>
+    {% for section in page.toc %}
+    <li><a href="#{{ section.id }}" data-section="{{ section.id }}">{{ section.label }}</a></li>
+    {% endfor %}
+    <div class="toc-divider"></div>
+    {% if page.boards %}<li><a href="#boards" data-section="boards">New Boards</a></li>{% endif %}
+    {% if page.numbers %}<li><a href="#numbers" data-section="numbers">By the Numbers</a></li>{% endif %}
+  </ul>
+</nav>

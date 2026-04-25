@@ -1,0 +1,712 @@
+---
+title: MicroPython Release Notes
+permalink: /releases/
+---
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MicroPython Interactive Release Notes</title>
+<link rel="stylesheet" href="{{ '/assets/css/release-notes.css' | relative_url }}">
+<style>
+/* Releases-index-specific overrides: no sidebar, wider main */
+.main {
+  margin-left: 0;
+  max-width: 1100px;
+  margin-right: auto;
+  margin-left: auto;
+  padding: 0 40px;
+}
+
+/* Release cards */
+.release-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin: 32px 0;
+}
+.release-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+.release-card.live:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+}
+.release-card.upcoming {
+  opacity: 0.55;
+  cursor: default;
+}
+.release-card-version {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+.release-card-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.release-card-tagline {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  flex: 1;
+}
+.release-card-cta {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: auto;
+}
+.release-card.upcoming .release-card-cta {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.release-card-stamp {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.release-card-stamp.live {
+  color: var(--accent-green);
+  background: var(--accent-green-glow);
+  border: 1px solid var(--accent-green);
+}
+.release-card-stamp.upcoming {
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+/* Narrative timeline */
+.narrative-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  margin: 32px 0;
+}
+.narrative-section h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+.narrative-section > p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.narrative-arc {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  position: relative;
+}
+.narrative-arc::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 36px;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.narrative-step {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+.narrative-step-version {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.narrative-step-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid var(--bg-card);
+  margin: 0 auto 12px;
+  display: block;
+}
+.narrative-step-content {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  padding: 0 4px;
+}
+.narrative-step-content strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* Cross-cutting themes grid */
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.theme-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+}
+.theme-card h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+.theme-card p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Stub callout */
+.stub-banner {
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 24px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.stub-banner strong { color: var(--accent); }
+
+@media (max-width: 768px) {
+  .narrative-arc {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .narrative-arc::before { display: none; }
+  .main { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+  <span id="theme-icon">&#9790;</span>
+</button>
+
+<div class="main">
+
+  <section class="hero" id="hero">
+    <div class="hero-badge">Interactive editions</div>
+    <h1>MicroPython <span>Release Notes</span></h1>
+    <p class="hero-tagline">
+      Browser-runnable, demo-driven walkthroughs of recent MicroPython releases &mdash;
+      built and maintained by the
+      <a href="https://melbournemicropythonmeetup.github.io/">Melbourne MicroPython Meetup</a>.
+    </p>
+    <p class="hero-date">Currently covering v1.24 &ndash; v1.28</p>
+  </section>
+
+  <div class="stub-banner">
+    <strong>All five pages live.</strong>
+    Interactive editions of the last five MicroPython releases (v1.24 through
+    v1.28) are now ready. Browse by release card below, or use the per-port
+    chart further down to find changes for your specific target.
+  </div>
+
+  <!-- Release cards -->
+  <div class="release-card-grid">
+
+    <a class="release-card live" href="{{ '/micropython-v1.28/' | relative_url }}">
+      <span class="release-card-stamp live">Live</span>
+      <div class="release-card-version">v1.28</div>
+      <div class="release-card-date">April 6, 2026</div>
+      <div class="release-card-tagline">
+        PWM on alif and stm32, a standardised <code>machine.CAN</code> API,
+        PEP 750 template strings, and the <code>weakref</code> module.
+      </div>
+      <div class="release-card-cta">Read the interactive notes &rarr;</div>
+    </a>
+
+    <a class="release-card live" href="{{ '/micropython-v1.27/' | relative_url }}">
+      <span class="release-card-stamp live">Live</span>
+      <div class="release-card-version">v1.27</div>
+      <div class="release-card-date">December 10, 2025</div>
+      <div class="release-card-tagline">
+        ESP32-C5, ESP32-P4 and STM32U5 support, formal port Tier levels,
+        unified pyexec REPL on unix/windows.
+      </div>
+      <div class="release-card-cta">Read the interactive notes &rarr;</div>
+    </a>
+
+    <a class="release-card live" href="{{ '/micropython-v1.26/' | relative_url }}">
+      <span class="release-card-stamp live">Live</span>
+      <div class="release-card-version">v1.26</div>
+      <div class="release-card-date">August 9, 2025</div>
+      <div class="release-card-tagline">
+        <code>machine.I2CTarget</code>, the float-accuracy overhaul, native emitter
+        wins, and the new STM32N6 and ESP32-C2 MCUs.
+      </div>
+      <div class="release-card-cta">Read the interactive notes &rarr;</div>
+    </a>
+
+    <a class="release-card live" href="{{ '/micropython-v1.25/' | relative_url }}">
+      <span class="release-card-stamp live">Live</span>
+      <div class="release-card-version">v1.25</div>
+      <div class="release-card-date">April 16, 2025</div>
+      <div class="release-card-tagline">
+        ROMFS / <code>VfsRom</code>, the brand-new alif port,
+        <code>@micropython.asm_rv32</code> inline RISC-V assembler, DTLS support.
+      </div>
+      <div class="release-card-cta">Read the interactive notes &rarr;</div>
+    </a>
+
+    <a class="release-card live" href="{{ '/micropython-v1.24/' | relative_url }}">
+      <span class="release-card-stamp live">Live</span>
+      <div class="release-card-version">v1.24</div>
+      <div class="release-card-date">October 26, 2024</div>
+      <div class="release-card-tagline">
+        RP2350 and ESP32-C6 support, RV32 native code emitter, common TinyUSB code,
+        <code>micropython.RingIO</code>.
+      </div>
+      <div class="release-card-cta">Read the interactive notes &rarr;</div>
+    </a>
+
+  </div>
+
+  <!-- Browse by Port -->
+  <section class="narrative-section">
+    <h2>Browse by Port</h2>
+    <p>
+      Every MicroPython port is classified into one of four Tier levels (formalised
+      in v1.27). Click a tier to filter the chart, or click any release chip on a
+      port to jump to that release's notes &mdash; useful when you only care about
+      what changed for a specific target.
+    </p>
+
+    <div class="tier-legend">
+      <button class="tier-legend-btn active" data-tier="all">All ports</button>
+      <button class="tier-legend-btn" data-tier="1">
+        <span class="tier-swatch tier-1"></span>Tier 1
+      </button>
+      <button class="tier-legend-btn" data-tier="2">
+        <span class="tier-swatch tier-2"></span>Tier 2
+      </button>
+      <button class="tier-legend-btn" data-tier="3">
+        <span class="tier-swatch tier-3"></span>Tier 3
+      </button>
+      <button class="tier-legend-btn" data-tier="M">
+        <span class="tier-swatch tier-M"></span>Tier M
+      </button>
+    </div>
+
+    <div class="tier-grid">
+      <!-- ===== Tier 1 ===== -->
+      <div class="tier-node tier-1" data-tier="1" data-port="esp32" data-vendor="true">
+        <div class="tier-node-name">esp32</div>
+        <div class="tier-node-target">Espressif ESP32 family</div>
+        <div class="tier-node-tag">Tier 1</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.24/#newmcus' | relative_url }}">v1.24</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#highlights' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#espnew' | relative_url }}">v1.27</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.28/' | relative_url }}">v1.28</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-1" data-tier="1" data-port="mimxrt">
+        <div class="tier-node-name">mimxrt</div>
+        <div class="tier-node-target">NXP i.MX RT</div>
+        <div class="tier-node-tag">Tier 1</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/#highlights' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#i2ctarget' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#highlights' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-1" data-tier="1" data-port="rp2">
+        <div class="tier-node-name">rp2</div>
+        <div class="tier-node-target">Raspberry Pi RP2040 / RP2350</div>
+        <div class="tier-node-tag">Tier 1</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.24/#newmcus' | relative_url }}">v1.24</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/#asm' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#highlights' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#highlights' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-1" data-tier="1" data-port="samd">
+        <div class="tier-node-name">samd</div>
+        <div class="tier-node-target">Microchip SAMD21 / SAMD51</div>
+        <div class="tier-node-tag">Tier 1</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#i2ctarget' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-1" data-tier="1" data-port="stm32">
+        <div class="tier-node-name">stm32</div>
+        <div class="tier-node-target">ST STM32 (F0/F4/F7/G0/G4/H5/H7/L0/L1/L4/N6/U5/WB/WL)</div>
+        <div class="tier-node-tag">Tier 1</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.24/#highlights' | relative_url }}">v1.24</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/#romfs' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#n6c2' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#stm32u5' | relative_url }}">v1.27</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.28/#pwm' | relative_url }}">v1.28</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-1" data-tier="1" data-port="unix">
+        <div class="tier-node-name">unix</div>
+        <div class="tier-node-target">Linux, BSD, macOS, WSL</div>
+        <div class="tier-node-tag">Tier 1</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#repl' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-1" data-tier="1" data-port="windows">
+        <div class="tier-node-name">windows</div>
+        <div class="tier-node-target">Microsoft Windows</div>
+        <div class="tier-node-tag">Tier 1</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#repl' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <!-- ===== Tier 2 ===== -->
+      <div class="tier-node tier-2" data-tier="2" data-port="alif">
+        <div class="tier-node-name">alif</div>
+        <div class="tier-node-target">Alif Ensemble (E3, E7) &mdash; new in v1.25</div>
+        <div class="tier-node-tag">Tier 2</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/#alif' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#highlights' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#highlights' | relative_url }}">v1.27</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.28/#pwm' | relative_url }}">v1.28</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-2" data-tier="2" data-port="embed">
+        <div class="tier-node-name">embed</div>
+        <div class="tier-node-target">Embeddable .c/.h sources</div>
+        <div class="tier-node-tag">Tier 2</div>
+        <div class="tier-node-releases">
+          <span class="tier-release-chip unbuilt" title="No notable per-port changes">&middot;</span>
+        </div>
+      </div>
+
+      <div class="tier-node tier-2" data-tier="2" data-port="nrf">
+        <div class="tier-node-name">nrf</div>
+        <div class="tier-node-target">Nordic nRF51 / nRF52</div>
+        <div class="tier-node-tag">Tier 2</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#highlights' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#highlights' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-2" data-tier="2" data-port="renesas-ra">
+        <div class="tier-node-name">renesas-ra</div>
+        <div class="tier-node-target">Renesas RA family</div>
+        <div class="tier-node-tag">Tier 2</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/#dtls' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#floats' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-2" data-tier="2" data-port="webassembly">
+        <div class="tier-node-name">webassembly</div>
+        <div class="tier-node-target">Browsers and Node.js (PyScript runs here!)</div>
+        <div class="tier-node-tag">Tier 2</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.24/#language' | relative_url }}">v1.24</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#highlights' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.28/' | relative_url }}">v1.28</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-2" data-tier="2" data-port="zephyr">
+        <div class="tier-node-name">zephyr</div>
+        <div class="tier-node-target">Zephyr RTOS</div>
+        <div class="tier-node-tag">Tier 2</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.24/#highlights' | relative_url }}">v1.24</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/#highlights' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#highlights' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#highlights' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <!-- ===== Tier 3 ===== -->
+      <div class="tier-node tier-3" data-tier="3" data-port="cc3200">
+        <div class="tier-node-name">cc3200</div>
+        <div class="tier-node-target">TI CC3200</div>
+        <div class="tier-node-tag">Tier 3</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-3" data-tier="3" data-port="esp8266">
+        <div class="tier-node-name">esp8266</div>
+        <div class="tier-node-target">Espressif ESP8266</div>
+        <div class="tier-node-tag">Tier 3</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.25/#romfs' | relative_url }}">v1.25</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#timers' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-3" data-tier="3" data-port="pic16bit">
+        <div class="tier-node-name">pic16bit</div>
+        <div class="tier-node-target">Microchip PIC 16-bit</div>
+        <div class="tier-node-tag">Tier 3</div>
+        <div class="tier-node-releases">
+          <span class="tier-release-chip unbuilt" title="No notable per-port changes">&middot;</span>
+        </div>
+      </div>
+
+      <div class="tier-node tier-3" data-tier="3" data-port="powerpc">
+        <div class="tier-node-name">powerpc</div>
+        <div class="tier-node-target">IBM PowerPC (incl. Microwatt)</div>
+        <div class="tier-node-tag">Tier 3</div>
+        <div class="tier-node-releases">
+          <span class="tier-release-chip unbuilt" title="No notable per-port changes">&middot;</span>
+        </div>
+      </div>
+
+      <!-- ===== Tier M ===== -->
+      <div class="tier-node tier-M" data-tier="M" data-port="bare-arm">
+        <div class="tier-node-name">bare-arm</div>
+        <div class="tier-node-target">Minimum config &mdash; tracks core size</div>
+        <div class="tier-node-tag">Tier M</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.26/#numbers' | relative_url }}">v1.26</a>
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#numbers' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-M" data-tier="M" data-port="minimal">
+        <div class="tier-node-name">minimal</div>
+        <div class="tier-node-target">Reference for new ports</div>
+        <div class="tier-node-tag">Tier M</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#numbers' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+
+      <div class="tier-node tier-M" data-tier="M" data-port="qemu">
+        <div class="tier-node-name">qemu</div>
+        <div class="tier-node-target">Cortex-A/M, RISC-V 32 &amp; 64 emulation</div>
+        <div class="tier-node-tag">Tier M</div>
+        <div class="tier-node-releases">
+          <a class="tier-release-chip" href="{{ '/micropython-v1.27/#highlights' | relative_url }}">v1.27</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="tier-note">
+      <code>esp32</code> has ongoing financial support from Espressif (<code>*</code>).
+      Greyed-out chips link to release pages that haven't been written yet.
+      Full tier definitions are in the
+      <a href="https://docs.micropython.org/en/latest/develop/support_tiers.html" target="_blank">MicroPython support tiers documentation</a>.
+    </p>
+  </section>
+
+  <!-- machine.* standardisation arc -->
+  <section class="narrative-section">
+    <h2>The <code>machine.*</code> standardisation arc</h2>
+    <p>
+      The strongest cross-release storyline of the last five releases is the steady
+      push to standardise <code>machine</code>-module APIs across every port
+      &mdash; so portable code really does run unchanged.
+    </p>
+    <div class="narrative-arc">
+      <div class="narrative-step">
+        <div class="narrative-step-version">v1.24</div>
+        <span class="narrative-step-dot"></span>
+        <div class="narrative-step-content">
+          <strong>network.ipconfig()</strong>
+          IPv6-aware replacement for <code>ifconfig()</code>, plus portable
+          <code>network.PPP</code>.
+        </div>
+      </div>
+      <div class="narrative-step">
+        <div class="narrative-step-version">v1.25</div>
+        <span class="narrative-step-dot"></span>
+        <div class="narrative-step-content">
+          <strong>Default I2C/SPI/UART</strong>
+          Ports gain default-bus instances so cross-port code can drop the
+          <code>id</code> arg.
+        </div>
+      </div>
+      <div class="narrative-step">
+        <div class="narrative-step-version">v1.26</div>
+        <span class="narrative-step-dot"></span>
+        <div class="narrative-step-content">
+          <strong>I2CTarget &middot; Counter &middot; Encoder</strong>
+          New peripheral classes (target on 7 ports, counter/encoder on esp32 first).
+        </div>
+      </div>
+      <div class="narrative-step">
+        <div class="narrative-step-version">v1.27</div>
+        <span class="narrative-step-dot"></span>
+        <div class="narrative-step-content">
+          <strong>Hard-IRQ timers</strong>
+          <code>machine.Timer(hard=True)</code> available on most ports
+          (esp32 still soft-only).
+        </div>
+      </div>
+      <div class="narrative-step">
+        <div class="narrative-step-version">v1.28</div>
+        <span class="narrative-step-dot"></span>
+        <div class="narrative-step-content">
+          <strong>PWM &amp; CAN everywhere</strong>
+          <code>machine.PWM</code> on every Tier 1 &amp; 2 port, standardised
+          <code>machine.CAN</code> API across STM32 and friends.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Other recurring themes -->
+  <section class="narrative-section">
+    <h2>Other recurring threads</h2>
+    <p>Patterns worth noticing as you read across the releases.</p>
+    <div class="themes-grid">
+
+      <div class="theme-card">
+        <h3>RISC-V grows up</h3>
+        <p>
+          v1.24 ships the RV32 native emitter. v1.25 adds the
+          <code>asm_rv32</code> inline assembler. v1.26 optimises emitter output
+          across all archs including RV32. v1.27 adds Zba opcodes and an RV64 qemu
+          target. v1.28 picks up the Zcmp extension.
+        </p>
+      </div>
+
+      <div class="theme-card">
+        <h3>The ESP-IDF treadmill</h3>
+        <p>
+          v1.24 &rarr; IDF 5.2.2, v1.25 &rarr; 5.3/5.4, v1.26 &rarr; 5.4.2,
+          v1.27 &rarr; 5.5.1. Each bump moves esp32 firmware size noticeably and
+          unlocks new chips.
+        </p>
+      </div>
+
+      <div class="theme-card">
+        <h3>New STM32 families per release</h3>
+        <p>
+          STM32H7 octospi (v1.24), STM32N6 with ML accelerators (v1.26),
+          STM32U5 low-power and an STM32F469 disco board (v1.27).
+        </p>
+      </div>
+
+      <div class="theme-card">
+        <h3>Native &amp; viper emitter wins</h3>
+        <p>
+          Every release improves native code generation. Notable: Thumb v1
+          long-jump support (v1.26) lifted the function-size limit on RP2040,
+          and Xtensa LX3 inline opcodes near feature-parity (v1.26).
+        </p>
+      </div>
+
+      <div class="theme-card">
+        <h3>mpremote ergonomics</h3>
+        <p>
+          Hash-based recursive copy (v1.24), <code>rm -r</code> + <code>romfs</code>
+          (v1.25), <code>fs tree</code> + better <code>df</code> + ESP CDC
+          detection (v1.26), DTR/RTS quirks ironed out (v1.27).
+        </p>
+      </div>
+
+      <div class="theme-card">
+        <h3>Zephyr port maturation</h3>
+        <p>
+          Threading (v1.24), <code>Timer</code>/<code>WDT</code> (v1.25),
+          PWM/UART/SPI/I2C and <code>boot.py</code>/<code>main.py</code> at
+          startup (v1.26), ADC + native FS VFS (v1.27).
+        </p>
+      </div>
+
+      <div class="theme-card">
+        <h3>asyncio everywhere</h3>
+        <p>
+          v1.24 enables top-level <code>await</code> of <code>Task</code>/
+          <code>Event</code> on the webassembly port. v1.25 makes implicit awaits
+          implicit. v1.26 fixes scheduler edge cases. v1.27 adds IPv6 to
+          <code>asyncio.start_server()</code>.
+        </p>
+      </div>
+
+      <div class="theme-card">
+        <h3>TinyUSB consolidation</h3>
+        <p>
+          Common CDC code unified across esp32-S2/S3, mimxrt, renesas-ra, rp2 and
+          samd in v1.24. ESP32 native USB stabilises through v1.26.1. stm32 starts
+          adopting TinyUSB optionally in v1.27.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/micropython/micropython/releases" target="_blank">All releases on GitHub</a>
+      <a href="https://docs.micropython.org/" target="_blank">Documentation</a>
+      <a href="https://micropython.org/download/" target="_blank">Downloads</a>
+      <a href="{{ '/' | relative_url }}">Meetup home</a>
+    </div>
+    <p style="font-size:12px; color:var(--text-muted); margin-top:24px;">
+      Built and maintained by the
+      <a href="https://melbournemicropythonmeetup.github.io/">Melbourne MicroPython Meetup</a>.
+      Live demos powered by <a href="https://pyscript.net/" target="_blank">PyScript</a>.
+    </p>
+  </footer>
+
+</div>
+
+<script src="{{ '/assets/js/release-notes.js' | relative_url }}"></script>
+
+</body>
+</html>

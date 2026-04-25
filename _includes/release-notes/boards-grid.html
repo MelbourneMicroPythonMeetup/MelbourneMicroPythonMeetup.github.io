@@ -1,0 +1,16 @@
+<section class="section" id="boards">
+  <div class="section-header">
+    <h2>New Boards</h2>
+    <p class="section-desc">{{ page.boards.summary }}</p>
+  </div>
+  <div class="board-gallery">
+    {% for group in page.boards.groups %}
+    <div class="board-port-group">
+      <h4>{{ group.port }}</h4>
+      <div class="board-list">
+        {% for board in group.boards %}<span class="board-chip">{{ board }}</span>{% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>

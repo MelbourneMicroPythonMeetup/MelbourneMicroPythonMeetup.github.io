@@ -1,0 +1,643 @@
+---
+layout: release-notes
+title: MicroPython v1.26.0 Release Notes
+version: v1.26.0
+pyscript: true
+page_css: /micropython-v1.26/v1.26.css
+page_js: /micropython-v1.26/v1.26.js
+
+hero:
+  version: "v1.26"
+  tagline: "machine.I2CTarget, the float-accuracy overhaul, native emitter wins, plus STM32N6 and ESP32-C2."
+  date: "August 9, 2025"
+
+summary_cards:
+  - { icon: "&#128268;", title: "machine.I2CTarget", desc: "Python responds on I2C", target: "i2ctarget" }
+  - { icon: "&#127919;", title: "Float accuracy",   desc: "98.5% repr-reversibility", target: "floats" }
+  - { icon: "&#9889;",   title: "Native emitter",   desc: "Tighter code on every arch", target: "native" }
+  - { icon: "&#128640;", title: "Counter / Encoder", desc: "Hardware pulse counting", target: "counter" }
+
+stats:
+  - { value: 46, label: "Contributors" }
+  - { value: 13, label: "Timezones" }
+  - { value: 10, label: "New Boards" }
+
+mpy_banner:
+  headline: "Float and language demos on this page run real MicroPython in your browser."
+  body: "MicroPython is compiled to WebAssembly via PyScript and executes live as the page loads &mdash; no server required."
+
+toc:
+  - { id: "i2ctarget", label: "machine.I2CTarget" }
+  - { id: "floats",    label: "Float Accuracy" }
+  - { id: "native",    label: "Native Emitter" }
+  - { id: "counter",   label: "Counter / Encoder" }
+  - { id: "language",  label: "Language Tweaks" }
+  - { id: "n6c2",      label: "STM32N6 + ESP32-C2" }
+  - { id: "highlights", label: "Highlights" }
+
+boards:
+  summary: "10 new board definitions across 4 ports."
+  groups:
+    - port: "esp32"
+      boards: ["GARATRONIC_PYBSTICK26_ESP32C3", "SPARKFUN_IOT_REDBOARD_ESP32"]
+    - port: "samd"
+      boards: ["SPARKFUN_REDBOARD_TURBO", "SPARKFUN_SAMD21_DEV_BREAKOUT"]
+    - port: "stm32"
+      boards: ["NUCLEO_N657X0", "OPENMV_N6"]
+    - port: "zephyr"
+      boards: ["beagleplay_cc1352p7", "nrf5340dk", "nrf9151dk", "rpi_pico"]
+
+numbers:
+  summary: "v1.26 in numbers. esp32 grew most, driven by ESP-IDF v5.4.2 plus the new I2CTarget."
+  cards:
+    - { value: 46, label: "Contributors" }
+    - { value: 13, label: "Timezones" }
+    - { value: 10, label: "New Boards" }
+  code_size:
+    title: "Code size delta vs v1.25 (.text section, bytes)"
+    rows:
+      - { port: "esp32",      delta_bytes: 19064, bar_pct: 100, tooltip: "+1.12% &mdash; IDF 5.4.2 + I2CTarget" }
+      - { port: "stm32",      delta_bytes: 3776,  bar_pct: 20,  tooltip: "+0.97% &mdash; I2CTarget, float accuracy, native emitter" }
+      - { port: "mimxrt",     delta_bytes: 3600,  bar_pct: 19,  tooltip: "+0.97% &mdash; I2CTarget, float accuracy" }
+      - { port: "esp8266",    delta_bytes: 3484,  bar_pct: 18,  tooltip: "+0.50% &mdash; LX3 opcodes, LittleFS v2.11" }
+      - { port: "samd",       delta_bytes: 3296,  bar_pct: 17,  tooltip: "+1.23% &mdash; I2CTarget, float accuracy" }
+      - { port: "rp2 (PICO_W)", delta_bytes: 2252, bar_pct: 12, tooltip: "+0.25% &mdash; I2CTarget + DTLS Anti Replay" }
+      - { port: "renesas-ra", delta_bytes: 1296,  bar_pct: 7,   tooltip: "+0.21% &mdash; float accuracy, native emitter" }
+      - { port: "nrf",        delta_bytes: 1140,  bar_pct: 6,   tooltip: "+0.61% &mdash; float accuracy, IOBase" }
+      - { port: "rp2 (PICO)", delta_bytes: 556,   bar_pct: 3,   tooltip: "+0.25% &mdash; offset by -3kB compressed errors" }
+      - { port: "cc3200",     delta_bytes: 392,   bar_pct: 2,   tooltip: "+0.21% &mdash; IOBase at core feature level" }
+      - { port: "unix x64",   delta_bytes: -376,  bar_pct: 2,   tooltip: "-0.05% &mdash; bss reduction (was: DTLS additions)" }
+      - { port: "minimal x86", delta_bytes: -207, bar_pct: 1,   tooltip: "-0.11% &mdash; integer var-arg handling" }
+      - { port: "bare-arm",   delta_bytes: -96,   bar_pct: 1,   tooltip: "-0.17% &mdash; integer var-arg handling" }
+  contributors: |
+    Alessandro Gatti, Andrea Giammarchi, Andrew Leech, Angus Gratton, Anson Mansfield,
+    Anton Blanchard, Ayush Singh, Chris Webb, Christian Lang, Damien George,
+    Daniel Campora, Dani&euml;l van de Giessen, David Schneider, David Yang, Detlev Zundel,
+    Dryw Wade, dubiousjim, Elvis Pfutzenreuter, ennyKey, Garatronic, Herwin Grobben,
+    iabdalkader, IhorNehrutsa, Jeff Epler, Jim Mussared, Jonathan Hogg, Jos Verlinde,
+    Koudai Aono, Malcolm McKellips, Matt Trentini, Maureen Helm, Meir Armon,
+    Patrick Joy, Peter Harper, Phil Howard, purewack, Rick Sorensen, robert-hh, root,
+    SiZiOUS, stijn, TianShuang Ke, Vdragon, Yanfeng Liu, Yoctopuce dev, Yuuki NAGAO.
+
+pyscript_block: |
+  from pyscript import document, when
+  import sys
+
+  def run_editor(code_id, out_id):
+      code = document.querySelector("#" + code_id).value
+      out_el = document.querySelector("#" + out_id)
+      out_el.classList.remove("has-error")
+      lines = []
+      def _print(*args, sep=" ", end="\n"):
+          lines.append(sep.join(str(a) for a in args) + end)
+      try:
+          exec(code, {"print": _print})
+          output = "".join(lines) or "(no output)"
+      except Exception as e:
+          output = type(e).__name__ + ": " + str(e)
+          out_el.classList.add("has-error")
+      out_el.innerText = output
+
+  @when("click", "#float-run")
+  def _r_float(ev):
+      run_editor("float-editor", "float-output")
+
+  @when("click", "#lang-run")
+  def _r_lang(ev):
+      run_editor("lang-editor", "lang-output")
+
+  for s in document.querySelectorAll(".mpy-status"):
+      s.innerText = f"MicroPython {sys.version} ready"
+
+  # Auto-run the float demo so visitors see output immediately
+  run_editor("float-editor", "float-output")
+---
+
+<!-- ===== SECTION: I2CTarget ===== -->
+<section class="section" id="i2ctarget">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>machine.I2CTarget &mdash; Your MCU Answers, Not Just Asks</h2>
+    <p class="section-desc">
+      MicroPython has supported I2C as a controller for years. v1.26 inverts the relationship:
+      <strong>your MicroPython board can now <em>be</em> an I2C device</strong>, responding to
+      reads and writes from another controller. Bind a <code>bytearray</code> as a register
+      file for the simple case, or hook into IRQ callbacks to implement arbitrary protocols.
+    </p>
+  </div>
+
+  <!-- Bespoke I2C bus demo -->
+  <div class="demo-container">
+    <div class="demo-label">Interactive Demo &mdash; I2C Target on a Bus</div>
+
+    <div class="i2c-mode-toggle">
+      <button class="active" data-mode="buffer">Buffer mode</button>
+      <button data-mode="irq">IRQ mode</button>
+    </div>
+
+    <div class="i2c-stage">
+      <svg class="i2c-bus-svg" viewBox="0 0 600 200" preserveAspectRatio="xMidYMid meet">
+        <!-- Bus lines (SDA/SCL) -->
+        <line x1="120" y1="80"  x2="480" y2="80"  class="i2c-bus-line"/>
+        <line x1="120" y1="100" x2="480" y2="100" class="i2c-bus-line"/>
+        <text x="100" y="84"  class="i2c-bus-label">SDA</text>
+        <text x="100" y="104" class="i2c-bus-label">SCL</text>
+
+        <!-- Controller (left) -->
+        <rect x="20"  y="40" width="100" height="100" class="i2c-mcu controller-mcu"/>
+        <text x="70"  y="80" class="i2c-mcu-label">Host</text>
+        <text x="70"  y="100" class="i2c-mcu-sublabel">(controller)</text>
+        <text x="70"  y="120" class="i2c-mcu-port">I2C(0)</text>
+
+        <!-- Target (right) -->
+        <rect x="480" y="40" width="100" height="100" class="i2c-mcu target-mcu"/>
+        <text x="530" y="80"  class="i2c-mcu-label">MicroPython</text>
+        <text x="530" y="100" class="i2c-mcu-sublabel">(target, addr 0x10)</text>
+        <text x="530" y="120" class="i2c-mcu-port">I2CTarget(0)</text>
+
+        <!-- Animated packet -->
+        <g id="i2c-packet" style="display:none;">
+          <rect x="0" y="-12" width="40" height="24" class="i2c-packet-rect"/>
+          <text x="20" y="4" class="i2c-packet-label" id="i2c-packet-label">W 0x42</text>
+        </g>
+      </svg>
+
+      <div class="i2c-bytearray">
+        <div class="i2c-bytearray-label">Target memory: <code>buf = bytearray(16)</code></div>
+        <div class="i2c-bytearray-grid" id="i2c-bytearray-grid">
+          <!-- Cells injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="i2c-controls">
+      <label>Register
+        <input type="number" id="i2c-reg" min="0" max="15" value="5" />
+      </label>
+      <label>Value (hex)
+        <input type="text" id="i2c-val" value="0x42" />
+      </label>
+      <button class="btn btn-primary" id="i2c-write-btn">Write</button>
+      <button class="btn btn-secondary" id="i2c-read-btn">Read</button>
+      <button class="btn btn-secondary" id="i2c-reset-btn">Reset</button>
+    </div>
+
+    <div class="i2c-log" id="i2c-log"></div>
+
+    <div class="i2c-irq-pane" id="i2c-irq-pane" style="display:none;">
+      <div class="i2c-irq-label">IRQ events fired on the target</div>
+      <div class="i2c-irq-list" id="i2c-irq-list"></div>
+    </div>
+  </div>
+
+  <!-- Code panel -->
+  <div class="code-block">
+    <div class="code-header">
+      <span>main.py &mdash; on the target board</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+<pre><span class="kw">from</span> machine <span class="kw">import</span> Pin, I2CTarget
+
+<span class="cmt"># Buffer mode &mdash; an I2C register/memory device backed by a bytearray</span>
+buf = <span class="bi">bytearray</span>(<span class="num">16</span>)
+target = I2CTarget(<span class="num">0</span>, scl=Pin(<span class="num">1</span>), sda=Pin(<span class="num">0</span>),
+                   addr=<span class="num">0x10</span>, mem=buf)
+
+<span class="cmt"># A controller on another board can now read/write this bytearray over I2C:</span>
+<span class="cmt">#   i2c.writeto_mem(0x10, 0x05, b'\x42')   -&gt; buf[5] becomes 0x42</span>
+<span class="cmt">#   i2c.readfrom_mem(0x10, 0x05, 1)        -&gt; b'\x42'</span></pre>
+  </div>
+
+  <h3 style="font-size:18px; margin-top:24px; margin-bottom:12px;">I2CTarget Port Support</h3>
+  <p style="font-size:14px; color:var(--text-secondary); margin-bottom:12px;">
+    All ports gaining <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:12px;">machine.I2CTarget</code> in v1.26.
+  </p>
+  <div class="port-matrix">
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> alif</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> esp32</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> mimxrt</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> rp2</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> samd</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> stm32</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> zephyr</div>
+  </div>
+</section>
+
+<!-- ===== SECTION: FLOAT ACCURACY ===== -->
+<section class="section" id="floats">
+  <div class="section-header">
+    <span class="section-badge improved">Improved</span>
+    <h2>Float Accuracy &mdash; <code>repr</code> Round-Trips for Real</h2>
+    <p class="section-desc">
+      Before v1.26, only ~28% of single-precision floats round-tripped correctly through
+      <code>repr</code> &rarr; <code>float</code> &rarr; original value. v1.26 rewrites
+      float printing and formatting; that number is now <strong>98.5%</strong>. Double
+      precision improved from 38% to <strong>99.8%</strong>. The same fix means floats
+      survive a save/load cycle through <code>.mpy</code> files.
+    </p>
+  </div>
+
+  <div class="float-bars">
+    <div class="float-bar-row">
+      <div class="float-bar-label">Single precision</div>
+      <div class="float-bar-pair">
+        <div class="float-bar-strip">
+          <div class="float-bar-track"><div class="float-bar-fill" data-target="28" style="background: var(--accent-orange);"></div></div>
+          <div class="float-bar-tag">v1.25 &mdash; <span class="float-bar-num" data-target="28">0</span>%</div>
+        </div>
+        <div class="float-bar-strip">
+          <div class="float-bar-track"><div class="float-bar-fill" data-target="98.5" style="background: var(--accent-green);"></div></div>
+          <div class="float-bar-tag">v1.26 &mdash; <span class="float-bar-num" data-target="98.5">0</span>%</div>
+        </div>
+      </div>
+    </div>
+    <div class="float-bar-row">
+      <div class="float-bar-label">Double precision</div>
+      <div class="float-bar-pair">
+        <div class="float-bar-strip">
+          <div class="float-bar-track"><div class="float-bar-fill" data-target="38" style="background: var(--accent-orange);"></div></div>
+          <div class="float-bar-tag">v1.25 &mdash; <span class="float-bar-num" data-target="38">0</span>%</div>
+        </div>
+        <div class="float-bar-strip">
+          <div class="float-bar-track"><div class="float-bar-fill" data-target="99.8" style="background: var(--accent-green);"></div></div>
+          <div class="float-bar-tag">v1.26 &mdash; <span class="float-bar-num" data-target="99.8">0</span>%</div>
+        </div>
+      </div>
+    </div>
+    <p class="float-bars-caption">
+      Percentage of randomly-generated floats whose <code>repr(x)</code> output, when
+      passed back through <code>float()</code>, recovers the original value exactly.
+    </p>
+  </div>
+
+  <div class="demo-container live-playground">
+    <div class="demo-label">
+      Live demo
+      <span class="pyscript-tag">PyScript</span>
+    </div>
+    <p class="playground-intro">
+      Edit and run real MicroPython below. The output you see is generated by the same
+      improved float-printing routines that ship in v1.26.
+    </p>
+    <textarea class="mpy-code-editor" id="float-editor" spellcheck="false"># Try a tricky float &mdash; this is real MicroPython running in your browser.
+x = 0.1 + 0.2
+print(repr(x))                  # 0.30000000000000004
+print(float(repr(x)) == x)      # True &mdash; repr round-trips
+
+# Some classic offenders, including denormals and near-overflow values:
+for v in [1/3, 1e-300, 2**-1074, 1.5e308, 22/7]:
+    s = repr(v)
+    print("{:30}  -&gt;  {:30}  round-trips: {}".format(repr(v), repr(s), float(s) == v))
+</textarea>
+    <div class="mpy-btn-row">
+      <button class="mpy-run-btn" id="float-run">Run &#9654;</button>
+      <span class="mpy-status">Loading MicroPython&hellip;</span>
+    </div>
+    <div class="mpy-output" id="float-output"></div>
+    <p class="playground-note">
+      v1.26 also folds float constants at compile time: <code>const(2 * math.pi)</code>
+      now evaluates in the compiler, not at runtime. And in object representation C
+      (where floats are stored within the immediate object value, losing the bottom
+      two bits), a heuristic now reconstructs those bits to reduce the bias toward zero.
+    </p>
+  </div>
+</section>
+
+<!-- ===== SECTION: NATIVE EMITTER ===== -->
+<section class="section" id="native">
+  <div class="section-header">
+    <span class="section-badge improved">Improved</span>
+    <h2>Native &amp; Viper Emitters &mdash; Every Architecture Got a Tune-Up</h2>
+    <p class="section-desc">
+      The native code emitters now produce more compact loads and stores across
+      <strong>ARM, Thumb, Xtensa, RISC-V 32, x86 and x64</strong>. Thumb&nbsp;v1
+      (RP2040) gains long jumps greater than 12 bits, allowing larger Python functions
+      to compile native. The inline Xtensa assembler now implements most of the LX3
+      opcode set.
+    </p>
+  </div>
+
+  <div class="port-matrix">
+    <div class="port-chip"><span class="check">&#10003;</span> ARM</div>
+    <div class="port-chip"><span class="check">&#10003;</span> Thumb</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> Thumb v1 / RP2040</div>
+    <div class="port-chip"><span class="check">&#10003;</span> Xtensa</div>
+    <div class="port-chip"><span class="check">&#10003;</span> RISC-V 32</div>
+    <div class="port-chip"><span class="check">&#10003;</span> x86</div>
+    <div class="port-chip"><span class="check">&#10003;</span> x64</div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Long jumps on Thumb v1</div>
+    Larger functions decorated with <code>@micropython.native</code> now compile on
+    RP2040 boards that previously hit branch-range limits. Inline Xtensa
+    (<code>@micropython.asm_xtensa</code>) gains <code>addx2</code>, <code>subx2</code>,
+    <code>ssl</code>, <code>ssr</code>, and most other LX3 opcodes &mdash; bringing the
+    inline assembler much closer to feature-parity with hand-written ESP32 firmware.
+  </div>
+</section>
+
+<!-- ===== SECTION: COUNTER / ENCODER ===== -->
+<section class="section" id="counter">
+  <div class="section-header">
+    <span class="section-badge new">New &mdash; esp32 only</span>
+    <h2>machine.Counter &amp; machine.Encoder &mdash; Hardware Pulse Counting</h2>
+    <p class="section-desc">
+      A new <code>esp32.PCNT</code> class wraps the ESP32 hardware pulse-counter
+      peripheral, and ships with cross-port-style APIs <code>machine.Counter</code>
+      (single-channel) and <code>machine.Encoder</code> (quadrature). Drag the dial
+      below to feel how a quadrature encoder works.
+    </p>
+  </div>
+
+  <div class="demo-container">
+    <div class="demo-label">Interactive Demo &mdash; Quadrature Encoder</div>
+
+    <div class="encoder-mode-toggle">
+      <button class="active" data-mode="encoder">Encoder (quadrature)</button>
+      <button data-mode="counter">Counter (single channel)</button>
+    </div>
+
+    <div class="encoder-stage">
+      <div class="encoder-dial-wrap">
+        <svg class="encoder-dial" viewBox="0 0 200 200" id="encoder-dial">
+          <circle cx="100" cy="100" r="85" class="encoder-dial-bg"/>
+          <g id="encoder-tick-group">
+            <line x1="100" y1="20" x2="100" y2="35" class="encoder-tick"/>
+          </g>
+          <circle cx="100" cy="100" r="6" class="encoder-hub"/>
+        </svg>
+        <p class="encoder-help">Drag the dial to rotate</p>
+      </div>
+
+      <div class="encoder-readout">
+        <div class="encoder-count-card">
+          <div class="encoder-count-label">count</div>
+          <div class="encoder-count-value" id="encoder-count">0</div>
+        </div>
+        <div class="encoder-direction-card">
+          <div class="encoder-direction-label">direction</div>
+          <div class="encoder-direction-value" id="encoder-direction">&middot;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="encoder-traces">
+      <div class="encoder-trace-row">
+        <span class="encoder-trace-label">Channel A</span>
+        <canvas id="encoder-trace-a" height="50"></canvas>
+      </div>
+      <div class="encoder-trace-row" id="encoder-trace-b-row">
+        <span class="encoder-trace-label">Channel B</span>
+        <canvas id="encoder-trace-b" height="50"></canvas>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin-top:16px;">
+      <div class="code-header">
+        <span>main.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+<pre><span class="kw">from</span> machine <span class="kw">import</span> Pin, Encoder
+
+enc = Encoder(<span class="num">0</span>, phase_a=Pin(<span class="num">4</span>), phase_b=Pin(<span class="num">5</span>))
+<span class="kw">while</span> <span class="bi">True</span>:
+    <span class="bi">print</span>(enc.value())   <span class="cmt"># signed count, sign indicates direction</span></pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">esp32 only in v1.26</div>
+    The <code>Counter</code> and <code>Encoder</code> classes live under
+    <code>machine.*</code> but are currently implemented only on the esp32 port
+    (via <code>esp32.PCNT</code>). The same pattern &mdash; introducing a feature on one
+    port and standardising it across all of them later &mdash; is exactly what v1.28 did
+    with <code>machine.PWM</code> and <code>machine.CAN</code>.
+  </div>
+</section>
+
+<!-- ===== SECTION: LANGUAGE TWEAKS ===== -->
+<section class="section" id="language">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>Python Language Tweaks</h2>
+    <p class="section-desc">
+      Five small core-language additions in v1.26. Pick one from the dropdown to load
+      the example into the editor, then run it live.
+    </p>
+  </div>
+
+  <div class="demo-container live-playground">
+    <div class="demo-label">
+      Live demo
+      <span class="pyscript-tag">PyScript</span>
+    </div>
+
+    <div class="example-picker-row">
+      <label for="lang-picker">Example:</label>
+      <select id="lang-picker" class="example-picker">
+        <option value="all">__all__ in star imports</option>
+        <option value="setname">PEP 487 __set_name__</option>
+        <option value="format">str.format digit grouping</option>
+        <option value="array">array() from any iterable</option>
+        <option value="slice">slice on stack (heap_lock)</option>
+      </select>
+    </div>
+
+    <textarea class="mpy-code-editor" id="lang-editor" spellcheck="false"></textarea>
+    <div class="mpy-btn-row">
+      <button class="mpy-run-btn" id="lang-run">Run &#9654;</button>
+      <button class="mpy-clear-btn" id="lang-reset">Reset example</button>
+      <span class="mpy-status">Loading MicroPython&hellip;</span>
+    </div>
+    <div class="mpy-output" id="lang-output"></div>
+
+    <p class="playground-note" id="lang-note"></p>
+  </div>
+</section>
+
+<!-- ===== SECTION: STM32N6 + ESP32-C2 ===== -->
+<section class="section" id="n6c2">
+  <div class="section-header">
+    <span class="section-badge new">New MCUs</span>
+    <h2>STM32N6 &amp; ESP32-C2</h2>
+    <p class="section-desc">
+      Two new microcontrollers added in v1.26 &mdash; one chasing high-end ML inference
+      on the edge, the other chasing low-cost RISC-V wireless.
+    </p>
+  </div>
+
+  <div class="mcu-spec-cards">
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>STM32N6</h3>
+        <span class="badge active">800 MHz</span>
+      </div>
+      <div class="mcu-spec-strip">
+        <div><span class="mcu-spec-num">800</span> MHz</div>
+        <div><span class="mcu-spec-num">ML</span> accel</div>
+        <div><span class="mcu-spec-num">XSPI</span> XIP flash</div>
+      </div>
+      <p class="mcu-spec-desc">
+        STMicroelectronics' new high-performance MCU with built-in machine-learning
+        accelerators. v1.26 supports USB, XSPI memory-mapped external flash, a
+        filesystem, basic peripherals and deep sleep.
+      </p>
+      <div class="mcu-spec-boards">
+        <span class="board-chip">NUCLEO_N657X0</span>
+        <span class="board-chip">OPENMV_N6</span>
+      </div>
+    </div>
+
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>ESP32-C2 (ESP8684)</h3>
+        <span class="badge active">RISC-V</span>
+      </div>
+      <div class="mcu-spec-strip">
+        <div><span class="mcu-spec-num">RV32</span> core</div>
+        <div><span class="mcu-spec-num">WiFi</span> + BLE</div>
+        <div><span class="mcu-spec-num">low</span> cost</div>
+      </div>
+      <p class="mcu-spec-desc">
+        Espressif's small, low-cost RISC-V MCU with WiFi and BLE. MicroPython on the
+        C2 supports a REPL, filesystem, GPIO, I2C, ADC, PWM, timers, WiFi and BLE.
+      </p>
+      <div class="mcu-spec-boards">
+        <span class="board-chip">ESP32_GENERIC_C2 / FLASH_2M</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: HIGHLIGHTS ===== -->
+<section class="section" id="highlights">
+  <div class="section-header">
+    <h2>Highlights</h2>
+    <p class="section-desc">Other notable improvements in v1.26.</p>
+  </div>
+
+  <div class="highlights-grid">
+    <div class="highlight-card">
+      <span class="hl-icon">&#128274;</span>
+      <h3>DTLS server support</h3>
+      <p>The mbedTLS backend now handles HelloVerify and Anti Replay protection,
+        enabling proper DTLS servers.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">tls</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128231;</span>
+      <h3>lwIP UDP queue</h3>
+      <p>Multiple incoming UDP and raw packets can now be queued, replacing the previous
+        single-packet buffer. More robust UDP protocols.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">lwIP</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128196;</span>
+      <h3>framebuf ROM blits</h3>
+      <p><code>FrameBuffer.blit()</code> now accepts read-only data, so custom fonts and
+        bitmaps can live in flash instead of RAM.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">framebuf</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#9202;</span>
+      <h3>time module range standardised</h3>
+      <p><code>time()</code>, <code>localtime()</code> and <code>mktime()</code> now
+        cover at least 1970&ndash;2099 on every platform, regardless of the underlying
+        epoch.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">all ports</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128202;</span>
+      <h3>VM avoids slice allocations</h3>
+      <p><code>buf[a:b] = c</code> on bytearrays/memoryviews no longer heap-allocates
+        the slice &mdash; works inside hard IRQs and reduces GC churn.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">core</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128270;</span>
+      <h3>mpremote fs tree</h3>
+      <p>New <code>mpremote fs tree</code> command (with <code>-s</code>/<code>-h</code>
+        for sizes), and <code>df</code> now uses no-arg <code>vfs.mount()</code> for a
+        much better mount summary.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">mpremote</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128737;</span>
+      <h3>Compressed error messages on rp2</h3>
+      <p>Enabled by default, saving ~3&nbsp;kB of firmware on RP2040 / RP2350 builds.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">rp2</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#129690;</span>
+      <h3>sys.implementation._thread</h3>
+      <p>New attribute reports the threading model in use &mdash; either GIL or
+        unsafe/no-GIL &mdash; so portable code can adapt.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">sys</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#9888;</span>
+      <h3>nrf <code>enable_irq()</code> &mdash; breaking change</h3>
+      <p>Signature is now <code>enable_irq(state)</code> matching all other ports.
+        Previously <code>enable_irq()</code>. Affects nrf boards only.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">nrf</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128300;</span>
+      <h3>Zephyr v4.0.0 + new peripherals</h3>
+      <p>PWM support added; UARTs gain ring-buffered IRQ-driven I/O; SoftI2C/SoftSPI
+        enabled; <code>boot.py</code>/<code>main.py</code> now run at startup.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">zephyr</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127760;</span>
+      <h3>WebAssembly FFI improvements</h3>
+      <p><code>JsProxy</code> equality, better <code>has</code>/<code>get</code>
+        proxying, correct self-binding for JavaScript methods, and reuse of proxy
+        references for stable identity on the Python side.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">webassembly</span>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128221;</span>
+      <h3>__all__ in star imports</h3>
+      <p><code>from mod import *</code> now respects a module-level
+        <code>__all__</code>. PEP 487 <code>__set_name__</code> is also supported.</p>
+      <div class="hl-ports">
+        <span class="hl-port-tag">core</span>
+      </div>
+    </div>
+  </div>
+</section>

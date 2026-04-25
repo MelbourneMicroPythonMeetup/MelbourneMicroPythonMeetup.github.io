@@ -1,0 +1,531 @@
+---
+layout: release-notes
+title: MicroPython v1.25.0 Release Notes
+version: v1.25.0
+pyscript: true
+page_css: /micropython-v1.25/v1.25.css
+page_js: /micropython-v1.25/v1.25.js
+
+hero:
+  version: "v1.25"
+  tagline: "ROMFS ships after three years in development, plus a brand-new alif port and an inline RISC-V assembler."
+  date: "April 16, 2025"
+
+summary_cards:
+  - { icon: "&#128190;", title: "ROMFS",     desc: "Execute mpy in place from flash",    target: "romfs" }
+  - { icon: "&#129504;", title: "alif port", desc: "Ethos-U55 ML accelerators",          target: "alif" }
+  - { icon: "&#9881;",   title: "asm_rv32",  desc: "Inline RISC-V 32-bit machine code",  target: "asm" }
+  - { icon: "&#128274;", title: "DTLS",      desc: "Datagram TLS over UDP sockets",      target: "dtls" }
+
+stats:
+  - { value: 56, label: "Contributors" }
+  - { value: 15, label: "Timezones" }
+  - { value: 19, label: "New Boards" }
+
+mpy_banner:
+  headline: "The language demos on this page run real MicroPython in your browser."
+  body: "MicroPython is compiled to WebAssembly via PyScript and executes live as the page loads &mdash; no server required."
+
+toc:
+  - { id: "romfs",    label: "ROMFS / VfsRom" }
+  - { id: "alif",     label: "alif port" }
+  - { id: "asm",      label: "asm_rv32" }
+  - { id: "dtls",     label: "DTLS" }
+  - { id: "language", label: "Language Tweaks" }
+  - { id: "highlights", label: "Highlights" }
+
+boards:
+  summary: "19 new board definitions, dominated by RP2350-class rp2 boards and the brand-new alif port."
+  groups:
+    - port: "alif"
+      boards: ["ALIF_ENSEMBLE", "OPENMV_AE3"]
+    - port: "mimxrt"
+      boards: ["MAKERDIARY_RT1011_NANO_KIT"]
+    - port: "rp2"
+      boards:
+        - "MACHDYNE_WERKZEUG"
+        - "RPI_PICO2_W"
+        - "SEEED_XIAO_RP2350"
+        - "SPARKFUN_IOTNODE_LORAWAN_RP2350"
+        - "SPARKFUN_IOTREDBOARD_RP2350"
+        - "SPARKFUN_PROMICRO_RP2350"
+        - "SPARKFUN_THINGPLUS_RP2350"
+        - "SPARKFUN_XRP_CONTROLLER"
+        - "SPARKFUN_XRP_CONTROLLER_BETA"
+        - "WEACTSTUDIO_RP2350B_CORE"
+    - port: "samd"
+      boards:
+        - "ADAFRUIT_NEOKEY_TRINKEY"
+        - "ADAFRUIT_QTPY_SAMD21"
+        - "SAMD_GENERIC_D21X18"
+        - "SAMD_GENERIC_D51X19"
+        - "SAMD_GENERIC_D51X2"
+    - port: "stm32"
+      boards: ["WEACT_F411_BLACKPILL"]
+
+numbers:
+  summary: "v1.25 in numbers. unix and mimxrt take big code-size hits from VfsRom + exFAT; rp2 grows for DTLS + cyw43-driver 1.1.0."
+  cards:
+    - { value: 56, label: "Contributors" }
+    - { value: 15, label: "Timezones" }
+    - { value: 19, label: "New Boards" }
+  code_size:
+    title: "Code size delta vs v1.24 (.text section, bytes)"
+    rows:
+      - { port: "unix x64",   delta_bytes: 16941, bar_pct: 100, tooltip: "+2.05% &mdash; enable VfsRom, mbedTLS v3.6.2, DTLS" }
+      - { port: "esp32",      delta_bytes: 10956, bar_pct: 65,  tooltip: "+0.65% &mdash; many small fixes and improvements" }
+      - { port: "rp2",        delta_bytes: 7944,  bar_pct: 47,  tooltip: "+0.87% &mdash; mbedTLS v3.6.2, DTLS, cyw43-driver 1.1.0" }
+      - { port: "mimxrt",     delta_bytes: 7508,  bar_pct: 44,  tooltip: "+2.07% &mdash; enable exFAT, function constructor" }
+      - { port: "samd",       delta_bytes: 1112,  bar_pct: 7,   tooltip: "+0.42% &mdash; UART 9-bit, function constructor, default buses" }
+      - { port: "esp8266",    delta_bytes: 964,   bar_pct: 6,   tooltip: "+0.14% &mdash; function attrs, Pin.toggle(), AP enumeration" }
+      - { port: "cc3200",     delta_bytes: 280,   bar_pct: 2,   tooltip: "+0.15% &mdash; Pin.toggle()" }
+      - { port: "nrf",        delta_bytes: 168,   bar_pct: 1,   tooltip: "+0.09% &mdash; sys.implementation._build, 2-arg next(), vfs.mount()" }
+      - { port: "bare-arm",   delta_bytes: 4,     bar_pct: 1,   tooltip: "+0.01% &mdash; tracking only" }
+      - { port: "minimal x86",delta_bytes: -90,   bar_pct: 1,   tooltip: "-0.05% &mdash; small code-size optimisations" }
+      - { port: "stm32",      delta_bytes: -96,   bar_pct: 1,   tooltip: "-0.03% &mdash; small code-size optimisations" }
+      - { port: "renesas-ra", delta_bytes: -160,  bar_pct: 1,   tooltip: "-0.03% &mdash; small code-size optimisations" }
+  contributors: |
+    Alessandro Gatti, Alex Brudner, Amirreza Hamzavi, Andrew Leech, Angus Gratton,
+    Anson Mansfield, Carl Pottle, Christian Clauss, chuangjinglu, Corran Webster,
+    Damien George, danicampora, Dani&euml;l van de Giessen, Dryw Wade, eggfly,
+    Garry W, garywill, Glenn Moloney, Glenn Strauss, Graeme Winter, Hans Maerki,
+    Herwin Grobben, I. Tomita, iabdalkader, IhorNehrutsa, Jan Klus&aacute;&ccaron;ek,
+    Jan Sturm, Jared Hancock, Jeff Epler, Jon Nordby, Jos Verlinde, Karl Palsson,
+    Keenan Johnson, Kwabena W. Agyeman, Lesords, machdyne, Malcolm McKellips,
+    Mark Seminatore, Markus Gyger, Matt Trentini, Mike Bell, Neil Ludban,
+    Peter Harper, peterhinch, Phil Howard, robert-hh, Ronald Weber, rufusclark,
+    Sebastian Romero, Steve Holden, stijn, StrayCat, Thomas Watson,
+    Victor Rajewski, Volodymyr Shymanskyy, Yoctopuce.
+
+pyscript_block: |
+  from pyscript import document, when
+  import sys
+
+  def run_editor(code_id, out_id):
+      code = document.querySelector("#" + code_id).value
+      out_el = document.querySelector("#" + out_id)
+      out_el.classList.remove("has-error")
+      lines = []
+      def _print(*args, sep=" ", end="\n"):
+          lines.append(sep.join(str(a) for a in args) + end)
+      try:
+          exec(code, {"print": _print})
+          output = "".join(lines) or "(no output)"
+      except Exception as e:
+          output = type(e).__name__ + ": " + str(e)
+          out_el.classList.add("has-error")
+      out_el.innerText = output
+
+  @when("click", "#lang-run")
+  def _r_lang(ev):
+      run_editor("lang-editor", "lang-output")
+
+  for s in document.querySelectorAll(".mpy-status"):
+      s.innerText = f"MicroPython {sys.version} ready"
+---
+
+<!-- ===== SECTION: ROMFS ===== -->
+<section class="section" id="romfs">
+  <div class="section-header">
+    <span class="section-badge new">New &mdash; 3 years in development</span>
+    <h2>ROMFS &mdash; Execute Bytecode in Place</h2>
+    <p class="section-desc">
+      <strong>ROMFS</strong> is a read-only, memory-mappable filesystem that lets MicroPython
+      execute precompiled <code>.mpy</code> bytecode <em>directly from flash</em>, without
+      copying it into RAM first. The result: faster imports and a lot less heap pressure.
+      Data resources like fonts can also be used in place. ROMFS builds on bytecode v6
+      (which has supported in-place execution for years).
+    </p>
+  </div>
+
+  <div class="demo-container">
+    <div class="demo-label">Interactive Demo &mdash; Import a Module</div>
+
+    <div class="romfs-controls">
+      <button class="btn btn-primary" id="romfs-run">Run <code>import font</code></button>
+      <button class="btn btn-secondary" id="romfs-reset">Reset</button>
+    </div>
+
+    <div class="romfs-stage">
+      <!-- Without ROMFS (left) -->
+      <div class="romfs-mcu">
+        <div class="romfs-mcu-title">Without ROMFS &mdash; bytecode copies to RAM</div>
+        <svg class="romfs-mcu-svg" viewBox="0 0 280 180" preserveAspectRatio="xMidYMid meet">
+          <rect x="20"  y="20"  width="240" height="64" class="romfs-flash"/>
+          <text x="140" y="42"  class="romfs-region-label">FLASH (.mpy bytecode)</text>
+          <rect x="40"  y="50"  width="60"  height="20" class="romfs-bytecode" id="romfs-flash-a"/>
+          <rect x="180" y="50"  width="60"  height="20" class="romfs-bytecode" id="romfs-flash-b"/>
+
+          <rect x="20"  y="100" width="240" height="64" class="romfs-ram"/>
+          <text x="140" y="122" class="romfs-region-label">RAM</text>
+          <text x="140" y="148" class="romfs-ram-used" id="romfs-ram-used-a">0 kB used</text>
+
+          <!-- Animated copy block -->
+          <rect class="romfs-copy" id="romfs-copy-a" width="60" height="20" style="display:none;"/>
+        </svg>
+      </div>
+
+      <!-- With ROMFS (right) -->
+      <div class="romfs-mcu">
+        <div class="romfs-mcu-title">With ROMFS &mdash; bytecode runs in place</div>
+        <svg class="romfs-mcu-svg" viewBox="0 0 280 180" preserveAspectRatio="xMidYMid meet">
+          <rect x="20"  y="20"  width="240" height="64" class="romfs-flash romfs-flash-romfs"/>
+          <text x="140" y="42"  class="romfs-region-label">FLASH /rom (mmapped)</text>
+          <rect x="40"  y="50"  width="60"  height="20" class="romfs-bytecode" id="romfs-rom-a"/>
+          <rect x="180" y="50"  width="60"  height="20" class="romfs-bytecode" id="romfs-rom-b"/>
+
+          <rect x="20"  y="100" width="240" height="64" class="romfs-ram"/>
+          <text x="140" y="122" class="romfs-region-label">RAM</text>
+          <text x="140" y="148" class="romfs-ram-used" id="romfs-ram-used-b">0 kB used</text>
+
+          <!-- "Execute in place" arrow -->
+          <path id="romfs-inplace-arrow" d="M 70 70 L 70 100" class="romfs-inplace" style="display:none;"/>
+          <text x="80" y="92" class="romfs-inplace-label" id="romfs-inplace-label" style="display:none;">execute in place</text>
+        </svg>
+      </div>
+    </div>
+
+    <p class="romfs-note">
+      The demo simulates a small import. In real MicroPython, bytecode v6 + ROMFS lets the
+      VM execute opcodes directly from a memory-mapped flash region; only the per-call frame
+      needs to live in RAM. Imports of large modules become noticeably faster.
+    </p>
+  </div>
+
+  <h3 style="font-size:18px; margin-top:24px; margin-bottom:12px;">Building &amp; deploying ROMFS &mdash; <code>mpremote</code></h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span>terminal</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+<pre><span class="cmt"># 1. Build a ROMFS image from a directory tree of .py / .mpy / data files</span>
+$ mpremote romfs build romfs.bin --src ./assets
+Built ROMFS image: 32 kB
+
+<span class="cmt"># 2. Deploy it to the /rom partition on the target device</span>
+$ mpremote romfs deploy romfs.bin
+Deployed to /rom
+
+<span class="cmt"># 3. Imports now resolve transparently from /rom</span>
+$ mpremote run app.py</pre>
+  </div>
+
+  <h3 style="font-size:18px; margin-top:24px; margin-bottom:12px;">Where ROMFS is enabled by default in v1.25</h3>
+  <p style="font-size:14px; color:var(--text-secondary); margin-bottom:12px;">
+    Other boards can opt in with manual configuration. The list will grow in subsequent releases.
+  </p>
+  <div class="port-matrix">
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> PYBD-SFx (stm32)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> alif (all boards)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> ESP8266 FLASH_2M_ROMFS variant</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> stm32 Arduino boards</div>
+  </div>
+</section>
+
+<!-- ===== SECTION: ALIF PORT ===== -->
+<section class="section" id="alif">
+  <div class="section-header">
+    <span class="section-badge new">Brand new port</span>
+    <h2>alif &mdash; Multi-core ARM with ML Accelerators</h2>
+    <p class="section-desc">
+      A new port targeting Alif Semiconductor's <strong>Ensemble</strong> family. These MCUs
+      pair multiple ARM cores with <strong>Ethos-U55</strong> machine-learning accelerators
+      and a generous peripheral set. v1.25 brings up the platform with TinyUSB,
+      <strong>OpenAMP-based dual-core support</strong>, octal-SPI flash with XIP, and the
+      <code>machine</code> classes plus cyw43 WiFi+BLE.
+    </p>
+  </div>
+
+  <div class="mcu-spec-cards">
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>Alif Ensemble</h3>
+        <span class="badge active">Multi-core ARM</span>
+      </div>
+      <div class="mcu-spec-strip">
+        <div><span class="mcu-spec-num">M55</span> + M0+</div>
+        <div><span class="mcu-spec-num">U55</span> NPU</div>
+        <div><span class="mcu-spec-num">XIP</span> octal flash</div>
+      </div>
+      <p class="mcu-spec-desc">
+        Targeted at battery-powered ML inference at the edge. v1.25 supports
+        <code>Pin</code>, <code>UART</code>, <code>SPI</code>, <code>I2C</code>, USB via
+        TinyUSB, and dual-core orchestration via OpenAMP. cyw43 WiFi and BLE work on
+        boards that include the radio module.
+      </p>
+      <div class="mcu-spec-boards">
+        <span class="board-chip">ALIF_ENSEMBLE</span>
+        <span class="board-chip">OPENMV_AE3</span>
+      </div>
+    </div>
+
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>What's running where</h3>
+        <span class="badge active">Dual-core via OpenAMP</span>
+      </div>
+      <ul class="alif-bullets">
+        <li><strong>Cortex-M55 (HE)</strong> &mdash; high-performance core where MicroPython
+            executes by default.</li>
+        <li><strong>Cortex-M0+ (LP)</strong> &mdash; low-power core; OpenAMP makes it
+            addressable from MicroPython.</li>
+        <li><strong>Ethos-U55 NPU</strong> &mdash; per-core neural-network accelerator;
+            not yet exposed at the Python layer in v1.25.</li>
+        <li><strong>OPENMV_AE3</strong> targets OpenMV's upcoming AE3 camera board &mdash; the
+            ML angle is the headline use case.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: asm_rv32 ===== -->
+<section class="section" id="asm">
+  <div class="section-header">
+    <span class="section-badge new">New decorator</span>
+    <h2><code>@micropython.asm_rv32</code> &mdash; Inline RISC-V 32-bit assembly</h2>
+    <p class="section-desc">
+      MicroPython's inline-assembler family gains <strong>RV32</strong>. Write small snippets
+      of 32-bit RISC-V machine code as Python functions. Currently enabled on the rp2 port
+      when the <strong>RP2350 is in RISC-V mode</strong>.
+    </p>
+  </div>
+
+  <div class="asm-side-by-side">
+    <div class="asm-pane">
+      <div class="asm-pane-label">Pure Python (Viper)</div>
+<pre class="asm-pre"><span class="kw">@micropython.viper</span>
+<span class="kw">def</span> <span class="fn">add_squared</span>(a: <span class="bi">int</span>, b: <span class="bi">int</span>) -&gt; <span class="bi">int</span>:
+    <span class="kw">return</span> a*a + b*b</pre>
+    </div>
+    <div class="asm-pane">
+      <div class="asm-pane-label">Inline RV32 assembly</div>
+<pre class="asm-pre"><span class="kw">@micropython.asm_rv32</span>
+<span class="kw">def</span> <span class="fn">add_squared</span>(a0, a1) -&gt; <span class="bi">int</span>:
+    <span class="cmt"># a0 *= a0      ; a0 = a*a</span>
+    mul(a0, a0, a0)
+    <span class="cmt"># a1 *= a1      ; a1 = b*b</span>
+    mul(a1, a1, a1)
+    <span class="cmt"># a0 += a1      ; return a*a + b*b</span>
+    add(a0, a0, a1)</pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Where it works</div>
+    The <code>asm_rv32</code> decorator is enabled on <strong>rp2</strong> when targeting
+    RP2350 in RISC-V mode (Hazard3 cores). The same release also extends the native
+    emitter and <code>mpy_ld.py</code> linker to support 32-bit RISC-V code generation
+    and static-library linking, so native modules can be built for RV32 targets.
+  </div>
+</section>
+
+<!-- ===== SECTION: DTLS ===== -->
+<section class="section" id="dtls">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>DTLS &mdash; Datagram TLS</h2>
+    <p class="section-desc">
+      The <code>tls</code> module gains <code>PROTOCOL_DTLS_CLIENT</code> and
+      <code>PROTOCOL_DTLS_SERVER</code> modes. Wrap a UDP socket in a DTLS context
+      and you have an authenticated, encrypted datagram channel &mdash; useful for
+      CoAP-secure, low-latency telemetry, and constrained-network protocols where
+      TCP is the wrong tool.
+    </p>
+  </div>
+
+  <div class="dtls-compare">
+    <div class="dtls-pane">
+      <div class="dtls-pane-label">TLS over TCP &mdash; familiar</div>
+<pre class="dtls-pre"><span class="kw">import</span> tls, socket
+
+ctx = tls.SSLContext(tls.PROTOCOL_TLS_CLIENT)
+ctx.load_verify_locations(cadata=ca)
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((<span class="str">"example.com"</span>, <span class="num">443</span>))
+ss = ctx.wrap_socket(s, server_hostname=<span class="str">"example.com"</span>)
+ss.send(<span class="str">b"GET / HTTP/1.0\r\n\r\n"</span>)</pre>
+    </div>
+    <div class="dtls-pane">
+      <div class="dtls-pane-label">DTLS over UDP &mdash; <strong>new in v1.25</strong></div>
+<pre class="dtls-pre"><span class="kw">import</span> tls, socket
+
+ctx = tls.SSLContext(tls.<span class="op">PROTOCOL_DTLS_CLIENT</span>)
+ctx.load_verify_locations(cadata=ca)
+
+s = socket.socket(socket.AF_INET, socket.<span class="op">SOCK_DGRAM</span>)
+s.connect((<span class="str">"sensor.example"</span>, <span class="num">5684</span>))
+ss = ctx.wrap_socket(s, server_hostname=<span class="str">"sensor.example"</span>)
+ss.send(<span class="str">b"telemetry payload"</span>)</pre>
+    </div>
+  </div>
+
+  <h3 style="font-size:18px; margin-top:24px; margin-bottom:12px;">DTLS Port Support</h3>
+  <div class="port-matrix">
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> alif</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> mimxrt</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> renesas-ra</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> rp2</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> stm32</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> unix</div>
+  </div>
+</section>
+
+<!-- ===== SECTION: LANGUAGE TWEAKS ===== -->
+<section class="section" id="language">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>Python language tweaks</h2>
+    <p class="section-desc">
+      Five small core-language additions in v1.25. Pick one from the dropdown to load
+      the example into the editor, then run it live.
+    </p>
+  </div>
+
+  <div class="demo-container live-playground">
+    <div class="demo-label">
+      Live demo
+      <span class="pyscript-tag">PyScript</span>
+    </div>
+
+    <div class="example-picker-row">
+      <label for="lang-picker">Example:</label>
+      <select id="lang-picker" class="example-picker">
+        <option value="startswith">str.startswith / endswith with tuple + start/end</option>
+        <option value="next2">2-arg next() with default</option>
+        <option value="vfsmount">vfs.mount() with no arguments</option>
+        <option value="funccode">function.__code__ and function constructor</option>
+        <option value="implbuild">sys.implementation._build</option>
+      </select>
+    </div>
+
+    <textarea class="mpy-code-editor" id="lang-editor" spellcheck="false"></textarea>
+    <div class="mpy-btn-row">
+      <button class="mpy-run-btn" id="lang-run">Run &#9654;</button>
+      <button class="mpy-clear-btn" id="lang-reset">Reset example</button>
+      <span class="mpy-status">Loading MicroPython&hellip;</span>
+    </div>
+    <div class="mpy-output" id="lang-output"></div>
+
+    <p class="playground-note" id="lang-note"></p>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">marshal: enabled, but not in this build</div>
+    v1.25 also added a <code>marshal</code> module with <code>dumps()</code> /
+    <code>loads()</code> for code objects &mdash; combined with <code>function.__code__</code>
+    that gives you function serialisation. The MicroPython release tag explicitly notes:
+    <em>"This module is not enabled by default but can be used in custom build
+    configurations."</em> The PyScript variant of MicroPython runs at the
+    <code>FULL_FEATURES</code> ROM level, which doesn't include <code>marshal</code> &mdash;
+    so we can't demo it here. Try it on a desktop unix build with
+    <code>MICROPY_PY_MARSHAL=1</code>.
+  </div>
+</section>
+
+<!-- ===== SECTION: HIGHLIGHTS ===== -->
+<section class="section" id="highlights">
+  <div class="section-header">
+    <h2>Highlights</h2>
+    <p class="section-desc">Other notable improvements in v1.25.</p>
+  </div>
+
+  <div class="highlights-grid">
+    <div class="highlight-card">
+      <span class="hl-icon">&#128465;</span>
+      <h3><code>mpremote rm -r</code></h3>
+      <p>Recursive remove on the target device. <code>mpremote rm -rv :</code> wipes the
+        current working directory.</p>
+      <div class="hl-ports"><span class="hl-port-tag">mpremote</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128230;</span>
+      <h3><code>mip install</code> from local FS</h3>
+      <p>Install a package from a local directory or relative URL via
+        <code>package.json</code>. Useful for offline / air-gapped setups.</p>
+      <div class="hl-ports"><span class="hl-port-tag">mpremote</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128279;</span>
+      <h3>Default I2C / SPI / UART buses</h3>
+      <p>On samd, mimxrt, rp2 and others, the bus-id argument is now optional &mdash;
+        cross-port code can drop the explicit <code>id</code>.</p>
+      <div class="hl-ports"><span class="hl-port-tag">machine</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128268;</span>
+      <h3>esp32 dynamic USB devices</h3>
+      <p>USB device configuration at runtime on ESP32-S2 / S3, plus IDF v5.3 / v5.4 support
+        (sub-5.2.0 dropped). I2S enabled on all C3 boards.</p>
+      <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127960;</span>
+      <h3>RP2350 PSRAM autodetection</h3>
+      <p>RP2350 boards with PSRAM auto-size on boot. <code>rp2.bootsel_button()</code>
+        and USB-during-sleep both work on RP2350.</p>
+      <div class="hl-ports"><span class="hl-port-tag">rp2</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128272;</span>
+      <h3>WPA3 on cyw43 boards</h3>
+      <p>Pico W, Pico 2 W and stm32 cyw43-driver boards now support WPA3 in both AP
+        and STA modes.</p>
+      <div class="hl-ports"><span class="hl-port-tag">rp2</span><span class="hl-port-tag">stm32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#9888;</span>
+      <h3>stm32 deinit on soft-reset &mdash; breaking</h3>
+      <p>I2C and SPI buses are now deinitialised on soft-reset. Always re-initialise
+        instances when creating them.</p>
+      <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128203;</span>
+      <h3>littlefs corruption recovery</h3>
+      <p>stm32 boots no longer hard-fault on corrupt filesystems. Falls back to default
+        block parameters, then prints a message and continues.</p>
+      <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#9881;</span>
+      <h3>zephyr Timer + WDT</h3>
+      <p>The zephyr port gains <code>machine.Timer</code> and <code>machine.WDT</code>
+        implementations, narrowing the cross-port API gap.</p>
+      <div class="hl-ports"><span class="hl-port-tag">zephyr</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128229;</span>
+      <h3>mimxrt UF2 + exFAT + PPP</h3>
+      <p>UF2 bootloader support for easier firmware deployment, exFAT filesystem,
+        and PPP driver for boards with lwIP networking.</p>
+      <div class="hl-ports"><span class="hl-port-tag">mimxrt</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128268;</span>
+      <h3>RV32 native modules</h3>
+      <p><code>mpy_ld.py</code> now supports 32-bit RISC-V code, plus automatic linking
+        of static libraries (<code>libgcc</code>, <code>libm</code>) so native modules
+        can use standard C functions like <code>exp()</code>.</p>
+      <div class="hl-ports"><span class="hl-port-tag">native modules</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128737;</span>
+      <h3>mboot version string</h3>
+      <p>stm32 mboot embeds a version at the end of its flash slot;
+        <code>fwupdate.get_mboot_version()</code> retrieves it.</p>
+      <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+    </div>
+  </div>
+</section>

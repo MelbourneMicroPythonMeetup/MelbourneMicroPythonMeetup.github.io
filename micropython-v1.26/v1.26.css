@@ -1,0 +1,517 @@
+/* ============================================================
+   v1.26 page-specific styles
+   I2CTarget bus + bytearray, float-accuracy bars, quadrature
+   encoder dial + traces, language example picker, MCU spec cards.
+   ============================================================ */
+
+/* ===== I2CTarget Demo ===== */
+.i2c-mode-toggle {
+  display: inline-flex;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 20px;
+}
+.i2c-mode-toggle button {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.i2c-mode-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.i2c-stage {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.i2c-bus-svg {
+  width: 100%;
+  height: 200px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.i2c-bus-line {
+  stroke: var(--text-muted);
+  stroke-width: 2;
+}
+.i2c-bus-label {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-anchor: end;
+}
+
+.i2c-mcu {
+  fill: var(--bg-tertiary);
+  stroke: var(--border);
+  stroke-width: 2;
+  rx: 6;
+}
+.i2c-mcu.target-mcu {
+  stroke: var(--accent-green);
+}
+.i2c-mcu-label {
+  fill: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.i2c-mcu-sublabel {
+  fill: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  text-anchor: middle;
+}
+.i2c-mcu-port {
+  fill: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.i2c-packet-rect {
+  fill: var(--accent);
+  rx: 4;
+}
+.i2c-packet-rect.read {
+  fill: var(--accent-green);
+}
+.i2c-packet-label {
+  fill: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.i2c-bytearray {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.i2c-bytearray-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+}
+.i2c-bytearray-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 4px;
+}
+.i2c-cell {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  position: relative;
+  transition: all 0.3s ease;
+}
+.i2c-cell .i2c-cell-idx {
+  font-size: 9px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+.i2c-cell .i2c-cell-val {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.i2c-cell.recently-written {
+  background: var(--accent-green-glow);
+  border-color: var(--accent-green);
+  transform: scale(1.05);
+}
+.i2c-cell.recently-read {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+}
+
+.i2c-controls {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.i2c-controls label {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  gap: 4px;
+}
+.i2c-controls input {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  width: 100px;
+}
+.i2c-controls input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.i2c-log {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 100px;
+  overflow-y: auto;
+  color: var(--text-secondary);
+  min-height: 40px;
+}
+.i2c-log .log-write { color: var(--accent); }
+.i2c-log .log-read  { color: var(--accent-green); }
+.i2c-log .log-empty { color: var(--text-muted); font-style: italic; }
+
+.i2c-irq-pane {
+  background: var(--bg-code);
+  border: 1px solid var(--accent-orange);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.i2c-irq-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-orange);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.i2c-irq-list {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.i2c-irq-event {
+  padding: 2px 0;
+  animation: irq-flash 1.6s ease-out;
+}
+@keyframes irq-flash {
+  0%   { background: var(--accent-orange); color: #fff; }
+  100% { background: transparent; color: var(--text-secondary); }
+}
+
+/* ===== Float Accuracy Bars ===== */
+.float-bars {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+}
+.float-bar-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.float-bar-row:last-of-type { margin-bottom: 0; }
+.float-bar-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.float-bar-pair {
+  display: grid;
+  gap: 8px;
+}
+.float-bar-strip {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  align-items: center;
+  gap: 12px;
+}
+.float-bar-track {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  height: 16px;
+  overflow: hidden;
+  position: relative;
+}
+.float-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 6px;
+  transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.float-bar-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.float-bar-num {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.float-bars-caption {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 16px;
+  font-style: italic;
+}
+
+/* ===== Encoder Demo ===== */
+.encoder-mode-toggle {
+  display: inline-flex;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 20px;
+}
+.encoder-mode-toggle button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.encoder-mode-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.encoder-stage {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.encoder-dial-wrap {
+  text-align: center;
+}
+.encoder-dial {
+  width: 200px;
+  height: 200px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.encoder-dial:active { cursor: grabbing; }
+.encoder-dial-bg {
+  fill: var(--bg-primary);
+  stroke: var(--border);
+  stroke-width: 2;
+}
+.encoder-tick {
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.encoder-hub {
+  fill: var(--accent);
+}
+.encoder-help {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.encoder-readout {
+  display: grid;
+  gap: 12px;
+}
+.encoder-count-card,
+.encoder-direction-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+.encoder-count-label,
+.encoder-direction-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.encoder-count-value {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.encoder-direction-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.encoder-traces {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: grid;
+  gap: 4px;
+}
+.encoder-trace-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.encoder-trace-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.encoder-trace-row canvas {
+  width: 100%;
+  height: 50px;
+  display: block;
+}
+
+/* ===== Language Example Picker ===== */
+.example-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.example-picker-row label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.example-picker {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  flex: 1;
+  max-width: 360px;
+}
+.example-picker:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ===== MCU Spec Cards ===== */
+.mcu-spec-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+.mcu-spec-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+.mcu-spec-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.mcu-spec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.mcu-spec-header h3 {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+.mcu-spec-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.mcu-spec-strip > div {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.mcu-spec-num {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.mcu-spec-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.mcu-spec-boards {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ===== Responsive overrides ===== */
+@media (max-width: 768px) {
+  .encoder-stage { grid-template-columns: 1fr; justify-items: center; }
+  .float-bar-row { grid-template-columns: 1fr; }
+  .float-bar-strip { grid-template-columns: 1fr; }
+  .i2c-bytearray-grid { grid-template-columns: repeat(8, 1fr); }
+}

@@ -1,0 +1,622 @@
+---
+layout: release-notes
+title: MicroPython v1.24.0 Release Notes
+version: v1.24.0
+pyscript: true
+page_css: /micropython-v1.24/v1.24.css
+page_js: /micropython-v1.24/v1.24.js
+
+hero:
+  version: "v1.24"
+  tagline: "RP2350 lands, RISC-V grows up, ESP32-C6 arrives, and TinyUSB CDC code is unified across five ports."
+  date: "October 26, 2024"
+
+summary_cards:
+  - { icon: "&#127814;",  title: "RP2350",      desc: "ARM and RISC-V on the same chip", target: "newmcus" }
+  - { icon: "&#9889;",    title: "ESP32-C6",    desc: "WiFi 6 + 802.15.4 RISC-V SoC",    target: "newmcus" }
+  - { icon: "&#128257;",  title: "RingIO",      desc: "Thread-safe ring buffer",         target: "ringio" }
+  - { icon: "&#127760;",  title: "ipconfig()",  desc: "IPv4 + IPv6 network config",      target: "ipconfig" }
+
+stats:
+  - { value: 58, label: "Contributors" }
+  - { value: 15, label: "Timezones" }
+  - { value: 10, label: "New Boards" }
+
+mpy_banner:
+  headline: "RingIO and language demos on this page run real MicroPython in your browser."
+  body: "MicroPython is compiled to WebAssembly via PyScript and executes live as the page loads &mdash; no server required. v1.24 is the release where the webassembly port also gained top-level await of asyncio Tasks."
+
+toc:
+  - { id: "newmcus",  label: "RP2350 + ESP32-C6" }
+  - { id: "rv32",     label: "RISC-V Native Emitter" }
+  - { id: "ringio",   label: "micropython.RingIO" }
+  - { id: "ipconfig", label: "network.ipconfig" }
+  - { id: "tinyusb",  label: "TinyUSB + UART IRQs" }
+  - { id: "language", label: "Language Tweaks" }
+  - { id: "highlights", label: "Highlights" }
+
+boards:
+  summary: "10 new board definitions, weighted heavily toward ESP32-C6 and RP2350-class boards."
+  groups:
+    - port: "esp32"
+      boards:
+        - "ESP32_GENERIC_C6"
+        - "M5STACK_ATOMS3_LITE"
+        - "M5STACK_NANOC6"
+        - "OLIMEX_ESP32_EVB"
+        - "UM_FEATHERS3NEO"
+        - "UM_OMGS3"
+        - "UM_RGBTOUCH_MINI"
+        - "UM_TINYC6"
+    - port: "rp2"
+      boards: ["RPI_PICO2"]
+    - port: "stm32"
+      boards: ["ARDUINO_OPTA"]
+
+numbers:
+  summary: "v1.24 in numbers. esp32 firmware actually shrank by 53 kB after the ESP-IDF cleanup &mdash; the only port-shrink across the five recent releases."
+  cards:
+    - { value: 58, label: "Contributors" }
+    - { value: 15, label: "Timezones" }
+    - { value: 10, label: "New Boards" }
+  code_size:
+    title: "Code size delta vs v1.23 (.text section, bytes)"
+    rows:
+      - { port: "unix x64",   delta_bytes: 8994,   bar_pct: 17,  tooltip: "+1.10% &mdash; GCM and ECDHE-RSA mbedTLS config" }
+      - { port: "rp2",        delta_bytes: 3592,   bar_pct: 7,   tooltip: "+1.07% &mdash; RP2350 + RingIO + UART.irq" }
+      - { port: "esp8266",    delta_bytes: 2968,   bar_pct: 6,   tooltip: "+0.43% &mdash; ipconfig + RingIO" }
+      - { port: "samd",       delta_bytes: 2244,   bar_pct: 4,   tooltip: "+0.85% &mdash; RingIO + UART.irq" }
+      - { port: "mimxrt",     delta_bytes: 1864,   bar_pct: 4,   tooltip: "+0.51% &mdash; RingIO + UART.irq" }
+      - { port: "renesas-ra", delta_bytes: 1536,   bar_pct: 3,   tooltip: "+0.25% &mdash; RingIO + UART.irq" }
+      - { port: "nrf",        delta_bytes: 1460,   bar_pct: 3,   tooltip: "+0.78% &mdash; RingIO + UART.irq" }
+      - { port: "cc3200",     delta_bytes: 1152,   bar_pct: 2,   tooltip: "+0.62% &mdash; ipconfig + WLAN.ipconfig" }
+      - { port: "stm32",      delta_bytes: 1028,   bar_pct: 2,   tooltip: "+0.26% &mdash; new RingIO class" }
+      - { port: "minimal x86",delta_bytes: 185,    bar_pct: 1,   tooltip: "+0.10% &mdash; int.to_bytes() buffer-size fixes" }
+      - { port: "bare-arm",   delta_bytes: 116,    bar_pct: 1,   tooltip: "+0.20% &mdash; int.to_bytes() buffer-size fixes" }
+      - { port: "esp32",      delta_bytes: -53617, bar_pct: 100, tooltip: "-3.10% &mdash; ESP-IDF cleanup (v5.0.5 -> v5.2.2)" }
+  contributors: |
+    Adrian Higgins, Alessandro Gatti, Alexandre Iooss, Amirreza Hamzavi,
+    Andrea Milazzo, Andrew Leech, Angus Gratton, Ayush Singh, cajt,
+    Christian Walther, Corran Webster, Damien George, Dan Halbert, danicampora,
+    David Lechner, dmfaria, Dryw Wade, Elvis Pf&uuml;tzenreuter, Felix D&ouml;rre,
+    George Hopkins, Glenn Moloney, iabdalkader, IhorNehrutsa, Jared Hancock,
+    Jason Kridner, Jim Mussared, Jon Foster, Jos Verlinde, Junwha, Laurens Valk,
+    Lennart, Leo Chung, Matt Trentini, Matthias Blankertz, Maureen Helm,
+    Michael Sawyer, Michael Vornovitsky, nspsck, Owen, Paul Grayson, Peter Harper,
+    Peter Z&uuml;ger, Phil Howard, Plaque FCC, Rick Sorensen, robert-hh,
+    Seon Rozenblum, shiggy, stijn, Sylvain Zimmer, Takeo Takahashi,
+    Terence Stenvold, tharuka, Tim Weber, timdechant, Volodymyr Shymanskyy,
+    Yoctopuce, ZodiusInfuser.
+
+pyscript_block: |
+  from pyscript import document, when
+  import sys
+
+  def run_editor(code_id, out_id):
+      code = document.querySelector("#" + code_id).value
+      out_el = document.querySelector("#" + out_id)
+      out_el.classList.remove("has-error")
+      lines = []
+      def _print(*args, sep=" ", end="\n"):
+          lines.append(sep.join(str(a) for a in args) + end)
+      try:
+          exec(code, {"print": _print})
+          output = "".join(lines) or "(no output)"
+      except Exception as e:
+          output = type(e).__name__ + ": " + str(e)
+          out_el.classList.add("has-error")
+      out_el.innerText = output
+
+  @when("click", "#ringio-run")
+  def _r_ringio(ev):
+      run_editor("ringio-editor", "ringio-output")
+
+  @when("click", "#lang-run")
+  def _r_lang(ev):
+      run_editor("lang-editor", "lang-output")
+
+  for s in document.querySelectorAll(".mpy-status"):
+      s.innerText = f"MicroPython {sys.version} ready"
+---
+
+<!-- ===== SECTION: NEW MCUs (RP2350 + ESP32-C6) ===== -->
+<section class="section" id="newmcus">
+  <div class="section-header">
+    <span class="section-badge new">Two new MCUs</span>
+    <h2>RP2350 &amp; ESP32-C6</h2>
+    <p class="section-desc">
+      v1.24 brings up two important new chips. <strong>RP2350</strong> is the headline:
+      Raspberry Pi's successor to the RP2040, with both ARM and RISC-V cores
+      <em>on the same die</em>, in 30- and 48-pin variants. <strong>ESP32-C6</strong>
+      is Espressif's RISC-V chip with WiFi 6 and 802.15.4 (Thread / Zigbee).
+    </p>
+  </div>
+
+  <div class="demo-container">
+    <div class="demo-label">Interactive Demo &mdash; RP2350: ARM or RISC-V?</div>
+
+    <div class="rp-arch-toggle">
+      <button class="active" data-arch="arm">Cortex-M33 (ARM)</button>
+      <button data-arch="riscv">Hazard3 (RISC-V)</button>
+    </div>
+
+    <div class="rp-stage">
+      <svg class="rp-svg" viewBox="0 0 600 240" preserveAspectRatio="xMidYMid meet">
+        <!-- RP2350 chip -->
+        <rect x="80" y="40" width="440" height="160" class="rp-chip"/>
+        <text x="300" y="80" class="rp-chip-label">RP2350</text>
+        <text x="300" y="100" class="rp-chip-sub">Raspberry Pi&apos;s 2024 MCU</text>
+
+        <!-- Two cores -->
+        <rect x="160" y="120" width="120" height="60" class="rp-core" id="rp-core-0"/>
+        <text x="220" y="148" class="rp-core-label" id="rp-core-0-label">Cortex-M33</text>
+        <text x="220" y="166" class="rp-core-sub" id="rp-core-0-sub">core 0</text>
+
+        <rect x="320" y="120" width="120" height="60" class="rp-core" id="rp-core-1"/>
+        <text x="380" y="148" class="rp-core-label" id="rp-core-1-label">Cortex-M33</text>
+        <text x="380" y="166" class="rp-core-sub" id="rp-core-1-sub">core 1</text>
+
+        <!-- Architecture indicator badge -->
+        <rect x="446" y="48" width="62" height="22" class="rp-arch-badge" id="rp-arch-badge"/>
+        <text x="477" y="63" class="rp-arch-badge-label" id="rp-arch-badge-label">ARM</text>
+      </svg>
+    </div>
+
+    <div class="rp-info">
+      <div class="rp-info-card">
+        <div class="rp-info-label">Native emitter</div>
+        <div class="rp-info-value" id="rp-info-emitter"><code>@micropython.native</code> &rarr; Thumb v1</div>
+      </div>
+      <div class="rp-info-card">
+        <div class="rp-info-label">Inline assembler</div>
+        <div class="rp-info-value" id="rp-info-asm"><code>@micropython.asm_thumb</code></div>
+      </div>
+      <div class="rp-info-card">
+        <div class="rp-info-label">Board</div>
+        <div class="rp-info-value" id="rp-info-board">RPI_PICO2 (default ARM build)</div>
+      </div>
+    </div>
+
+    <p class="rp-note">
+      The RP2350 ships with both an ARM Cortex-M33 and a RISC-V Hazard3 core pair on
+      the same die. The bootrom selects which cores to wake at startup, controlled by
+      the firmware build. v1.24 lands MicroPython support for both modes.
+    </p>
+  </div>
+
+  <div class="mcu-spec-cards" style="margin-top:24px;">
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>ESP32-C6</h3>
+        <span class="badge active">RISC-V + WiFi 6</span>
+      </div>
+      <div class="mcu-spec-strip">
+        <div><span class="mcu-spec-num">RV32</span> + WiFi 6</div>
+        <div><span class="mcu-spec-num">802.15.4</span> radio</div>
+        <div><span class="mcu-spec-num">native</span> emitter</div>
+      </div>
+      <p class="mcu-spec-desc">
+        Espressif's RISC-V SoC with WiFi 6 and 802.15.4 (Thread / Zigbee). v1.24
+        enables the <strong>RV32IMC native emitter</strong> on both C3 and C6, so
+        <code>@micropython.native</code>-decorated functions compile to tight RISC-V
+        machine code on these chips.
+      </p>
+      <div class="mcu-spec-boards">
+        <span class="board-chip">ESP32_GENERIC_C6</span>
+        <span class="board-chip">M5STACK_NANOC6</span>
+        <span class="board-chip">UM_TINYC6</span>
+      </div>
+    </div>
+
+    <div class="mcu-spec-card">
+      <div class="mcu-spec-header">
+        <h3>RP2350 details</h3>
+        <span class="badge active">pico-sdk v2.0.0</span>
+      </div>
+      <ul class="rp-bullets">
+        <li><strong>30- and 48-pin variants</strong> &mdash; both supported.</li>
+        <li><strong>IPv6 enabled by default</strong> on the rp2 port.</li>
+        <li><strong>USB stays active during <code>machine.lightsleep()</code></strong>.</li>
+        <li><strong>Optional <code>network.PPP</code></strong> &mdash; lwIP-based, opt-in.</li>
+        <li>RP2040 still fully supported &mdash; same firmware family, just a new board.</li>
+      </ul>
+      <div class="mcu-spec-boards" style="margin-top:12px;">
+        <span class="board-chip">RPI_PICO2</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SECTION: RV32 emitter ===== -->
+<section class="section" id="rv32">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>RISC-V 32-bit Native Emitter</h2>
+    <p class="section-desc">
+      MicroPython has had native code generation for ARM, Thumb, Xtensa and x86/x64
+      for years. v1.24 adds <strong>RV32IMC</strong>: <code>@micropython.native</code>
+      now compiles directly to RISC-V machine code, no interpretation. Decorated
+      functions land in <code>.mpy</code> files (and can be frozen) just like other
+      architectures. v1.24 also adds RISC-V NLR and GC register-scanning, plus
+      semihosting for testing under <code>qemu</code>.
+    </p>
+  </div>
+
+  <h3 style="font-size:18px; margin-top:8px; margin-bottom:12px;">RV32 native emitter port support</h3>
+  <div class="port-matrix">
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> esp32 (C3)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> esp32 (C6)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> rp2 (RP2350 / RV)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> qemu (rv32)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> unix (rv32)</div>
+  </div>
+
+  <div class="code-block" style="margin-top:24px;">
+    <div class="code-header">
+      <span>main.py &mdash; works identically across architectures</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+<pre><span class="kw">import</span> micropython
+
+<span class="kw">@micropython.native</span>
+<span class="kw">def</span> <span class="fn">crc16</span>(data, init=<span class="num">0xffff</span>):
+    crc = init
+    <span class="kw">for</span> b <span class="kw">in</span> data:
+        crc ^= b
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="num">8</span>):
+            crc = (crc &gt;&gt; <span class="num">1</span>) ^ <span class="num">0xa001</span> <span class="kw">if</span> crc &amp; <span class="num">1</span> <span class="kw">else</span> crc &gt;&gt; <span class="num">1</span>
+    <span class="kw">return</span> crc &amp; <span class="num">0xffff</span>
+
+<span class="cmt"># On RP2350 (RV mode) and ESP32-C3/C6, this compiles to RV32IMC.</span>
+<span class="cmt"># On RP2040 / RP2350 (ARM mode), it compiles to Thumb.</span>
+<span class="cmt"># On Xtensa esp32 / S2 / S3, Xtensa LX6 / LX7.</span></pre>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">qemu becomes a first-class test target</div>
+    The <code>qemu-arm</code> port has been renamed to just <code>qemu</code> and now
+    supports both ARM and RISC-V. It runs tests via a pty serial port &mdash;
+    emulating bare-metal targets &mdash; which makes architecture-portable testing
+    much more practical.
+  </div>
+</section>
+
+<!-- ===== SECTION: RingIO ===== -->
+<section class="section" id="ringio">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2><code>micropython.RingIO</code> &mdash; Thread-Safe Ring Buffer</h2>
+    <p class="section-desc">
+      A new built-in class providing an efficient, byte-oriented ring buffer with a
+      stream interface. <strong>Thread-safe</strong>, fixed allocation, no GC pressure
+      at runtime &mdash; ideal for producer/consumer patterns between an ISR and the
+      main loop, between cores, or between the REPL and a background task. Try it
+      below in your browser.
+    </p>
+  </div>
+
+  <div class="demo-container live-playground">
+    <div class="demo-label">
+      Live demo
+      <span class="pyscript-tag">PyScript</span>
+    </div>
+    <p class="playground-intro">
+      <code>RingIO</code> is a stream &mdash; you can <code>read()</code>,
+      <code>write()</code>, and <code>readinto()</code> just like a file. The
+      buffer is fixed-size and FIFO; reads block (in a real port) when empty.
+    </p>
+    <textarea class="mpy-code-editor" id="ringio-editor" spellcheck="false">from micropython import RingIO
+
+# Allocate a 16-byte ring buffer
+ring = RingIO(16)
+
+# Producer side: write some bytes
+ring.write(b"hello")
+print("after write 'hello':       any() =", ring.any())
+
+ring.write(b" world!")
+print("after write ' world!':     any() =", ring.any())
+
+# Consumer side: read them back in chunks
+print("read(5):", ring.read(5))
+print("read(7):", ring.read(7))
+print("after both reads:          any() =", ring.any())
+
+# Wraparound -- write past the end of the buffer
+ring.write(b"this exceeds the buffer size")
+print("after over-sized write:    any() =", ring.any(), "  (capped at buffer size)")
+print("read all:", ring.read())
+</textarea>
+    <div class="mpy-btn-row">
+      <button class="mpy-run-btn" id="ringio-run">Run &#9654;</button>
+      <span class="mpy-status">Loading MicroPython&hellip;</span>
+    </div>
+    <div class="mpy-output" id="ringio-output"></div>
+    <p class="playground-note">
+      In a real-world MicroPython program, <code>RingIO</code> shines in scenarios
+      where one side runs in an interrupt handler (a hard IRQ, even). The fixed
+      allocation means no heap pressure, and the implementation is reentrant on
+      every supported port.
+    </p>
+  </div>
+</section>
+
+<!-- ===== SECTION: ipconfig ===== -->
+<section class="section" id="ipconfig">
+  <div class="section-header">
+    <span class="section-badge new">New API</span>
+    <h2><code>network.ipconfig()</code> &mdash; IPv6-aware Network Config</h2>
+    <p class="section-desc">
+      v1.24 introduces <code>network.ipconfig()</code> at module level and
+      <code>nic.ipconfig()</code> on individual interfaces. The new API supports
+      <strong>IPv4 and IPv6</strong> with much more control than the legacy
+      <code>nic.ifconfig()</code>. The old API still works (backwards compatibility),
+      but new code should prefer <code>ipconfig()</code>.
+    </p>
+  </div>
+
+  <div class="ip-side-by-side">
+    <div class="ip-pane">
+      <div class="ip-pane-label">Legacy <code>ifconfig()</code> &mdash; IPv4 only</div>
+<pre class="ip-pre"><span class="kw">import</span> network
+
+nic = network.WLAN(network.STA_IF)
+nic.active(<span class="bi">True</span>)
+nic.connect(<span class="str">"ssid"</span>, <span class="str">"pw"</span>)
+
+<span class="cmt"># Tuple shape: (ip, mask, gw, dns)</span>
+nic.<span class="op">ifconfig</span>((
+    <span class="str">"192.168.1.50"</span>,
+    <span class="str">"255.255.255.0"</span>,
+    <span class="str">"192.168.1.1"</span>,
+    <span class="str">"8.8.8.8"</span>,
+))
+print(nic.ifconfig())</pre>
+    </div>
+    <div class="ip-pane">
+      <div class="ip-pane-label"><code>ipconfig()</code> &mdash; <strong>v1.24+</strong>, IPv4 + IPv6</div>
+<pre class="ip-pre"><span class="kw">import</span> network
+
+nic = network.WLAN(network.STA_IF)
+nic.active(<span class="bi">True</span>)
+nic.connect(<span class="str">"ssid"</span>, <span class="str">"pw"</span>)
+
+<span class="cmt"># Keyword args; pick what you need</span>
+nic.<span class="op">ipconfig</span>(
+    addr4=(<span class="str">"192.168.1.50"</span>, <span class="str">"255.255.255.0"</span>),
+    gw4=<span class="str">"192.168.1.1"</span>,
+    dhcp4=<span class="bi">False</span>,
+)
+network.ipconfig(dns=<span class="str">"2606:4700:4700::1111"</span>)  <span class="cmt"># IPv6 DNS</span>
+
+print(nic.ipconfig(<span class="str">"addr4"</span>))
+print(nic.ipconfig(<span class="str">"addr6"</span>))</pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Plus: portable PPP</div>
+    A new <code>network.PPP</code> class based on lwIP is also available in v1.24.
+    Not enabled by default, but boards that already use bare-metal lwIP can opt in
+    &mdash; the rp2 port already exposes it as an option, and stm32 follows.
+  </div>
+</section>
+
+<!-- ===== SECTION: TinyUSB + UART IRQs ===== -->
+<section class="section" id="tinyusb">
+  <div class="section-header">
+    <span class="section-badge improved">Cross-port</span>
+    <h2>TinyUSB CDC unification &amp; portable UART IRQ API</h2>
+    <p class="section-desc">
+      Five ports that previously each had their own TinyUSB integration now share
+      common helper code for CDC serial. As a side effect, the REPL banner and
+      initial prompt are buffered until host connection &mdash; <strong>so the first
+      thing you see when you connect is the banner, not silence</strong>.
+    </p>
+    <p class="section-desc">
+      Most ports also gain a <strong>portable UART IRQ API</strong>. Register Python
+      callbacks for <code>IRQ_RX</code>, <code>IRQ_RXIDLE</code>,
+      <code>IRQ_TXIDLE</code> and <code>IRQ_BREAK</code> with consistent semantics
+      across the family.
+    </p>
+  </div>
+
+  <h3 style="font-size:16px; margin-top:8px; margin-bottom:12px;">Unified TinyUSB CDC</h3>
+  <div class="port-matrix">
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> esp32 (S2 / S3)</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> mimxrt</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> renesas-ra</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> rp2</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> samd</div>
+  </div>
+
+  <h3 style="font-size:16px; margin-top:24px; margin-bottom:12px;">Portable <code>UART.irq()</code></h3>
+  <div class="port-matrix">
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> esp32</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> mimxrt</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> nrf</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> renesas-ra</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> rp2</div>
+    <div class="port-chip new-in-release"><span class="check">&#10003;</span> samd</div>
+    <div class="port-chip"><span class="check">&#10003;</span> stm32 (had it already)</div>
+  </div>
+
+  <div class="code-block" style="margin-top:16px;">
+    <div class="code-header">
+      <span>main.py &mdash; works the same on every supported port</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+<pre><span class="kw">from</span> machine <span class="kw">import</span> UART
+
+uart = UART(<span class="num">0</span>, baudrate=<span class="num">115200</span>)
+
+<span class="kw">def</span> <span class="fn">on_rx</span>(u):
+    <span class="bi">print</span>(<span class="str">"got"</span>, u.read())
+
+uart.irq(handler=on_rx, trigger=UART.IRQ_RX | UART.IRQ_RXIDLE)</pre>
+  </div>
+</section>
+
+<!-- ===== SECTION: Language tweaks ===== -->
+<section class="section" id="language">
+  <div class="section-header">
+    <span class="section-badge new">New</span>
+    <h2>Python language tweaks</h2>
+    <p class="section-desc">
+      Three core-language changes in v1.24, including a <strong>breaking change</strong>
+      to <code>sys.exit()</code>. Pick one from the dropdown to load the example,
+      then run it live.
+    </p>
+  </div>
+
+  <div class="demo-container live-playground">
+    <div class="demo-label">
+      Live demo
+      <span class="pyscript-tag">PyScript</span>
+    </div>
+
+    <div class="example-picker-row">
+      <label for="lang-picker">Example:</label>
+      <select id="lang-picker" class="example-picker">
+        <option value="fstring_concat">f-string concatenation</option>
+        <option value="raw_fstring">Raw f-strings</option>
+        <option value="sysexit">sys.exit() &mdash; breaking change</option>
+      </select>
+    </div>
+
+    <textarea class="mpy-code-editor" id="lang-editor" spellcheck="false"></textarea>
+    <div class="mpy-btn-row">
+      <button class="mpy-run-btn" id="lang-run">Run &#9654;</button>
+      <button class="mpy-clear-btn" id="lang-reset">Reset example</button>
+      <span class="mpy-status">Loading MicroPython&hellip;</span>
+    </div>
+    <div class="mpy-output" id="lang-output"></div>
+
+    <p class="playground-note" id="lang-note"></p>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">Webassembly: top-level await of Task and Event</div>
+    The webassembly port (which is what makes this page possible) gained an important
+    asyncio improvement in v1.24: you can now <code>await</code> a
+    <code>Task</code> or <code>Event</code> at module top level. This means a
+    <code>&lt;script type="mpy"&gt;</code> block can do
+    <code>result = await some_task()</code> directly, with no
+    <code>asyncio.run()</code> wrapping. PyScript also gained
+    <code>JsProxy</code> identity reuse, attribute lookup without existence checks,
+    and JS iterable proxying.
+  </div>
+</section>
+
+<!-- ===== SECTION: Highlights ===== -->
+<section class="section" id="highlights">
+  <div class="section-header">
+    <h2>Highlights</h2>
+    <p class="section-desc">Other notable improvements in v1.24.</p>
+  </div>
+
+  <div class="highlights-grid">
+    <div class="highlight-card">
+      <span class="hl-icon">&#127919;</span>
+      <h3>esp32 firmware shrank by 53 kB</h3>
+      <p>The IDF v5.0.5 -&gt; v5.2.2 update plus internal cleanup gives back over
+        50 kB of flash on every esp32 build (-3.10%). Big win for memory-constrained
+        boards.</p>
+      <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128104;&#127995;&#8205;&#128187;</span>
+      <h3>mpremote hash-based recursive copy</h3>
+      <p>New <code>mpremote sha256sum</code> command, plus recursive copy that
+        first hashes and only updates files that differ. Large-app sync becomes
+        fast.</p>
+      <div class="hl-ports"><span class="hl-port-tag">mpremote</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128279;</span>
+      <h3>SoftSPI LSB mode</h3>
+      <p><code>machine.SoftSPI</code> now supports least-significant-bit-first
+        ordering, in addition to MSB.</p>
+      <div class="hl-ports"><span class="hl-port-tag">machine</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#9888;</span>
+      <h3><code>sys.exit()</code> &mdash; breaking change</h3>
+      <p>Now triggers a <strong>soft reset</strong> of the device instead of just
+        dropping to the REPL. Brings bare-metal in line with the unix port. May
+        impact applications that relied on the old behaviour.</p>
+      <div class="hl-ports"><span class="hl-port-tag">core</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128300;</span>
+      <h3>STM32H7 OctoSPI</h3>
+      <p>OctoSPI memory-mapped flash support on STM32H7 MCUs. New
+        <code>ARDUINO_OPTA</code> stm32 board.</p>
+      <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127968;</span>
+      <h3>stm32: code in RAM for UART REPL</h3>
+      <p>Build option places IRQ + flash + UART code in RAM, enabled on boards with
+        a UART REPL so filesystem operations don't drop characters during flashing
+        (e.g. when copying files via mpremote).</p>
+      <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128100;</span>
+      <h3>Arduino + NXP SE05x secure element</h3>
+      <p><code>ARDUINO_PORTENTA_H7</code> and <code>ARDUINO_NICLA_VISION</code> gain
+        SE05x integration via mbedTLS &mdash; hardware-backed crypto.</p>
+      <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128300;</span>
+      <h3>zephyr v3.7 + threading</h3>
+      <p>Zephyr port updated to v3.7.0; threading via <code>_thread</code> is now
+        implemented. REPL is non-blocking. <code>_thread</code> tests now pass.
+        Big-int support enabled.</p>
+      <div class="hl-ports"><span class="hl-port-tag">zephyr</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128301;</span>
+      <h3>zephyr device-tree object construction</h3>
+      <p>Construct <code>machine</code> objects (Pin, I2C, SPI&hellip;) directly
+        from device-tree node labels, no more hard-coded peripheral indices.</p>
+      <div class="hl-ports"><span class="hl-port-tag">zephyr</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127817;</span>
+      <h3>qemu: ARM + RISC-V, with REPL</h3>
+      <p>The qemu port runs both architectures via a pty-based REPL, mirroring how
+        real bare-metal tests work. Tests that previously needed a board can now
+        run in CI.</p>
+      <div class="hl-ports"><span class="hl-port-tag">qemu</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#128280;</span>
+      <h3>esp32: TCP socket cap</h3>
+      <p>Hard limit on active TCP sockets prevents resource exhaustion when
+        applications open sockets in quick succession.</p>
+      <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+    </div>
+
+    <div class="highlight-card">
+      <span class="hl-icon">&#127760;</span>
+      <h3>webassembly FFI improvements</h3>
+      <p>JsProxy gains iterable-protocol proxying, identity reuse, no-existence-test
+        attribute lookup, and configurable pystack size. Top-level await of Task /
+        Event (covered in the language section above).</p>
+      <div class="hl-ports"><span class="hl-port-tag">webassembly</span></div>
+    </div>
+  </div>
+</section>
