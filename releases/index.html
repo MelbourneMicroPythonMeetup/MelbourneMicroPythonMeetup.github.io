@@ -238,7 +238,11 @@ permalink: /releases/
 }
 .evol-tl-track {
   position: relative;
-  height: 80px;
+  /* Tall enough to contain the date labels that sit below each dot.
+     Dots are at top:28 (height 26), date labels at top:64 with ~17px height,
+     so dates extend to ~y=81. Adding headroom past that prevents collision
+     with the .evol-tl-cadence paragraph below. */
+  height: 110px;
 }
 .evol-tl-axis {
   position: absolute;
