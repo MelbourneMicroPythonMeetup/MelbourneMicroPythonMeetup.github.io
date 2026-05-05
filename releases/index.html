@@ -215,6 +215,557 @@ permalink: /releases/
   .narrative-arc::before { display: none; }
   .main { padding: 0 20px; }
 }
+
+/* ============================================================
+   PROJECT-EVOLUTION SECTIONS
+   1. Release timeline   2. Growth strip    3. MCU adoption
+   4. Code-size lines    5. Contributors strip
+   All prefixed .evol-* to avoid colliding with existing classes.
+   ============================================================ */
+
+/* ===== Section 1: Release Timeline ===== */
+.evol-timeline-section {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+.evol-timeline {
+  position: relative;
+  margin-top: 24px;
+  padding: 60px 20px 70px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.evol-tl-track {
+  position: relative;
+  height: 80px;
+}
+.evol-tl-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 40px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+}
+.evol-tl-dot {
+  position: absolute;
+  top: 28px;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 4px solid var(--bg-card);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.6s ease;
+  opacity: 0;
+}
+.evol-tl-dot.revealed { opacity: 1; }
+.evol-tl-dot:hover, .evol-tl-dot:focus {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 6px var(--accent-glow);
+  outline: none;
+}
+.evol-tl-dot-label {
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.evol-tl-dot-date {
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.evol-tl-tooltip {
+  position: absolute;
+  display: none;
+  z-index: 20;
+  min-width: 260px;
+  max-width: 320px;
+  padding: 14px 16px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  font-size: 12px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.evol-tl-tooltip.shown { display: block; }
+.evol-tl-tooltip-version {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.evol-tl-tooltip-tagline {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+.evol-tl-tooltip-stats {
+  display: flex;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.evol-tl-tooltip-stats strong {
+  color: var(--accent);
+}
+.evol-tl-cadence {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ===== Section 2: Growth strip ===== */
+.evol-growth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+.evol-growth-chart {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+.evol-growth-chart h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+.evol-growth-chart-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.evol-growth-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 50px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.evol-growth-row:hover, .evol-growth-row.active {
+  background: var(--bg-tertiary);
+}
+.evol-growth-row .gv-name {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.evol-growth-row .gv-bar-wrap {
+  height: 18px;
+  display: flex;
+  align-items: center;
+}
+.evol-growth-row .gv-bar {
+  height: 14px;
+  border-radius: 3px;
+  width: 0;
+  transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.evol-growth-row .gv-bar.boards { background: var(--accent); }
+.evol-growth-row .gv-bar.contribs { background: var(--accent-purple); }
+.evol-growth-row .gv-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.evol-growth-annotation {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg-tertiary);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-height: 36px;
+  font-family: var(--font-mono);
+  line-height: 1.5;
+}
+.evol-growth-annotation .gv-ann-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.evol-growth-cumul {
+  margin-top: 12px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.evol-growth-cumul strong {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+/* ===== Section 3: MCU family adoption ===== */
+.evol-mcu-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 24px;
+}
+.evol-mcu-col {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.evol-mcu-col-header {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+.evol-mcu-col-header .col-version {
+  display: block;
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.evol-mcu-chip {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.15s, box-shadow 0.15s;
+}
+.evol-mcu-chip.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.evol-mcu-chip:hover {
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+.evol-mcu-chip-name {
+  display: block;
+  margin-bottom: 2px;
+}
+.evol-mcu-chip-vendor {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.75;
+}
+/* Vendor colour palette */
+.evol-mcu-chip.vendor-espressif {
+  background: rgba(229, 78, 75, 0.12);
+  border-color: rgba(229, 78, 75, 0.5);
+  color: #e54e4b;
+}
+.evol-mcu-chip.vendor-rpi {
+  background: var(--accent-green-glow);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+.evol-mcu-chip.vendor-st {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.evol-mcu-chip.vendor-alif {
+  background: rgba(188, 140, 255, 0.12);
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
+}
+.evol-mcu-consol-badge {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 16px 4px;
+  line-height: 1.5;
+}
+.evol-mcu-consol-badge strong {
+  display: block;
+  font-style: normal;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  margin-bottom: 4px;
+}
+.evol-mcu-tooltip {
+  position: fixed;
+  display: none;
+  z-index: 30;
+  max-width: 280px;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  pointer-events: none;
+}
+.evol-mcu-tooltip.shown { display: block; }
+.evol-mcu-tooltip-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.evol-mcu-tooltip-vendor {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.evol-mcu-cumul {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.evol-mcu-cumul strong {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+/* ===== Section 4: Code-size evolution ===== */
+.evol-cs {
+  margin-top: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.evol-cs-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+.evol-cs-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-secondary);
+}
+.evol-cs-legend-item:hover, .evol-cs-legend-item.active {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+.evol-cs-legend-swatch {
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+}
+.evol-cs-svg-wrap {
+  position: relative;
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.evol-cs-svg {
+  width: 100%;
+  height: 320px;
+  display: block;
+}
+.evol-cs-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.evol-cs-grid {
+  stroke: var(--border);
+  stroke-width: 0.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
+}
+.evol-cs-tick {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.evol-cs-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-width 0.2s, opacity 0.2s;
+}
+.evol-cs-svg.line-hovered .evol-cs-line { opacity: 0.25; }
+.evol-cs-svg.line-hovered .evol-cs-line.hovered {
+  opacity: 1;
+  stroke-width: 3.5;
+}
+.evol-cs-point {
+  fill: var(--bg-primary);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: r 0.15s;
+}
+.evol-cs-point:hover { r: 6; }
+.evol-cs-annotation {
+  fill: var(--accent-orange);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+.evol-cs-annotation-line {
+  stroke: var(--accent-orange);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.evol-cs-tooltip {
+  position: fixed;
+  display: none;
+  z-index: 30;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  font-size: 11px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  font-family: var(--font-mono);
+}
+.evol-cs-tooltip.shown { display: block; }
+.evol-cs-tooltip-port {
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+/* ===== Section 5: Contributors strip ===== */
+.evol-contribs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+.evol-contribs-col {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.evol-contribs-col:hover, .evol-contribs-col.active {
+  border-color: var(--accent);
+}
+.evol-contribs-col-version {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.evol-contribs-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+  margin-bottom: 8px;
+  min-height: 60px;
+}
+.evol-contribs-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.6s ease, background 0.2s;
+}
+.evol-contribs-dot.revealed { opacity: 0.7; }
+.evol-contribs-col:hover .evol-contribs-dot { background: var(--accent); }
+.evol-contribs-count {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.evol-contribs-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+.evol-contribs-names {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ===== Mobile responsive overrides for new sections ===== */
+@media (max-width: 768px) {
+  .evol-growth { grid-template-columns: 1fr; }
+  .evol-mcu-grid { grid-template-columns: 1fr; }
+  .evol-contribs { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .evol-cs-svg { height: 240px; }
+}
 </style>
 </head>
 <body>
@@ -234,6 +785,26 @@ permalink: /releases/
       <a href="https://melbournemicropythonmeetup.github.io/">Melbourne MicroPython Meetup</a>.
     </p>
     <p class="hero-date">Currently covering v1.24 &ndash; v1.28</p>
+  </section>
+
+  <!-- ===== Release Timeline ===== -->
+  <section class="narrative-section evol-timeline-section">
+    <h2>Release timeline</h2>
+    <p>
+      Five releases over 18 months, each spaced roughly four months apart. The
+      gaps below are <em>actually proportional</em> to the time between releases
+      &mdash; hover any dot for the headline + stats; click to read the notes.
+    </p>
+    <div class="evol-timeline">
+      <div class="evol-tl-track" id="evol-tl-track">
+        <div class="evol-tl-axis"></div>
+        <!-- Dots and labels are generated by JS from the RELEASES const -->
+      </div>
+      <div class="evol-tl-tooltip" id="evol-tl-tooltip" role="tooltip"></div>
+      <p class="evol-tl-cadence" id="evol-tl-cadence">
+        <!-- Average cadence string filled by JS -->
+      </p>
+    </div>
   </section>
 
   <div class="stub-banner">
@@ -302,6 +873,39 @@ permalink: /releases/
     </a>
 
   </div>
+
+  <!-- ===== Project at a Glance: growth strip ===== -->
+  <section class="narrative-section">
+    <h2>Project at a glance</h2>
+    <p>
+      Two compact charts &mdash; new boards landing per release, and the contributor
+      headcount on each one. Hover any bar to reveal the breakdown behind the number.
+    </p>
+    <div class="evol-growth" id="evol-growth">
+      <div class="evol-growth-chart">
+        <h3>New boards per release</h3>
+        <div class="evol-growth-chart-sub">Hover for per-port breakdown</div>
+        <div id="evol-growth-boards-rows"><!-- rows generated by JS --></div>
+        <div class="evol-growth-annotation" id="evol-growth-boards-ann">
+          <span class="gv-ann-empty">Hover a bar to see which ports gained boards.</span>
+        </div>
+        <p class="evol-growth-cumul">
+          Total: <strong id="evol-growth-boards-total">&hellip;</strong> new boards across the five releases.
+        </p>
+      </div>
+      <div class="evol-growth-chart">
+        <h3>Contributors per release</h3>
+        <div class="evol-growth-chart-sub">Hover for the release headline</div>
+        <div id="evol-growth-contribs-rows"><!-- rows generated by JS --></div>
+        <div class="evol-growth-annotation" id="evol-growth-contribs-ann">
+          <span class="gv-ann-empty">Hover a bar to see what shipped that release.</span>
+        </div>
+        <p class="evol-growth-cumul">
+          Average: <strong id="evol-growth-contribs-avg">&hellip;</strong> contributors per release.
+        </p>
+      </div>
+    </div>
+  </section>
 
   <!-- Browse by Port -->
   <section class="narrative-section">
@@ -552,6 +1156,45 @@ permalink: /releases/
     </p>
   </section>
 
+  <!-- ===== MCU family adoption ===== -->
+  <section class="narrative-section">
+    <h2>MCU family adoption</h2>
+    <p>
+      Ten new MCU families landed across these five releases &mdash; arguably the
+      strongest "evolution" story of the period. Each chip is colour-coded by
+      vendor; hover for capabilities, click to jump to the relevant release page.
+    </p>
+    <div class="evol-mcu-grid" id="evol-mcu-grid">
+      <!-- 5 columns generated by JS -->
+    </div>
+    <div class="evol-mcu-tooltip" id="evol-mcu-tooltip" role="tooltip"></div>
+    <p class="evol-mcu-cumul">
+      <strong id="evol-mcu-total">&hellip;</strong> new MCU families across 18 months.
+    </p>
+  </section>
+
+  <!-- ===== Code-size evolution ===== -->
+  <section class="narrative-section">
+    <h2>Code-size evolution</h2>
+    <p>
+      Cumulative firmware-size delta vs the v1.23 baseline, kilobytes, for the four
+      ports that moved most. The esp32 line tells a great story: ESP-IDF was
+      cleaned up in v1.24 and dropped 53&nbsp;kB, then steadily climbed back as new
+      features landed. Hover a port chip to isolate its line; hover a data point
+      for exact bytes and the reason given in the release tag.
+    </p>
+    <div class="evol-cs">
+      <div class="evol-cs-legend" id="evol-cs-legend"><!-- chips generated by JS --></div>
+      <div class="evol-cs-svg-wrap">
+        <svg class="evol-cs-svg" id="evol-cs-svg" viewBox="0 0 800 320" preserveAspectRatio="none"
+             aria-label="Cumulative firmware code-size delta per port across MicroPython v1.24 through v1.28">
+          <!-- axes, gridlines, lines, points, annotations generated by JS -->
+        </svg>
+      </div>
+      <div class="evol-cs-tooltip" id="evol-cs-tooltip" role="tooltip"></div>
+    </div>
+  </section>
+
   <!-- machine.* standardisation arc -->
   <section class="narrative-section">
     <h2>The <code>machine.*</code> standardisation arc</h2>
@@ -690,6 +1333,20 @@ permalink: /releases/
     </div>
   </section>
 
+  <!-- ===== Contributors strip ===== -->
+  <section class="narrative-section">
+    <h2>People behind the code</h2>
+    <p>
+      Each dot is one named contributor on that release. Hover a column to see a
+      sample of names. The community has stayed remarkably stable in size
+      &mdash; 40&ndash;58 contributors per release &mdash; while the surface area of
+      the project keeps expanding.
+    </p>
+    <div class="evol-contribs" id="evol-contribs">
+      <!-- 5 columns generated by JS -->
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="footer-links">
       <a href="https://github.com/micropython/micropython/releases" target="_blank">All releases on GitHub</a>
@@ -707,6 +1364,610 @@ permalink: /releases/
 </div>
 
 <script src="{{ '/assets/js/release-notes.js' | relative_url }}"></script>
+
+<script>
+/* ============================================================
+   /releases/ project-evolution charts
+   Single source of truth: RELEASES const below.
+   Five init functions feed off it.
+   ============================================================ */
+
+const RELEASES = [
+  {
+    v: '1.24',
+    date: '2024-10-26',
+    dateLabel: 'Oct 26, 2024',
+    tagline: 'RP2350 lands, RISC-V grows up, ESP32-C6 arrives, TinyUSB unified across five ports.',
+    boards: 10, contributors: 58, timezones: 15,
+    boardsByPort: { esp32: 8, rp2: 1, stm32: 1 },
+    newMcus: [
+      { name: 'RP2350', vendor: 'rpi',       port: 'rp2',    note: 'ARM + RISC-V on one die', anchor: 'newmcus' },
+      { name: 'ESP32-C6', vendor: 'espressif', port: 'esp32', note: 'WiFi 6 + 802.15.4 RISC-V SoC', anchor: 'newmcus' },
+    ],
+    codeSize: { esp32: -53617, rp2: 3592, stm32: 1028, mimxrt: 1864 },
+    codeSizeReason: { esp32: 'ESP-IDF v5.0.5 -> v5.2.2 cleanup', rp2: 'RP2350 + RingIO + UART.irq', stm32: 'New RingIO class', mimxrt: 'RingIO + UART.irq' },
+    contribSample: ['Damien George', 'Jim Mussared', 'iabdalkader', 'robert-hh', 'Angus Gratton'],
+  },
+  {
+    v: '1.25',
+    date: '2025-04-16',
+    dateLabel: 'Apr 16, 2025',
+    tagline: 'ROMFS lands after three years in development, plus a new alif port and inline RISC-V assembler.',
+    boards: 19, contributors: 56, timezones: 15,
+    boardsByPort: { alif: 2, mimxrt: 1, rp2: 10, samd: 5, stm32: 1 },
+    newMcus: [
+      { name: 'Alif Ensemble', vendor: 'alif', port: 'alif', note: 'Multi-core ARM + Ethos-U55 NPU', anchor: 'alif' },
+      { name: 'RPI_PICO2_W',   vendor: 'rpi',  port: 'rp2',  note: 'RP2350 with WiFi/BLE',           anchor: 'highlights' },
+    ],
+    codeSize: { esp32: 10956, rp2: 7944, stm32: -96, mimxrt: 7508 },
+    codeSizeReason: { esp32: 'Many small fixes and improvements', rp2: 'mbedTLS v3.6.2 + DTLS + cyw43-driver 1.1.0', stm32: 'Small code-size optimisations', mimxrt: 'exFAT + function constructor' },
+    contribSample: ['Damien George', 'Jim Mussared', 'Phil Howard', 'Glenn Moloney', 'iabdalkader'],
+  },
+  {
+    v: '1.26',
+    date: '2025-08-09',
+    dateLabel: 'Aug 9, 2025',
+    tagline: 'machine.I2CTarget, the float-accuracy overhaul, native emitter wins, plus STM32N6 and ESP32-C2.',
+    boards: 10, contributors: 46, timezones: 13,
+    boardsByPort: { esp32: 2, samd: 2, stm32: 2, zephyr: 4 },
+    newMcus: [
+      { name: 'STM32N6',  vendor: 'st',        port: 'stm32', note: '800 MHz Cortex-M55 with ML accelerators', anchor: 'n6c2' },
+      { name: 'ESP32-C2', vendor: 'espressif', port: 'esp32', note: 'Low-cost RISC-V + WiFi/BLE',              anchor: 'n6c2' },
+    ],
+    codeSize: { esp32: 19064, rp2: 556, stm32: 3776, mimxrt: 3600 },
+    codeSizeReason: { esp32: 'IDF 5.4.2 + I2CTarget', rp2: 'Compressed errors saved 3kB; offset by I2CTarget', stm32: 'I2CTarget + float accuracy + native emitter', mimxrt: 'I2CTarget + float accuracy' },
+    contribSample: ['Damien George', 'Angus Gratton', 'iabdalkader', 'Matt Trentini', 'Andrew Leech'],
+  },
+  {
+    v: '1.27',
+    date: '2025-12-10',
+    dateLabel: 'Dec 10, 2025',
+    tagline: 'ESP32-C5/P4, STM32U5, formal port Tier levels, unified pyexec REPL on unix and windows.',
+    boards: 14, contributors: 49, timezones: 15,
+    boardsByPort: { esp32: 7, stm32: 4, zephyr: 3 },
+    newMcus: [
+      { name: 'ESP32-C5', vendor: 'espressif', port: 'esp32', note: 'WiFi 6 RISC-V; standalone or P4 co-processor', anchor: 'espnew' },
+      { name: 'ESP32-P4', vendor: 'espressif', port: 'esp32', note: 'High-performance compute, no built-in radio',   anchor: 'espnew' },
+      { name: 'STM32U5',  vendor: 'st',        port: 'stm32', note: 'Low-power Cortex-M33 with TrustZone',           anchor: 'stm32u5' },
+    ],
+    codeSize: { esp32: 36210, rp2: 3836, stm32: -68, mimxrt: 280 },
+    codeSizeReason: { esp32: 'IDF 5.5.1 + new RMT API', rp2: 'hashlib.md5 + TinyUSB update', stm32: 'Soft IRQ refactor offset gains', mimxrt: 'TinyUSB + re start/end positions' },
+    contribSample: ['Damien George', 'Andrew Leech', 'iabdalkader', 'Angus Gratton', 'Matt Trentini'],
+  },
+  {
+    v: '1.28',
+    date: '2026-04-06',
+    dateLabel: 'Apr 6, 2026',
+    tagline: 'PWM on alif and stm32, standardised machine.CAN API, PEP 750 t-strings, weakref module.',
+    boards: 12, contributors: 40, timezones: 14,
+    boardsByPort: { rp2: 7, esp32: 2, stm32: 2, mimxrt: 1 },
+    newMcus: [],
+    codeSize: { esp32: 844, rp2: 356, stm32: 7028, mimxrt: 10072 },
+    codeSizeReason: { esp32: 'Detailed TLS error strings, fixes', rp2: 'pico_rand RNG, pin struct changes', stm32: 'New machine.PWM and machine.CAN', mimxrt: 'VfsRom, t-strings, Counter/Encoder' },
+    contribSample: ['Damien George', 'iabdalkader', 'Angus Gratton', 'Matt Trentini', 'Andrew Leech'],
+  },
+];
+
+const BASE_URL = (function () {
+  // Derive baseurl from the script's location-aware Liquid output (the page already uses relative_url filters).
+  // Fallback: empty string.
+  return '';
+}());
+
+function releasePath(v, anchor) {
+  const a = anchor ? '#' + anchor : '';
+  return BASE_URL + '/micropython-v' + v + '/' + a;
+}
+
+/* ============================================================
+   Section 1: Release timeline
+   ============================================================ */
+
+function initReleaseTimeline() {
+  const track = document.getElementById('evol-tl-track');
+  const tooltip = document.getElementById('evol-tl-tooltip');
+  const cadence = document.getElementById('evol-tl-cadence');
+  if (!track || !tooltip) return;
+
+  const startMs = new Date(RELEASES[0].date).getTime();
+  const endMs   = new Date(RELEASES[RELEASES.length - 1].date).getTime();
+  const range   = endMs - startMs;
+
+  RELEASES.forEach((r, i) => {
+    const t = new Date(r.date).getTime();
+    const pctRaw = (t - startMs) / range;
+    // Inset the dots a little from the track edges so labels don't get clipped.
+    const pct = 5 + pctRaw * 90;
+
+    const dot = document.createElement('a');
+    dot.className = 'evol-tl-dot';
+    dot.href = releasePath(r.v);
+    dot.style.left = pct + '%';
+    dot.dataset.idx = String(i);
+    dot.tabIndex = 0;
+    dot.setAttribute('role', 'link');
+    dot.setAttribute('aria-label', 'MicroPython v' + r.v + ' released ' + r.dateLabel);
+
+    const label = document.createElement('span');
+    label.className = 'evol-tl-dot-label';
+    label.textContent = 'v' + r.v;
+    dot.appendChild(label);
+
+    const date = document.createElement('span');
+    date.className = 'evol-tl-dot-date';
+    date.textContent = r.dateLabel;
+    dot.appendChild(date);
+
+    track.appendChild(dot);
+    setTimeout(() => dot.classList.add('revealed'), 200 + i * 120);
+  });
+
+  function showTooltip(idx, ev) {
+    const r = RELEASES[idx];
+    tooltip.innerHTML =
+      '<div class="evol-tl-tooltip-version">v' + r.v + ' &nbsp;<span style="font-weight:400;color:var(--text-muted);font-size:11px;">' + r.dateLabel + '</span></div>' +
+      '<div class="evol-tl-tooltip-tagline">' + r.tagline + '</div>' +
+      '<div class="evol-tl-tooltip-stats">' +
+        '<span><strong>' + r.boards + '</strong> boards</span>' +
+        '<span><strong>' + r.contributors + '</strong> contributors</span>' +
+        '<span><strong>' + r.timezones + '</strong> timezones</span>' +
+      '</div>';
+    // tooltip is position:absolute relative to .evol-timeline (the
+    // tooltip's offsetParent), so position relative to that.
+    const dot = ev.currentTarget;
+    const op = tooltip.offsetParent || track.parentElement;
+    const opRect = op.getBoundingClientRect();
+    const dotRect = dot.getBoundingClientRect();
+    const opStyle = getComputedStyle(op);
+    const opBorder = parseFloat(opStyle.borderLeftWidth) || 0;
+    const left = dotRect.left + dotRect.width / 2 - opRect.left - opBorder;
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = '110px';
+    tooltip.classList.add('shown');
+  }
+  function hideTooltip() { tooltip.classList.remove('shown'); }
+
+  track.querySelectorAll('.evol-tl-dot').forEach(dot => {
+    const idx = parseInt(dot.dataset.idx, 10);
+    dot.addEventListener('mouseenter', (e) => showTooltip(idx, e));
+    dot.addEventListener('focus',      (e) => showTooltip(idx, e));
+    dot.addEventListener('mouseleave', hideTooltip);
+    dot.addEventListener('blur',       hideTooltip);
+  });
+
+  // Average cadence
+  if (cadence) {
+    const days = (endMs - startMs) / (1000 * 60 * 60 * 24);
+    const avg = Math.round(days / (RELEASES.length - 1));
+    cadence.textContent = 'Average cadence: one release every ~' + avg + ' days (~' + (avg / 30).toFixed(1) + ' months)';
+  }
+}
+
+/* ============================================================
+   Section 2: Growth strip
+   ============================================================ */
+
+function initGrowthStrip() {
+  const boardsRows   = document.getElementById('evol-growth-boards-rows');
+  const contribsRows = document.getElementById('evol-growth-contribs-rows');
+  const boardsAnn    = document.getElementById('evol-growth-boards-ann');
+  const contribsAnn  = document.getElementById('evol-growth-contribs-ann');
+  const boardsTotal  = document.getElementById('evol-growth-boards-total');
+  const contribsAvg  = document.getElementById('evol-growth-contribs-avg');
+  if (!boardsRows || !contribsRows) return;
+
+  const maxBoards   = Math.max(...RELEASES.map(r => r.boards));
+  const maxContribs = Math.max(...RELEASES.map(r => r.contributors));
+
+  RELEASES.forEach((r, i) => {
+    // Boards row
+    const br = document.createElement('div');
+    br.className = 'evol-growth-row';
+    br.dataset.idx = String(i);
+    br.innerHTML =
+      '<span class="gv-name">v' + r.v + '</span>' +
+      '<span class="gv-bar-wrap"><span class="gv-bar boards" data-pct="' + (r.boards / maxBoards * 100) + '"></span></span>' +
+      '<span class="gv-value">' + r.boards + '</span>';
+    boardsRows.appendChild(br);
+
+    // Contributors row
+    const cr = document.createElement('div');
+    cr.className = 'evol-growth-row';
+    cr.dataset.idx = String(i);
+    cr.innerHTML =
+      '<span class="gv-name">v' + r.v + '</span>' +
+      '<span class="gv-bar-wrap"><span class="gv-bar contribs" data-pct="' + (r.contributors / maxContribs * 100) + '"></span></span>' +
+      '<span class="gv-value">' + r.contributors + '</span>';
+    contribsRows.appendChild(cr);
+  });
+
+  // Hover handlers
+  function updateBoardsAnn(idx) {
+    if (idx < 0) {
+      boardsAnn.innerHTML = '<span class="gv-ann-empty">Hover a bar to see which ports gained boards.</span>';
+      return;
+    }
+    const r = RELEASES[idx];
+    const parts = Object.entries(r.boardsByPort).map(([p, n]) => n + ' ' + p);
+    boardsAnn.textContent = 'v' + r.v + ': ' + parts.join(', ');
+  }
+  function updateContribsAnn(idx) {
+    if (idx < 0) {
+      contribsAnn.innerHTML = '<span class="gv-ann-empty">Hover a bar to see what shipped that release.</span>';
+      return;
+    }
+    const r = RELEASES[idx];
+    contribsAnn.textContent = 'v' + r.v + ': ' + r.tagline;
+  }
+  boardsRows.querySelectorAll('.evol-growth-row').forEach(row => {
+    row.addEventListener('mouseenter', () => { row.classList.add('active'); updateBoardsAnn(parseInt(row.dataset.idx, 10)); });
+    row.addEventListener('mouseleave', () => { row.classList.remove('active'); updateBoardsAnn(-1); });
+  });
+  contribsRows.querySelectorAll('.evol-growth-row').forEach(row => {
+    row.addEventListener('mouseenter', () => { row.classList.add('active'); updateContribsAnn(parseInt(row.dataset.idx, 10)); });
+    row.addEventListener('mouseleave', () => { row.classList.remove('active'); updateContribsAnn(-1); });
+  });
+
+  // Cumulative + average ribbons
+  const totalBoards = RELEASES.reduce((s, r) => s + r.boards, 0);
+  if (boardsTotal) boardsTotal.textContent = totalBoards;
+  const avgContribs = Math.round(RELEASES.reduce((s, r) => s + r.contributors, 0) / RELEASES.length);
+  if (contribsAvg) contribsAvg.textContent = avgContribs;
+
+  // Animate bars on scroll-in
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.querySelectorAll('.gv-bar').forEach(bar => {
+        const pct = parseFloat(bar.dataset.pct);
+        bar.style.width = pct + '%';
+      });
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.3 });
+  observer.observe(boardsRows);
+  observer.observe(contribsRows);
+}
+
+/* ============================================================
+   Section 3: MCU family adoption
+   ============================================================ */
+
+function initMcuAdoption() {
+  const grid    = document.getElementById('evol-mcu-grid');
+  const tooltip = document.getElementById('evol-mcu-tooltip');
+  const totalEl = document.getElementById('evol-mcu-total');
+  if (!grid || !tooltip) return;
+
+  let total = 0;
+
+  RELEASES.forEach((r, i) => {
+    const col = document.createElement('div');
+    col.className = 'evol-mcu-col';
+
+    const header = document.createElement('div');
+    header.className = 'evol-mcu-col-header';
+    header.innerHTML = '<span class="col-version">v' + r.v + '</span>' + r.dateLabel;
+    col.appendChild(header);
+
+    if (r.newMcus.length === 0) {
+      const badge = document.createElement('div');
+      badge.className = 'evol-mcu-consol-badge';
+      badge.innerHTML = '<strong>Consolidation</strong>No new MCU families &mdash; this release focused on <code>machine.PWM</code> + <code>machine.CAN</code> standardisation.';
+      col.appendChild(badge);
+    } else {
+      r.newMcus.forEach((mcu, j) => {
+        const chip = document.createElement('a');
+        chip.className = 'evol-mcu-chip vendor-' + mcu.vendor;
+        chip.href = releasePath(r.v, mcu.anchor);
+        chip.dataset.note = mcu.note;
+        chip.dataset.vendor = mcu.vendor;
+        chip.dataset.name = mcu.name;
+        chip.innerHTML =
+          '<span class="evol-mcu-chip-name">' + mcu.name + '</span>' +
+          '<span class="evol-mcu-chip-vendor">' + vendorLabel(mcu.vendor) + ' &middot; ' + mcu.port + '</span>';
+        col.appendChild(chip);
+        total++;
+        // Stagger reveal: column-wise blooming
+        setTimeout(() => chip.classList.add('revealed'), 200 + i * 150 + j * 80);
+      });
+    }
+
+    grid.appendChild(col);
+  });
+
+  if (totalEl) totalEl.textContent = total;
+
+  // Hover tooltips
+  function vendorLabel(v) {
+    return ({ espressif: 'Espressif', rpi: 'Raspberry Pi', st: 'STMicro', alif: 'Alif' })[v] || v;
+  }
+  function showMcuTooltip(chip, ev) {
+    tooltip.innerHTML =
+      '<div class="evol-mcu-tooltip-name">' + chip.dataset.name + '</div>' +
+      '<div class="evol-mcu-tooltip-vendor">' + vendorLabel(chip.dataset.vendor) + '</div>' +
+      chip.dataset.note;
+    const r = chip.getBoundingClientRect();
+    tooltip.style.left = (r.left + r.width / 2) + 'px';
+    tooltip.style.top  = (r.bottom + 8) + 'px';
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.classList.add('shown');
+  }
+  function hideMcuTooltip() { tooltip.classList.remove('shown'); }
+
+  grid.querySelectorAll('.evol-mcu-chip').forEach(chip => {
+    chip.addEventListener('mouseenter', (e) => showMcuTooltip(chip, e));
+    chip.addEventListener('focus',      (e) => showMcuTooltip(chip, e));
+    chip.addEventListener('mouseleave', hideMcuTooltip);
+    chip.addEventListener('blur',       hideMcuTooltip);
+  });
+}
+
+/* ============================================================
+   Section 4: Code-size evolution line chart
+   ============================================================ */
+
+const CS_PORTS = [
+  { key: 'esp32',  label: 'esp32',  color: 'var(--accent-orange)' },
+  { key: 'rp2',    label: 'rp2',    color: 'var(--accent)' },
+  { key: 'stm32',  label: 'stm32',  color: 'var(--accent-green)' },
+  { key: 'mimxrt', label: 'mimxrt', color: 'var(--accent-purple)' },
+];
+
+function initCodeSizeChart() {
+  const svg     = document.getElementById('evol-cs-svg');
+  const legend  = document.getElementById('evol-cs-legend');
+  const tooltip = document.getElementById('evol-cs-tooltip');
+  if (!svg || !legend) return;
+
+  // Compute cumulative deltas in kB
+  const cumul = {};
+  CS_PORTS.forEach(p => {
+    let running = 0;
+    cumul[p.key] = RELEASES.map(r => {
+      running += (r.codeSize[p.key] || 0);
+      return running / 1024; // kB
+    });
+  });
+
+  // Determine y-axis range
+  const allValues = CS_PORTS.flatMap(p => cumul[p.key]);
+  const yMin = Math.min(0, ...allValues);
+  const yMax = Math.max(0, ...allValues);
+  const yPad = (yMax - yMin) * 0.1;
+  const y0 = yMin - yPad;
+  const y1 = yMax + yPad;
+
+  // SVG geometry (viewBox is 800 x 320)
+  const padL = 50, padR = 30, padT = 20, padB = 40;
+  const w = 800 - padL - padR;
+  const h = 320 - padT - padB;
+  const xFor = (i) => padL + (i / (RELEASES.length - 1)) * w;
+  const yFor = (val) => padT + h - ((val - y0) / (y1 - y0)) * h;
+
+  // Build SVG content
+  const NS = 'http://www.w3.org/2000/svg';
+  function el(name, attrs) {
+    const e = document.createElementNS(NS, name);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // Y-axis grid + ticks (5 lines)
+  for (let i = 0; i <= 4; i++) {
+    const v = y0 + ((y1 - y0) * i) / 4;
+    const yp = yFor(v);
+    svg.appendChild(el('line', { x1: padL, y1: yp, x2: padL + w, y2: yp, class: 'evol-cs-grid' }));
+    const txt = el('text', { x: padL - 8, y: yp + 4, class: 'evol-cs-tick', 'text-anchor': 'end' });
+    txt.textContent = v.toFixed(0) + ' kB';
+    svg.appendChild(txt);
+  }
+  // Zero baseline
+  svg.appendChild(el('line', { x1: padL, y1: yFor(0), x2: padL + w, y2: yFor(0), class: 'evol-cs-axis' }));
+
+  // X-axis ticks (release versions)
+  RELEASES.forEach((r, i) => {
+    const xp = xFor(i);
+    const txt = el('text', { x: xp, y: padT + h + 22, class: 'evol-cs-tick', 'text-anchor': 'middle' });
+    txt.textContent = 'v' + r.v;
+    svg.appendChild(txt);
+  });
+
+  // Lines + points. Stroke set via .style (NOT setAttribute) so CSS variables
+  // resolve at draw time AND re-resolve when the theme is toggled.
+  CS_PORTS.forEach(p => {
+    const pts = cumul[p.key].map((v, i) => xFor(i) + ',' + yFor(v));
+    const polyline = el('polyline', {
+      class: 'evol-cs-line',
+      'data-port': p.key,
+      points: pts.join(' '),
+    });
+    polyline.style.stroke = p.color;
+    svg.appendChild(polyline);
+
+    cumul[p.key].forEach((v, i) => {
+      const c = el('circle', {
+        class: 'evol-cs-point',
+        'data-port': p.key,
+        'data-idx':  String(i),
+        cx: xFor(i),
+        cy: yFor(v),
+        r: 4,
+      });
+      c.style.stroke = p.color;
+      svg.appendChild(c);
+    });
+  });
+
+  // Annotation: esp32 v1.24 dip (the standout story)
+  const annV   = cumul.esp32[0];
+  const annX   = xFor(0);
+  const annY   = yFor(annV);
+  svg.appendChild(el('line', { class: 'evol-cs-annotation-line', x1: annX, y1: annY, x2: annX + 90, y2: annY - 30 }));
+  const annTxt = el('text', { class: 'evol-cs-annotation', x: annX + 95, y: annY - 28 });
+  annTxt.textContent = 'ESP-IDF v5.0.5 -> v5.2.2';
+  svg.appendChild(annTxt);
+  const annTxt2 = el('text', { class: 'evol-cs-annotation', x: annX + 95, y: annY - 16 });
+  annTxt2.textContent = '(-53 kB cleanup)';
+  svg.appendChild(annTxt2);
+
+  // Legend chips
+  CS_PORTS.forEach(p => {
+    const item = document.createElement('span');
+    item.className = 'evol-cs-legend-item';
+    item.dataset.port = p.key;
+    item.innerHTML =
+      '<span class="evol-cs-legend-swatch" style="background:' + p.color + '"></span>' +
+      p.label;
+    legend.appendChild(item);
+  });
+
+  // Hover behaviour: focusing a port dims others
+  function setHovered(port) {
+    if (!port) {
+      svg.classList.remove('line-hovered');
+      svg.querySelectorAll('.evol-cs-line').forEach(l => l.classList.remove('hovered'));
+      legend.querySelectorAll('.evol-cs-legend-item').forEach(i => i.classList.remove('active'));
+      return;
+    }
+    svg.classList.add('line-hovered');
+    svg.querySelectorAll('.evol-cs-line').forEach(l => {
+      l.classList.toggle('hovered', l.getAttribute('data-port') === port);
+    });
+    legend.querySelectorAll('.evol-cs-legend-item').forEach(i => {
+      i.classList.toggle('active', i.dataset.port === port);
+    });
+  }
+
+  legend.querySelectorAll('.evol-cs-legend-item').forEach(item => {
+    item.addEventListener('mouseenter', () => setHovered(item.dataset.port));
+    item.addEventListener('mouseleave', () => setHovered(null));
+  });
+  svg.querySelectorAll('.evol-cs-line').forEach(line => {
+    line.addEventListener('mouseenter', () => setHovered(line.getAttribute('data-port')));
+    line.addEventListener('mouseleave', () => setHovered(null));
+  });
+
+  // Point hover: byte tooltip
+  svg.querySelectorAll('.evol-cs-point').forEach(point => {
+    point.addEventListener('mouseenter', (e) => {
+      const port = point.getAttribute('data-port');
+      const idx  = parseInt(point.getAttribute('data-idx'), 10);
+      const r    = RELEASES[idx];
+      const cum  = cumul[port][idx];
+      const delta = (r.codeSize[port] || 0);
+      const sign = delta >= 0 ? '+' : '';
+      tooltip.innerHTML =
+        '<span class="evol-cs-tooltip-port">' + port + '</span>v' + r.v +
+        '<br>this release: ' + sign + delta.toLocaleString() + ' B' +
+        '<br>cumulative:  ' + (cum >= 0 ? '+' : '') + cum.toFixed(1) + ' kB' +
+        '<br><span style="color:var(--text-muted);font-style:italic;">' + (r.codeSizeReason[port] || '') + '</span>';
+      const rect = point.getBoundingClientRect();
+      tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+      tooltip.style.top = (rect.bottom + 10) + 'px';
+      tooltip.style.transform = 'translateX(-50%)';
+      tooltip.classList.add('shown');
+      setHovered(port);
+    });
+    point.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('shown');
+    });
+  });
+
+  // Animate lines drawing on scroll-in (stroke-dasharray)
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      svg.querySelectorAll('.evol-cs-line').forEach((line, i) => {
+        const len = line.getTotalLength();
+        line.style.strokeDasharray = len + ' ' + len;
+        line.style.strokeDashoffset = len;
+        line.style.transition = 'stroke-dashoffset 800ms cubic-bezier(0.2, 0.8, 0.2, 1)';
+        line.style.transitionDelay = (150 * i) + 'ms';
+        // Trigger reflow then animate
+        // eslint-disable-next-line no-unused-expressions
+        line.getBoundingClientRect();
+        line.style.strokeDashoffset = '0';
+      });
+      observer.unobserve(svg);
+    });
+  }, { threshold: 0.25 });
+  observer.observe(svg);
+}
+
+/* ============================================================
+   Section 5: Contributors strip
+   ============================================================ */
+
+function initContributorsStrip() {
+  const strip = document.getElementById('evol-contribs');
+  if (!strip) return;
+
+  RELEASES.forEach((r, i) => {
+    const col = document.createElement('div');
+    col.className = 'evol-contribs-col';
+    col.tabIndex = 0;
+
+    const ver = document.createElement('div');
+    ver.className = 'evol-contribs-col-version';
+    ver.textContent = 'v' + r.v;
+    col.appendChild(ver);
+
+    const grid = document.createElement('div');
+    grid.className = 'evol-contribs-grid';
+    for (let k = 0; k < r.contributors; k++) {
+      const dot = document.createElement('span');
+      dot.className = 'evol-contribs-dot';
+      grid.appendChild(dot);
+      // Stagger reveal across the column
+      setTimeout(() => dot.classList.add('revealed'), 300 + i * 150 + k * 12);
+    }
+    col.appendChild(grid);
+
+    const count = document.createElement('div');
+    count.className = 'evol-contribs-count';
+    count.textContent = r.contributors;
+    col.appendChild(count);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'evol-contribs-label';
+    lbl.textContent = 'contributors';
+    col.appendChild(lbl);
+
+    const names = document.createElement('div');
+    names.className = 'evol-contribs-names';
+    names.textContent = ' ';
+    col.appendChild(names);
+
+    function showNames() {
+      col.classList.add('active');
+      names.innerHTML = r.contribSample.map(n => '&middot; ' + n).join('<br>') +
+        '<br><span style="color:var(--text-muted);">+ ' + (r.contributors - r.contribSample.length) + ' more</span>';
+    }
+    function hideNames() {
+      col.classList.remove('active');
+      names.textContent = ' ';
+    }
+    col.addEventListener('mouseenter', showNames);
+    col.addEventListener('focus',      showNames);
+    col.addEventListener('mouseleave', hideNames);
+    col.addEventListener('blur',       hideNames);
+
+    strip.appendChild(col);
+  });
+}
+
+/* ============================================================
+   Bootstrap
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  initReleaseTimeline();
+  initGrowthStrip();
+  initMcuAdoption();
+  initCodeSizeChart();
+  initContributorsStrip();
+});
+</script>
 
 </body>
 </html>
