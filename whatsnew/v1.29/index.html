@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's New in MicroPython v1.29 (Preview)</title>
+<style>
+/* ===== CSS Reset & Variables ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --max-width: 900px;
+  --sidebar-width: 220px;
+  --transition: 0.3s ease;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-card: #1c2129;
+  --bg-code: #1a1e25;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --accent: #58a6ff;
+  --accent-glow: rgba(88, 166, 255, 0.15);
+  --accent-green: #3fb950;
+  --accent-green-glow: rgba(63, 185, 80, 0.15);
+  --accent-orange: #d29922;
+  --accent-orange-glow: rgba(210, 153, 34, 0.15);
+  --accent-red: #f85149;
+  --accent-purple: #bc8cff;
+  --border: #30363d;
+  --border-highlight: #58a6ff;
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #eaeef2;
+  --bg-card: #f6f8fa;
+  --bg-code: #f0f3f6;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --accent: #0969da;
+  --accent-glow: rgba(9, 105, 218, 0.1);
+  --accent-green: #1a7f37;
+  --accent-green-glow: rgba(26, 127, 55, 0.1);
+  --accent-orange: #9a6700;
+  --accent-orange-glow: rgba(154, 103, 0, 0.1);
+  --accent-red: #cf222e;
+  --accent-purple: #8250df;
+  --border: #d0d7de;
+  --border-highlight: #0969da;
+  --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: background var(--transition), color var(--transition);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== Theme Toggle ===== */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all var(--transition);
+  color: var(--text-primary);
+}
+.theme-toggle:hover { border-color: var(--accent); }
+
+/* ===== Sidebar / TOC ===== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform 0.3s ease, background var(--transition);
+}
+
+.sidebar-logo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.sidebar-version {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.sidebar-preview-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--accent-orange);
+  background: var(--accent-orange-glow);
+  border: 1px solid var(--accent-orange);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-bottom: 20px;
+}
+
+.toc { list-style: none; }
+.toc li { margin-bottom: 2px; }
+.toc a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+}
+.toc a:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  text-decoration: none;
+}
+.toc a.active {
+  color: var(--accent);
+  background: var(--accent-glow);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.toc-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 10px;
+}
+
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Main Content ===== */
+.main {
+  margin-left: var(--sidebar-width);
+  max-width: calc(var(--max-width) + 80px);
+  padding: 0 40px;
+}
+
+/* ===== Hero Section ===== */
+.hero {
+  padding: 80px 0 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -50%; right: -50%; bottom: 0;
+  background: radial-gradient(ellipse at 50% 0%, var(--accent-orange-glow) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent-orange);
+  background: var(--accent-orange-glow);
+  border: 1px solid var(--accent-orange);
+  margin-bottom: 20px;
+  animation: pulse-border 3s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(210, 153, 34, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(210, 153, 34, 0); }
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+.hero h1 span { color: var(--accent); }
+
+.hero-tagline {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0 auto 16px;
+}
+
+.hero-date {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ===== Preview Banner ===== */
+.preview-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-orange);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.preview-banner-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.preview-banner-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.preview-banner-text strong {
+  color: var(--text-primary);
+}
+.preview-banner-text code {
+  background: var(--bg-tertiary);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* ===== Summary Cards ===== */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.summary-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.summary-card .card-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: block;
+}
+.summary-card .card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.summary-card .card-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Stats ribbon */
+.stats-ribbon {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 20px 0 40px;
+  flex-wrap: wrap;
+}
+.stat-item {
+  text-align: center;
+}
+.stat-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  display: block;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Section Styling ===== */
+.section {
+  padding: 64px 0;
+  border-top: 1px solid var(--border);
+}
+
+.section-header {
+  margin-bottom: 32px;
+}
+.section-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+.section-badge.new {
+  color: var(--accent-green);
+  background: var(--accent-green-glow);
+}
+.section-badge.improved {
+  color: var(--accent-orange);
+  background: rgba(210, 153, 34, 0.15);
+}
+
+.section h2 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.section-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin-bottom: 24px;
+}
+
+/* Subtle "source PR" byline under a section-desc, and per-card PR links */
+.section-source {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin: -16px 0 24px;
+}
+.section-source a, .hl-pr-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--text-muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+.section-source a:hover, .hl-pr-link:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.hl-pr-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+/* ===== Code Blocks ===== */
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 16px 0;
+  position: relative;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.copy-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 8px;
+  font-size: 11px;
+  transition: all 0.2s;
+}
+.copy-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+.copy-btn.copied { color: var(--accent-green); border-color: var(--accent-green); }
+
+pre {
+  padding: 16px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Syntax highlighting */
+.kw { color: var(--accent-purple); font-weight: 600; }
+.fn { color: #d2a8ff; }
+.str { color: #a5d6ff; }
+.num { color: #79c0ff; }
+.cmt { color: var(--text-muted); font-style: italic; }
+.op { color: var(--accent-red); }
+.bi { color: #ffa657; }
+
+[data-theme="light"] .kw { color: #8250df; }
+[data-theme="light"] .fn { color: #8250df; }
+[data-theme="light"] .str { color: #0a3069; }
+[data-theme="light"] .num { color: #0550ae; }
+[data-theme="light"] .cmt { color: #6e7781; }
+[data-theme="light"] .op { color: #cf222e; }
+[data-theme="light"] .bi { color: #953800; }
+
+/* ===== Demo Containers ===== */
+.demo-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  box-shadow: var(--shadow);
+}
+.demo-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.btn-secondary:hover { border-color: var(--accent); }
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.badge.active {
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  background: var(--accent-green-glow);
+}
+.badge.coming {
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+}
+.badge.unavailable {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+/* ===== Spec Table (shared) ===== */
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 13px;
+}
+.spec-table th, .spec-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.spec-table th {
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+.spec-table td { color: var(--text-secondary); }
+.spec-table td.mono { font-family: var(--font-mono); color: var(--text-primary); }
+.spec-table tr:last-child td { border-bottom: none; }
+.spec-table .yes { color: var(--accent-green); font-weight: 600; }
+.spec-table .no { color: var(--text-muted); }
+
+/* ===== Port / Module Matrix (shared) ===== */
+.port-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 20px;
+}
+.port-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.port-chip .check {
+  color: var(--accent-green);
+  font-weight: bold;
+}
+.port-chip.new-in-129 {
+  border-color: var(--accent-green);
+  background: var(--accent-green-glow);
+}
+
+/* ===== Port Debut (PSOC Edge) ===== */
+.boot-chain-svg {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
+}
+.board-name-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-bottom: 16px;
+}
+
+/* ===== CAN Demo ===== */
+.can-demo-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.can-bus-svg {
+  width: 100%;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.can-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.can-log {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 12px;
+  max-height: 120px;
+  overflow-y: auto;
+  color: var(--text-secondary);
+}
+.can-log .log-tx { color: var(--accent); }
+.can-log .log-rx { color: var(--accent-green); }
+
+.can-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.callout {
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+.callout-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.callout.warn {
+  background: var(--accent-orange-glow);
+  border-color: var(--accent-orange);
+}
+.callout.warn .callout-title { color: var(--accent-orange); }
+
+/* ===== Before/After comparison (Unicode) ===== */
+.compare-output {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.compare-pane {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.compare-pane h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.compare-pane.before h4 { color: var(--accent-red); }
+.compare-pane.after h4 { color: var(--accent-green); }
+.compare-pane pre {
+  padding: 0;
+  font-size: 12px;
+}
+
+/* ===== Live WASM playground (dual interpreter) ===== */
+.mpy-code-editor {
+  width: 100%;
+  min-height: 140px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px 8px 0 0;
+  background: var(--bg-code);
+  color: var(--text-primary);
+  tab-size: 4;
+  resize: vertical;
+  outline: none;
+  display: block;
+}
+.mpy-code-editor:focus { border-color: var(--accent); }
+.mpy-btn-row {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.mpy-btn-row .mpy-run-btn {
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent-green);
+  color: #fff;
+  transition: opacity 0.2s;
+}
+.mpy-btn-row .mpy-run-btn:hover { opacity: 0.85; }
+.mpy-btn-row .mpy-run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.mpy-btn-row .mpy-clear-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.mpy-btn-row .mpy-clear-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+.mpy-btn-row .mpy-status {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.mpy-output {
+  padding: 12px;
+  min-height: 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  background: var(--bg-primary);
+  color: var(--accent-green);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.mpy-output.has-error { color: var(--accent-red); }
+.mpy-output:empty::before {
+  content: '(no output yet)';
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ===== Highlights Grid ===== */
+.highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.highlight-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+.highlight-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.highlight-card .hl-icon {
+  font-size: 24px;
+  margin-bottom: 10px;
+  display: block;
+}
+.highlight-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.highlight-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.highlight-card .hl-ports {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.highlight-card .hl-port-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.highlight-card.security { border-color: var(--accent-red); }
+.highlight-card.security h3 { color: var(--accent-red); }
+
+/* ===== By the Numbers ===== */
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 16px;
+}
+.number-card {
+  text-align: center;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.number-card .big-number {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--accent);
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.number-card .number-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.number-card .number-caveat {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===== Board Gallery ===== */
+.board-gallery {
+  margin-top: 16px;
+}
+.board-port-group {
+  margin-bottom: 16px;
+}
+.board-port-group h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.board-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.board-chip {
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  transition: all 0.2s;
+}
+.board-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.board-chip.newport {
+  border-color: var(--accent-green);
+  background: var(--accent-green-glow);
+}
+
+/* ===== Footer ===== */
+.footer {
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.footer-links a:hover { color: var(--accent); }
+
+.funding {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.8;
+}
+.funding strong { color: var(--text-secondary); }
+
+.contributors-toggle {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 13px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-family: var(--font-sans);
+  transition: all 0.2s;
+}
+.contributors-toggle:hover { border-color: var(--accent); }
+
+.contributors-list {
+  display: none;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 2;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.contributors-list.open { display: block; }
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .mobile-menu-btn { display: flex; }
+  .main { margin-left: 0; }
+}
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 32px; }
+  .summary-cards { grid-template-columns: repeat(2, 1fr); }
+  .can-demo-layout { grid-template-columns: 1fr; }
+  .compare-output { grid-template-columns: 1fr; }
+  .numbers-grid { grid-template-columns: 1fr; }
+  .main { padding: 0 20px; }
+  .preview-banner { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .summary-cards { grid-template-columns: 1fr; }
+  .stats-ribbon { gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+  <span id="theme-icon">&#9790;</span>
+</button>
+
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" onclick="toggleSidebar()">&#9776;</button>
+
+<!-- Sidebar / TOC -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">MicroPython</div>
+  <div class="sidebar-version">What's New in v1.29</div>
+  <div class="sidebar-preview-tag">PREVIEW &mdash; MILESTONE OPEN</div>
+  <ul class="toc">
+    <li><a href="#hero" data-section="hero">Overview</a></li>
+    <div class="toc-divider"></div>
+    <li><a href="#psoc-edge" data-section="psoc-edge">New Port: PSOC Edge</a></li>
+    <li><a href="#can" data-section="can">machine.CAN</a></li>
+    <li><a href="#unicode" data-section="unicode">Unicode Support</a></li>
+    <div class="toc-divider"></div>
+    <li><a href="#usb-ncm" data-section="usb-ncm">USB Networking (NCM)</a></li>
+    <li><a href="#mem-backup" data-section="mem-backup">machine.mem_backup()</a></li>
+    <li><a href="#esp32-h2" data-section="esp32-h2">ESP32-H2</a></li>
+    <li><a href="#highlights" data-section="highlights">Highlights</a></li>
+    <li><a href="#boards" data-section="boards">New Boards</a></li>
+    <li><a href="#numbers" data-section="numbers">By the Numbers</a></li>
+  </ul>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-badge">Release Preview</div>
+    <h1>MicroPython <span>v1.29</span></h1>
+    <p class="hero-tagline">A new PSOC Edge port, <code style="background:var(--bg-tertiary); padding:1px 6px; border-radius:3px; font-size:15px;">machine.CAN</code> comes to MIMXRT, and a major Unicode overhaul.</p>
+    <p class="hero-date">Expected any day now &mdash; milestone due August 3, 2026, has passed with only clean-up items left open</p>
+  </section>
+
+  <!-- Preview Banner -->
+  <div class="preview-banner">
+    <span class="preview-banner-icon">&#9888;&#65039;</span>
+    <div class="preview-banner-text">
+      <strong>This page previews an unreleased version.</strong> As of August 6, 2026, the
+      <a href="https://github.com/micropython/micropython/milestone/13" target="_blank">v1.29.0 milestone</a>
+      has 56 closed items and 22 still open, and very few of those remaining open items look likely to
+      make the cut. Everything below reflects <strong>closed, merged</strong> milestone items &mdash; those
+      are locked in &mdash; with one exception: the <a href="#usb-ncm">USB Networking (NCM)</a> section
+      covers a still-open PR that's expected to land before the tag is cut. We'll update this page once
+      the release actually ships.
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <a class="summary-card" href="#psoc-edge" style="text-decoration:none">
+      <span class="card-icon">&#129513;</span>
+      <div class="card-title">PSOC Edge</div>
+      <div class="card-desc">Brand new Infineon port</div>
+    </a>
+    <a class="summary-card" href="#can" style="text-decoration:none">
+      <span class="card-icon">&#128652;</span>
+      <div class="card-title">machine.CAN</div>
+      <div class="card-desc">MIMXRT joins the bus</div>
+    </a>
+    <a class="summary-card" href="#unicode" style="text-decoration:none">
+      <span class="card-icon">&#128292;</span>
+      <div class="card-title">Unicode</div>
+      <div class="card-desc">decode(), center() fixes</div>
+    </a>
+    <a class="summary-card" href="#usb-ncm" style="text-decoration:none">
+      <span class="card-icon">&#128279;</span>
+      <div class="card-title">USB Networking</div>
+      <div class="card-desc">NCM network-over-USB</div>
+    </a>
+    <a class="summary-card" href="#mem-backup" style="text-decoration:none">
+      <span class="card-icon">&#128190;</span>
+      <div class="card-title">mem_backup()</div>
+      <div class="card-desc">Persistent memory, 7 ports</div>
+    </a>
+    <a class="summary-card" href="#esp32-h2" style="text-decoration:none">
+      <span class="card-icon">&#128266;</span>
+      <div class="card-title">ESP32-H2</div>
+      <div class="card-desc">Wi-Fi-less BLE + 802.15.4</div>
+    </a>
+  </div>
+
+  <!-- Stats Ribbon -->
+  <div class="stats-ribbon">
+    <div class="stat-item">
+      <span class="stat-number counter" data-target="32">0</span>
+      <span class="stat-label">Contributors (prelim.)</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number counter" data-target="8">0</span>
+      <span class="stat-label">New Boards</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number counter" data-target="1">0</span>
+      <span class="stat-label">New Port</span>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: PSOC EDGE ===== -->
+  <section class="section" id="psoc-edge">
+    <div class="section-header">
+      <span class="section-badge new">New Port</span>
+      <h2>PSOC Edge &mdash; Infineon Joins the Fold</h2>
+      <p class="section-desc">
+        The first new port since <strong>alif</strong> debuted in v1.25: Infineon's PSOC&trade; Edge
+        (PSE84) family, contributed by Infineon's own <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">jaenrig-ifx</code>.
+        The toolchain is entirely vendor-SDK-free &mdash; just <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">arm-none-eabi-gcc</code>,
+        Infineon's <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">edgeprotecttools</code>, and Infineon OpenOCD.
+      </p>
+      <p class="section-source">Source: <a href="https://github.com/micropython/micropython/pull/18910" target="_blank">PR #18910</a></p>
+    </div>
+
+    <div class="demo-container">
+      <div class="demo-label">Boot Chain &mdash; Secure Boot to MicroPython</div>
+      <div class="board-name-tag">Board: KIT_PSE84_AI</div>
+
+      <svg class="boot-chain-svg" viewBox="0 0 460 140" height="140">
+        <rect x="20" y="40" width="170" height="60" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-orange)" stroke-width="2"/>
+        <text x="105" y="65" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="bold" font-family="var(--font-sans)">secboot</text>
+        <text x="105" y="82" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">(secure world)</text>
+
+        <line x1="190" y1="70" x2="260" y2="70" stroke="var(--text-muted)" stroke-width="2"/>
+        <polygon points="270,70 258,64 258,76" fill="var(--text-muted)"/>
+
+        <rect x="270" y="40" width="170" height="60" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-green)" stroke-width="2"/>
+        <text x="355" y="65" text-anchor="middle" fill="var(--text-primary)" font-size="12" font-weight="bold" font-family="var(--font-sans)">MicroPython</text>
+        <text x="355" y="82" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">(non-secure world)</text>
+      </svg>
+
+      <p style="font-size:13px; color:var(--text-secondary); margin-top:16px; text-align:center;">
+        A minimal secure-boot application starts the non-secure MicroPython image &mdash; the same
+        pattern used across Infineon's PSOC Edge security model.
+      </p>
+
+      <h3 style="font-size:16px; margin-top:24px; margin-bottom:8px;">Modules available at launch</h3>
+      <div class="port-matrix">
+        <div class="port-chip new-in-129"><span class="check">&#10003;</span> time</div>
+        <div class="port-chip new-in-129"><span class="check">&#10003;</span> VFS</div>
+        <div class="port-chip new-in-129"><span class="check">&#10003;</span> machine.Pin</div>
+        <div class="port-chip new-in-129"><span class="check">&#10003;</span> machine.RTC</div>
+        <div class="port-chip new-in-129"><span class="check">&#10003;</span> machine.UART</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span>psoc_edge_example.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">from</span> machine <span class="kw">import</span> Pin, RTC
+
+led = Pin(<span class="num">0</span>, Pin.OUT)
+led.value(<span class="num">1</span>)
+
+rtc = RTC()
+<span class="bi">print</span>(rtc.datetime())</pre>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: CAN ===== -->
+  <section class="section" id="can">
+    <div class="section-header">
+      <span class="section-badge improved">Improved</span>
+      <h2>machine.CAN &mdash; MIMXRT Joins the Bus</h2>
+      <p class="section-desc">
+        v1.28 introduced the standardized <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">machine.CAN</code>
+        API with stm32 as the only implementation, and an explicit "Node C &mdash; Coming Soon" placeholder
+        in its bus diagram. v1.29 fills that gap: <strong>MIMXRT</strong> is now a real, tested second
+        implementation, verified across MIMXRT1021, 1052, 1062 and 1176 at bit rates from 50 kbit/s to
+        1 Mbit/s in NORMAL, LOOPBACK and SILENT modes.
+      </p>
+      <p class="section-source">Source: <a href="https://github.com/micropython/micropython/pull/19095" target="_blank">PR #19095</a></p>
+    </div>
+
+    <div class="demo-container">
+      <div class="demo-label">Interactive Demo &mdash; CAN Bus Network</div>
+
+      <div class="can-demo-layout">
+        <div>
+          <svg class="can-bus-svg" viewBox="0 0 400 220" id="can-svg">
+            <!-- CAN Bus Line -->
+            <line x1="40" y1="110" x2="360" y2="110" stroke="var(--text-muted)" stroke-width="3" stroke-dasharray="8,4"/>
+            <text x="200" y="130" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="var(--font-mono)">CAN Bus (500 kbit/s)</text>
+
+            <!-- Node A -->
+            <rect x="20" y="30" width="100" height="50" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent)" stroke-width="2" id="can-node-a"/>
+            <text x="70" y="52" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="bold" font-family="var(--font-sans)">Node A</text>
+            <text x="70" y="68" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">STM32 (bxCAN)</text>
+            <line x1="70" y1="80" x2="70" y2="110" stroke="var(--accent)" stroke-width="2"/>
+
+            <!-- Node B -->
+            <rect x="150" y="30" width="100" height="50" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-green)" stroke-width="2" id="can-node-b"/>
+            <text x="200" y="52" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="bold" font-family="var(--font-sans)">Node B</text>
+            <text x="200" y="68" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">STM32 (FD-CAN)</text>
+            <line x1="200" y1="80" x2="200" y2="110" stroke="var(--accent-green)" stroke-width="2"/>
+
+            <!-- Node C: was "Coming Soon" in v1.28, now MIMXRT -->
+            <rect x="280" y="30" width="100" height="50" rx="8" fill="var(--bg-tertiary)" stroke="var(--accent-purple)" stroke-width="2" id="can-node-c"/>
+            <text x="330" y="52" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="bold" font-family="var(--font-sans)">Node C</text>
+            <text x="330" y="68" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="var(--font-mono)">MIMXRT &mdash; NEW</text>
+            <line x1="330" y1="80" x2="330" y2="110" stroke="var(--accent-purple)" stroke-width="2"/>
+
+            <!-- Termination -->
+            <rect x="20" y="150" width="40" height="24" rx="4" fill="var(--bg-tertiary)" stroke="var(--border)" stroke-width="1"/>
+            <text x="40" y="166" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-family="var(--font-mono)">120&#8486;</text>
+            <line x1="40" y1="110" x2="40" y2="150" stroke="var(--text-muted)" stroke-width="1"/>
+
+            <rect x="340" y="150" width="40" height="24" rx="4" fill="var(--bg-tertiary)" stroke="var(--border)" stroke-width="1"/>
+            <text x="360" y="166" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-family="var(--font-mono)">120&#8486;</text>
+            <line x1="360" y1="110" x2="360" y2="150" stroke="var(--text-muted)" stroke-width="1"/>
+
+            <!-- Message packet (animated) -->
+            <g id="can-packet" style="display:none;">
+              <rect x="-20" y="-10" width="40" height="20" rx="4" fill="var(--accent)" opacity="0.9"/>
+              <text x="0" y="4" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold" font-family="var(--font-mono)">0x123</text>
+            </g>
+          </svg>
+
+          <div class="can-controls">
+            <button class="btn btn-primary" onclick="canSendMessage('a-to-b')">A &#8594; B: Send</button>
+            <button class="btn btn-secondary" onclick="canSendMessage('b-to-c')">B &#8594; C: Send</button>
+            <button class="btn btn-secondary" onclick="canSendMessage('c-to-a')">C &#8594; A: Send</button>
+          </div>
+
+          <div class="can-log" id="can-log">
+            <div style="color:var(--text-muted);">&#8250; Ready. Click Send to transmit a CAN frame.</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="code-block">
+            <div class="code-header">
+              <span>can_example.py</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><span class="kw">from</span> machine <span class="kw">import</span> CAN
+
+<span class="cmt"># Now available on MIMXRT too</span>
+can = CAN(<span class="num">1</span>, CAN.NORMAL, baudrate=<span class="num">500_000</span>)
+
+<span class="cmt"># Send a message</span>
+can.send(<span class="str">b'\x01\x02\x03'</span>, id=<span class="num">0x123</span>)
+
+<span class="cmt"># Receive a message</span>
+msg = can.recv()
+<span class="bi">print</span>(<span class="str">f"ID: </span>{msg[<span class="num">0</span>]:<span class="str">#x}, Data: </span>{msg[<span class="num">1</span>]}<span class="str">"</span>)</pre>
+          </div>
+
+          <div class="can-badges">
+            <span class="badge active">bxCAN (stm32)</span>
+            <span class="badge active">FD-CAN (stm32)</span>
+            <span class="badge active">MIMXRT &mdash; NEW</span>
+            <span class="badge coming">esp32 &mdash; Coming Soon</span>
+            <span class="badge coming">rp2 &mdash; Coming Soon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: UNICODE ===== -->
+  <section class="section" id="unicode">
+    <div class="section-header">
+      <span class="section-badge improved">Improved</span>
+      <h2>Unicode Support Overhaul</h2>
+      <p class="section-desc">
+        A cross-cutting fix to how MicroPython handles Unicode, contributed by <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">Josverl</code>,
+        who built a 127-language test corpus to find and verify the fixes. Framed around PEP 3131 and
+        CPython compatibility, for roughly 0.05% extra memory cost (progressively enabled via
+        <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">MICROPY_CONFIG_ROM_LEVEL</code>).
+      </p>
+      <p class="section-source">Source:
+        <a href="https://github.com/micropython/micropython/pull/18854" target="_blank">PR #18854</a> &middot;
+        <a href="https://github.com/micropython/micropython/pull/18853" target="_blank">PR #18853</a> (mpremote)
+      </p>
+    </div>
+
+    <div class="demo-container">
+      <div class="demo-label">Live Demo &mdash; Two Real MicroPython Builds, Side by Side</div>
+      <p class="playground-intro" style="font-size:13px; color:var(--text-secondary); margin-bottom:16px; line-height:1.6;">
+        This isn't a mockup &mdash; it's two real MicroPython interpreters, each compiled to
+        WebAssembly and running independently in your browser right now: the official
+        <strong>v1.28.0</strong> release, and a <strong>v1.29 preview</strong> built from commit
+        <a href="https://github.com/micropython/micropython/commit/06bcfd5b74c6d275ae0991a19dab8704299e4e05" target="_blank"><code style="font-size:12px;">06bcfd5b7</code></a>
+        (2026-07-28, the milestone's current state). Edit the code and hit Run to see both outputs.
+      </p>
+
+      <textarea class="mpy-code-editor" id="unicode-wasm-code" rows="16">s = "café"
+print("center:", repr(s.center(10)))
+
+b = b'\xff\xfehello'
+
+try:
+    print("replace:", repr(b.decode('utf-8', 'replace')))
+except Exception as e:
+    print("replace:", type(e).__name__, e)
+
+try:
+    print("ignore:", repr(b.decode('utf-8', 'ignore')))
+except Exception as e:
+    print("ignore:", type(e).__name__, e)
+
+try:
+    b.decode('bogus-encoding')
+except Exception as e:
+    print("bogus-encoding:", type(e).__name__, e)</textarea>
+      <div class="mpy-btn-row">
+        <button class="mpy-run-btn" id="unicode-wasm-run" disabled>Run</button>
+        <button class="mpy-clear-btn" id="unicode-wasm-clear">Reset</button>
+        <span class="mpy-status" id="unicode-wasm-status">Loading two MicroPython interpreters&hellip;</span>
+      </div>
+
+      <div class="compare-output">
+        <div class="compare-pane before">
+          <h4>v1.28.0 (released)</h4>
+          <pre class="mpy-output" id="unicode-wasm-out-v128"></pre>
+        </div>
+        <div class="compare-pane after">
+          <h4>v1.29 preview (06bcfd5b7)</h4>
+          <pre class="mpy-output" id="unicode-wasm-out-v129"></pre>
+        </div>
+      </div>
+
+      <div class="callout warn" style="margin-top:20px;">
+        <div class="callout-title">How this demo works</div>
+        This page's other live demos run on <a href="https://pyscript.net/" target="_blank">PyScript</a>,
+        which loads a single hosted MicroPython build from pyscript.net &mdash; fine for a released
+        version, but useless for comparing two versions at once, and pyscript.net won't have this
+        preview build until v1.29 actually ships. So this section self-hosts two separate
+        <a href="https://github.com/micropython/micropython/tree/master/ports/webassembly" target="_blank">webassembly-port</a>
+        builds (built with <a href="https://github.com/mattytrentini/mpbuild" target="_blank">mpbuild</a>,
+        no manual toolchain setup) and runs them side by side with plain JavaScript, bypassing PyScript
+        entirely for just this one comparison.
+      </div>
+    </div>
+
+    <p style="font-size:14px; color:var(--text-secondary); margin-top:16px;">
+      Also includes a companion <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">mpremote</code>
+      fix: Unicode-safe Windows console output, safer path quoting for filenames with Unicode/quotes/backslashes,
+      and UTF-8-safe transport writes.
+    </p>
+  </section>
+
+  <!-- ===== SECTION: USB NCM ===== -->
+  <section class="section" id="usb-ncm">
+    <div class="section-header">
+      <span class="section-badge new">Expected to Land</span>
+      <h2>USB Networking &mdash; NCM Network Driver</h2>
+      <p class="section-desc">
+        A new USB network driver that turns the board's existing USB connection into a real network
+        interface, wired straight into MicroPython's existing lwIP stack. The regular USB serial port
+        stays available for <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">mpremote</code>
+        alongside it, and the board hands out an IP address to the host via its own DHCP server &mdash;
+        no Wi-Fi required. Any TinyUSB-based port with lwIP enabled can use it, provided the chip has
+        enough RAM to spare (lwIP needs roughly 20&nbsp;KB).
+      </p>
+    </div>
+
+    <div class="callout" style="margin-bottom:20px;">
+      <div class="callout-title">Not yet merged, but very likely to land</div>
+      <a href="https://github.com/micropython/micropython/pull/16459" target="_blank">PR #16459</a> is
+      still open as of this page's last update, but it's actively maintained and expected to make it into
+      v1.29. Unlike the rest of this page, treat this section as "should land" rather than "definitely
+      landed" until the release is tagged.
+    </div>
+
+    <div class="port-matrix">
+      <div class="port-chip new-in-129"><span class="check">&#10003;</span> stm32</div>
+      <div class="port-chip new-in-129"><span class="check">&#10003;</span> rp2</div>
+      <div class="port-chip new-in-129"><span class="check">&#10003;</span> mimxrt</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span>build: enable NCM</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="cmt"># rp2, e.g. RPI_PICO2_W</span>
+make -j -C ports/rp2 BOARD=RPI_PICO2_W \
+    MICROPY_PY_LWIP=<span class="num">1</span> \
+    CFLAGS_EXTRA=<span class="str">"-DMICROPY_PY_NETWORK_NCM=1"</span></pre>
+    </div>
+
+    <p style="font-size:14px; color:var(--text-secondary); margin-top:16px;">
+      Disabled by default &mdash; opt in with <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">MICROPY_PY_NETWORK_NCM=1</code>
+      at build time. Once enabled, plugging the board in gives the host a normal network interface, so
+      existing servers and services (HTTP, MQTT, WebREPL) work over the same USB cable used for the
+      REPL.
+    </p>
+  </section>
+
+  <!-- ===== SECTION: MEM_BACKUP ===== -->
+  <section class="section" id="mem-backup">
+    <div class="section-header">
+      <span class="section-badge new">New</span>
+      <h2>machine.mem_backup() &mdash; Persistent Memory, Almost Everywhere</h2>
+      <p class="section-desc">
+        A small feature with an outsized payoff: <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">machine.mem_backup()</code>
+        returns a writable <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">memoryview</code>
+        onto whatever persistent hardware memory a port has &mdash; backup RAM, RTC registers, watchdog
+        scratch registers &mdash; with zero copying. Data survives at least a
+        <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">soft_reset()</code>
+        everywhere it's available; on battery-backed ports it survives power-off too. It's already
+        available on <strong>7 of MicroPython's ports</strong> &mdash; about as close to universal as a
+        hardware-dependent feature gets. Closes a 2+ year old feature request
+        (<a href="https://github.com/micropython/micropython/issues/18960" target="_blank">#18960</a>).
+      </p>
+      <p class="section-source">Source: <a href="https://github.com/micropython/micropython/pull/19084" target="_blank">PR #19084</a></p>
+    </div>
+
+    <table class="spec-table">
+      <thead>
+        <tr><th>Port</th><th>Backing storage</th><th>Size</th><th>Battery-backed</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="mono">alif</td><td>Backup SRAM</td><td>4096 bytes</td><td class="yes">Yes</td></tr>
+        <tr><td class="mono">esp32</td><td>RTC slow memory</td><td>2048 bytes</td><td class="no">No</td></tr>
+        <tr><td class="mono">mimxrt</td><td>SNVS LPGPR registers</td><td>12&ndash;16 bytes</td><td class="yes">Yes</td></tr>
+        <tr><td class="mono">nrf</td><td>POWER GPREGRET registers</td><td>1&ndash;2 bytes</td><td class="no">No</td></tr>
+        <tr><td class="mono">rp2</td><td>Watchdog scratch registers</td><td>28&ndash;60 bytes</td><td class="no">No</td></tr>
+        <tr><td class="mono">samd</td><td>Backup RAM (SAMD51 only)</td><td>8192 bytes</td><td class="yes">Yes</td></tr>
+        <tr><td class="mono">stm32</td><td>Backup SRAM + BKP registers</td><td>20&ndash;8192 bytes</td><td class="yes">Yes</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block" style="margin-top:20px;">
+      <div class="code-header">
+        <span>boot_counter.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">import</span> machine, uctypes
+
+mem = machine.mem_backup()
+layout = {<span class="str">"boot_count"</span>: (<span class="num">0</span>, uctypes.UINT32)}
+regs = uctypes.struct(uctypes.addressof(mem), layout)
+
+regs.boot_count += <span class="num">1</span>
+<span class="bi">print</span>(<span class="str">"Boots since power-on:"</span>, regs.boot_count)
+<span class="cmt"># survives soft_reset() and deepsleep() on every port above;</span>
+<span class="cmt"># survives power-off too on alif, mimxrt, samd, stm32</span></pre>
+    </div>
+
+    <div class="callout warn" style="margin-top:20px;">
+      <div class="callout-title">esp32 gotcha</div>
+      esp32 already had a separate, older <code style="font-size:12px;">RTC.memory()</code> API. It shares
+      the same underlying buffer as <code style="font-size:12px;">machine.mem_backup()</code> but tracks
+      its length independently &mdash; mixing the two in the same application can produce surprising
+      results. Pick one and stick with it.
+    </div>
+  </section>
+
+  <!-- ===== SECTION: ESP32-H2 ===== -->
+  <section class="section" id="esp32-h2">
+    <div class="section-header">
+      <span class="section-badge new">New</span>
+      <h2>ESP32-H2 &mdash; A Wi-Fi-less ESP32</h2>
+      <p class="section-desc">
+        Two new boards (<a href="https://github.com/micropython/micropython/pull/19317" target="_blank">PR #19317</a>)
+        bring up Espressif's ESP32-H2: a low-cost, single-core RISC-V chip built specifically for
+        Bluetooth LE and 802.15.4 mesh networking (Zigbee/Thread/Matter) &mdash; and notably, the first
+        ESP32 variant in the port with <strong>no Wi-Fi radio at all</strong>. <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">MICROPY_PY_NETWORK_WLAN</code>
+        and <code style="background:var(--bg-tertiary); padding:2px 6px; border-radius:3px; font-size:13px;">MICROPY_PY_ESPNOW</code>
+        are both compiled out for this board, since the hardware simply isn't there.
+      </p>
+    </div>
+
+    <div class="can-badges" style="margin-bottom:16px;">
+      <span class="badge active">BLE &mdash; supported</span>
+      <span class="badge unavailable">802.15.4 / Zigbee &mdash; not yet wired up</span>
+      <span class="badge unavailable">Wi-Fi &mdash; no radio on this chip</span>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-title">Zigbee-capable hardware, BLE-only software (for now)</div>
+      The ESP32-H2 silicon has an 802.15.4 radio for Zigbee/Thread/Matter, but this MicroPython board
+      config explicitly disables it (<code style="font-size:12px;">CONFIG_IEEE802154_ENABLED=n</code>)
+      since MicroPython doesn't have 802.15.4 support yet &mdash; it's a deliberate binary-size trade-off,
+      not a hardware limitation. BLE works today; treat Zigbee/Thread as a "maybe later."
+    </div>
+
+    <h3 style="font-size:16px; margin-top:24px; margin-bottom:8px;">Boards</h3>
+    <div class="board-gallery">
+      <div class="board-port-group">
+        <div class="board-list">
+          <span class="board-chip newport">ESP32_GENERIC_H2</span>
+          <span class="board-chip newport">M5STACK_NANOH2</span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px; color:var(--text-secondary); margin-top:8px;">
+      <code style="font-size:12px;">M5STACK_NANOH2</code> adds an RGB LED, USB-C and a JST-PH connector
+      on top of the generic board &mdash; both were tested on hardware (GPIO, ADC, I2C, SPI, and a live
+      BLE packet scan).
+    </p>
+
+    <div class="code-block" style="margin-top:16px;">
+      <div class="code-header">
+        <span>ble_scan.py</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><span class="kw">import</span> bluetooth
+
+ble = bluetooth.BLE()
+ble.active(<span class="kw">True</span>)
+<span class="bi">print</span>(<span class="str">"BLE active on ESP32-H2:"</span>, ble.active())
+<span class="cmt"># no machine.WLAN() here -- this chip doesn't have Wi-Fi</span></pre>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: HIGHLIGHTS ===== -->
+  <section class="section" id="highlights">
+    <div class="section-header">
+      <h2>Highlights</h2>
+      <p class="section-desc">Other notable improvements already merged into the milestone.</p>
+    </div>
+
+    <div class="highlights-grid">
+      <div class="highlight-card">
+        <span class="hl-icon">&#128267;</span>
+        <h3>machine.wake_pins</h3>
+        <p>New cross-port API returning which pin(s) triggered a deep-sleep wake-up, when multiple wake pins are configured.</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/17542" target="_blank">PR #17542</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128225;</span>
+        <h3>Wi-Fi CSI Module</h3>
+        <p><code style="font-size:12px;">network.WLAN</code> gains <code style="font-size:12px;">csi_enable()</code>/<code style="font-size:12px;">csi_read()</code> for Channel State Information &mdash; motion detection, indoor localization, gesture recognition.</p>
+        <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/18460" target="_blank">PR #18460</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128225;</span>
+        <h3>espnow v2.0</h3>
+        <p>Max message size jumps from 250 to 1490 bytes on ESP-IDF v5.4+, while keeping v1.0 support for older IDF builds.</p>
+        <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/16737" target="_blank">PR #16737</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128268;</span>
+        <h3>High-Speed USB</h3>
+        <p>TinyUSB gains proper HS RHPORT support for PYBD_SF6, STM32F429DISC, OLIMEX_H407 and ULPI-based boards, plus CDC/VBUS fixes.</p>
+        <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/18933" target="_blank">PR #18933</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#127760;</span>
+        <h3>Ethernet Improvements</h3>
+        <p>Background PHY link/hot-plug detection, static IP configuration before <code style="font-size:12px;">active(True)</code>, and non-blocking DHCP restart on cable replug.</p>
+        <div class="hl-ports"><span class="hl-port-tag">stm32</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/17613" target="_blank">PR #17613</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128274;</span>
+        <h3>TLS PSK Support</h3>
+        <p>Pre-shared-key authentication added to the <code style="font-size:12px;">ssl</code> module, for use cases that don't want full certificate-based TLS.</p>
+        <div class="hl-ports"><span class="hl-port-tag">extmod</span><span class="hl-port-tag">esp32</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/17074" target="_blank">PR #17074</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#9202;</span>
+        <h3>RP2 DMA Timers</h3>
+        <p>New <code style="font-size:12px;">DMATimer</code> class paces DMA channel transfers by ratio or target frequency.</p>
+        <div class="hl-ports"><span class="hl-port-tag">rp2</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/18622" target="_blank">PR #18622</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#9881;&#65039;</span>
+        <h3>machine.Timer Rework</h3>
+        <p>Moved to ESP-IDF's higher-level GPTimer abstraction, and adds virtual timers backed by ESP Timer.</p>
+        <div class="hl-ports"><span class="hl-port-tag">esp32</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/19163" target="_blank">PR #19163</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128736;</span>
+        <h3>SDK 2.3.0 + Upstream PSRAM</h3>
+        <p>Include-based linker scripts, a silent ROMFS-overflow fix, and PSRAM bring-up now fully deferred to the Pico SDK itself.</p>
+        <div class="hl-ports"><span class="hl-port-tag">rp2</span></div>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/19415" target="_blank">PR #19415</a>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/19418" target="_blank" style="margin-left:8px;">PR #19418</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128290;</span>
+        <h3>int.to_bytes(signed=...)</h3>
+        <p>Closes a long-standing CPython incompatibility, plus common overflow checks for buffer conversions &mdash; ported from CircuitPython.</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/16311" target="_blank">PR #16311</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128269;</span>
+        <h3>bytes.find(int)</h3>
+        <p>CPython-compatible single-byte search &mdash; no more manually wrapping a byte value in <code style="font-size:12px;">bytes([n])</code> first.</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/11631" target="_blank">PR #11631</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#129513;</span>
+        <h3>c_module() Manifest Function</h3>
+        <p>User C modules no longer need to live inside one flat <code style="font-size:12px;">USER_C_MODULES</code> directory &mdash; declare them directly in manifest.py, wherever they live.</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/18229" target="_blank">PR #18229</a>
+      </div>
+
+      <div class="highlight-card security">
+        <span class="hl-icon">&#128737;&#65039;</span>
+        <h3>Security: mbedtls 3.6.6</h3>
+        <p>Resolves 10 CVEs in the bundled mbedtls (CVE-2025-49087, -52496, -52497, -54764, -59438, -66442, CVE-2026-25833, -25834, -25835, -34871). Recommended update for anything TLS-facing.</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/19083" target="_blank">PR #19083</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128190;</span>
+        <h3>Block Device errno Returns</h3>
+        <p>Python-level block-device read/write now returns an integer errno instead of a bool, fixing real SD-card failure handling on PYBV11 and ESP32-P4.</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/16223" target="_blank">PR #16223</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128196;</span>
+        <h3>help('modules') Formatting</h3>
+        <p>Column count and width are now configurable via <code style="font-size:12px;">mpconfigport.h</code>, for boards with small displays.</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/18734" target="_blank">PR #18734</a>
+      </div>
+
+      <div class="highlight-card">
+        <span class="hl-icon">&#128230;</span>
+        <h3>Dependency Bumps</h3>
+        <p>TinyUSB updated to 0.21.0 and CMSIS to v6.3.0 (now vendored as proper submodules across alif, mimxrt, nrf, renesas-ra, samd and stm32).</p>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/19359" target="_blank">PR #19359</a>
+        <a class="hl-pr-link" href="https://github.com/micropython/micropython/pull/19104" target="_blank" style="margin-left:8px;">PR #19104</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: NEW BOARDS ===== -->
+  <section class="section" id="boards">
+    <div class="section-header">
+      <h2>New Boards</h2>
+      <p class="section-desc">8 new board definitions across 2 ports &mdash; confirmed from closed milestone items only.</p>
+    </div>
+
+    <div class="board-gallery">
+      <div class="board-port-group">
+        <h4>esp32 (7 boards)</h4>
+        <div class="board-list">
+          <span class="board-chip">ESP32_GENERIC_H2</span>
+          <span class="board-chip">M5STACK_NANOH2</span>
+          <span class="board-chip">SEEED_XIAO_ESP32C3</span>
+          <span class="board-chip">SEEED_XIAO_ESP32C5</span>
+          <span class="board-chip">SEEED_XIAO_ESP32S3</span>
+          <span class="board-chip">LILYGO_T3_S3</span>
+          <span class="board-chip">WAVESHARE_ESP32_S3_PICO</span>
+        </div>
+      </div>
+      <div class="board-port-group">
+        <h4>psoc-edge (1 board &mdash; new port)</h4>
+        <div class="board-list">
+          <span class="board-chip newport">KIT_PSE84_AI</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: BY THE NUMBERS ===== -->
+  <section class="section" id="numbers">
+    <div class="section-header">
+      <h2>By the Numbers</h2>
+      <p class="section-desc">Based on the 56 closed milestone items only &mdash; final numbers will shift slightly once the release is tagged.</p>
+    </div>
+
+    <div class="numbers-grid">
+      <div class="number-card">
+        <span class="big-number counter" data-target="32">0</span>
+        <span class="number-label">Contributors</span>
+        <div class="number-caveat">preliminary &mdash; milestone PR authors only</div>
+      </div>
+      <div class="number-card">
+        <span class="big-number counter" data-target="8">0</span>
+        <span class="number-label">New Boards</span>
+      </div>
+      <div class="number-card">
+        <span class="big-number counter" data-target="1">0</span>
+        <span class="number-label">New Port</span>
+        <div class="number-caveat">psoc-edge &mdash; first since alif in v1.25</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:var(--text-muted); text-align:center;">
+      Code-size deltas aren't available yet &mdash; there's no tagged v1.29 build to diff against v1.28.
+      We'll add a chart once the release build lands.
+    </p>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/micropython/micropython/milestone/13" target="_blank">v1.29.0 Milestone on GitHub</a>
+      <a href="https://micropython.org/download/" target="_blank">Download Firmware</a>
+      <a href="https://docs.micropython.org/" target="_blank">Documentation</a>
+      <a href="https://github.com/micropython/micropython" target="_blank">Source Code</a>
+    </div>
+
+    <div class="funding">
+      Funded in part through <strong>GitHub Sponsors</strong>, and in part by
+      <strong>George Robotics</strong>, <strong>Espressif</strong>, <strong>Arduino</strong>,
+      <strong>OpenMV</strong>, and <strong>Planet Innovation</strong>.
+    </div>
+
+    <button class="contributors-toggle" onclick="toggleContributors()">Show all 32 contributors</button>
+    <div class="contributors-list" id="contributors-list">
+      Alessandro Gatti, Amirreza Hamzavi, Andrew Leech, Angus Gratton, Carl Pottle, Damien George,
+      Daniël van de Giessen, Dryw Wade, Engineer_Will, Fin Maaß, Francesco Pace, Ihor Nehrutsa,
+      jaenrig-ifx, Jeff Epler, jetpax, Jim Mussared, Jon Nordby, Jos Verlinde, Keenan Johnson,
+      Matt Trentini, Meir Armon, Nicko van Someren, Owen Carter, Pavel Revak, pgaufillet,
+      Philip Howard, rafal-kw, Robert Hammelrath, Stepan Ch, stratakis, Vlad Gabriel Maglasu, will-v-pi.
+    </div>
+
+    <p style="margin-top:32px; font-size:12px; color:var(--text-muted);">
+      MicroPython is an Open Source project &bull; MIT License<br>
+      Page last updated August 6, 2026, from milestone 13 (56 closed / 22 open items) &mdash;
+      check back after release for final figures.
+    </p>
+  </footer>
+
+</div><!-- end .main -->
+
+<script>
+// ===== Theme Toggle =====
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-icon').innerHTML = next === 'dark' ? '&#9790;' : '&#9728;';
+}
+
+// ===== Mobile Sidebar Toggle =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ===== Scrollspy =====
+const sections = document.querySelectorAll('.section, .hero');
+const tocLinks = document.querySelectorAll('.toc a');
+
+const scrollObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      tocLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-section') === id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(section => scrollObserver.observe(section));
+
+// Close sidebar on mobile when clicking a link
+tocLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth <= 1024) {
+      document.getElementById('sidebar').classList.remove('open');
+    }
+  });
+});
+
+// ===== Copy Code =====
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ===== CAN Bus Demo (3 active nodes: A=stm32 bxCAN, B=stm32 FD-CAN, C=MIMXRT) =====
+let canAnimating = false;
+
+const canRoutes = {
+  'a-to-b': { fromNode: 'a', toNode: 'b', startX: 70,  endX: 200, msgId: '0x123', data: '01 02 03' },
+  'b-to-c': { fromNode: 'b', toNode: 'c', startX: 200, endX: 330, msgId: '0x456', data: 'FF 00 AB' },
+  'c-to-a': { fromNode: 'c', toNode: 'a', startX: 330, endX: 70,  msgId: '0x789', data: 'DE AD BE' },
+};
+
+function canSendMessage(direction) {
+  if (canAnimating) return;
+  const route = canRoutes[direction];
+  if (!route) return;
+  canAnimating = true;
+
+  const packet = document.getElementById('can-packet');
+  const log = document.getElementById('can-log');
+  const y = 110;
+
+  const sourceRect = document.getElementById('can-node-' + route.fromNode);
+  const destRect = document.getElementById('can-node-' + route.toNode);
+  sourceRect.style.filter = 'drop-shadow(0 0 8px var(--accent))';
+
+  packet.style.display = '';
+  packet.querySelector('text').textContent = route.msgId;
+
+  let progress = 0;
+  const duration = 800;
+  const startTime = performance.now();
+
+  function animate(time) {
+    progress = Math.min((time - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const currentX = route.startX + (route.endX - route.startX) * eased;
+
+    packet.setAttribute('transform', `translate(${currentX}, ${y})`);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      packet.style.display = 'none';
+      sourceRect.style.filter = '';
+
+      destRect.style.filter = 'drop-shadow(0 0 8px var(--accent-green))';
+      setTimeout(() => destRect.style.filter = '', 500);
+
+      const fromLabel = route.fromNode.toUpperCase();
+      const toLabel = route.toNode.toUpperCase();
+
+      const txLine = document.createElement('div');
+      txLine.innerHTML = `<span class="log-tx">[TX] Node ${fromLabel} &rarr; id=${route.msgId} data=[${route.data}]</span>`;
+      log.appendChild(txLine);
+
+      const rxLine = document.createElement('div');
+      rxLine.innerHTML = `<span class="log-rx">[RX] Node ${toLabel} &larr; id=${route.msgId} len=${route.data.split(' ').length}</span>`;
+      log.appendChild(rxLine);
+      log.scrollTop = log.scrollHeight;
+
+      canAnimating = false;
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ===== Animated Counters =====
+const counterObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      if (el.dataset.counted) return;
+      el.dataset.counted = 'true';
+
+      const target = parseInt(el.dataset.target);
+      const duration = 1200;
+      const startTime = performance.now();
+
+      function tick(time) {
+        const progress = Math.min((time - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
+
+// ===== Contributors Toggle =====
+function toggleContributors() {
+  const list = document.getElementById('contributors-list');
+  const btn = list.previousElementSibling;
+  list.classList.toggle('open');
+  btn.textContent = list.classList.contains('open') ? 'Hide contributors' : 'Show all 32 contributors';
+}
+</script>
+
+<!-- ===== Live WASM dual-interpreter demo (Unicode section) ===== -->
+<!-- Bypasses PyScript deliberately: this needs two independent, self-built MicroPython
+     interpreters (v1.28.0 and a pinned v1.29 preview commit) running side by side, which
+     PyScript's single-hosted-interpreter model doesn't support. See ports/webassembly/README.md
+     in the MicroPython repo for the loadMicroPython() API this uses.
+
+     Instances are created fresh for every run rather than kept alive across clicks: this
+     build's exception->JS proxy conversion only stays valid on the MOST RECENTLY created
+     WebAssembly instance on the page (empirically verified) -- once a second instance is
+     instantiated, an earlier instance's *later* calls can throw a bogus "NULL object" error,
+     even though its output up to that point was correct. Creating an instance, running it
+     immediately, and letting it go (rather than reusing a long-lived interpreter) sidesteps
+     this entirely, at the cost of a small re-instantiation delay per run (module compilation
+     is cached by the browser, so this is fast). -->
+<script>
+(async function () {
+  const statusEl = document.getElementById('unicode-wasm-status');
+  const runBtn   = document.getElementById('unicode-wasm-run');
+  const clearBtn = document.getElementById('unicode-wasm-clear');
+  const codeEl   = document.getElementById('unicode-wasm-code');
+  const outV128  = document.getElementById('unicode-wasm-out-v128');
+  const outV129  = document.getElementById('unicode-wasm-out-v129');
+
+  const DEFAULT_CODE = codeEl.value;
+  const V128_PATH = '/whatsnew/v1.29/wasm/v128/micropython.min.mjs';
+  const V129_PATH = '/whatsnew/v1.29/wasm/v129/micropython.min.mjs';
+
+  async function runFresh(path, code, outEl) {
+    outEl.classList.remove('has-error');
+    const lines = [];
+    try {
+      const mod = await import(path);
+      const mp = await mod.loadMicroPython({
+        stdout: (s) => lines.push(s),
+        stderr: (s) => lines.push(s),
+      });
+      mp.runPython(code);
+    } catch (e) {
+      lines.push(e.message || String(e));
+      outEl.classList.add('has-error');
+    }
+    outEl.textContent = lines.join('\n');
+  }
+
+  async function runBoth() {
+    runBtn.disabled = true;
+    clearBtn.disabled = true;
+    statusEl.textContent = 'Running…';
+    const code = codeEl.value;
+    // Sequential, not Promise.all -- see note above on why each instance must
+    // finish its work before the next one is created.
+    await runFresh(V128_PATH, code, outV128);
+    await runFresh(V129_PATH, code, outV129);
+    statusEl.textContent = 'Ready';
+    runBtn.disabled = false;
+    clearBtn.disabled = false;
+  }
+
+  runBtn.addEventListener('click', runBoth);
+  clearBtn.addEventListener('click', () => {
+    codeEl.value = DEFAULT_CODE;
+    runBoth();
+  });
+
+  statusEl.textContent = 'Loading…';
+  await runBoth();
+})();
+</script>
+</body>
+</html>
