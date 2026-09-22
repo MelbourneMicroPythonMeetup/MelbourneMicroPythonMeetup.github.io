@@ -137,6 +137,49 @@ They have their own native HAL, as well as compatibilty wrappers for MicroPython
 It's quite a bit different to what we normally look at, in particular if you've really been wanting to write Python code for an AVR microcontroller, you should [check it out](https://pymcu.org/)!
 
 ---
+
+## Projects
+
+### ISURLOG
+
+An open source commercially available industrial datalogger device, featuring NB-IoT and LoRa connectivity, with firmware written in MicroPython. It's an interesting example of a real product that uses MicroPython – another data point to defend against those that argue "you can't use MicroPython in production"
+
+![ISURLOG](../images/2026-09/isurlog.png)
+
+See their [discussion post](https://github.com/orgs/micropython/discussions/19664), [website](https://docs.isurlog.isurki.com/), and also an [interesting blog post](https://docs.isurlog.isurki.com/blog/2026/08/31/ntn-on-the-nrf9151-low-cost-satellite-iot-without-a-separate-satellite-modem/) on using satellite connectivity with the board.
+
+---
+
+### Full-Stack Flight – MicroPython quadcopter controller
+
+An [excellent write-up on the Centauri Quadcopter](https://timhanewich.medium.com/full-stack-flight-chapter-5-quadcopter-part-3-the-flight-controller-310b3f288975), by Tim Hanewich. Talks about the various performance considerations for doing lots of calculations quickly, to build up a control loop to keep a drone in the air.
+
+![Centauri](../images/2026-09/quadcopter.png)
+
+The blog post is part of a series on creating the quadcopter, well worth a read.
+
+---
+
+### Printing to an e-ink screen
+
+An e-ink screen is meant to look like paper, right? So why not "print" to it like paper? Nishant Joshi has an [amusing write-up](https://nishantjosh.dev/blogs/how-to-build-a-fking-printer/) on creating some CrossPoint firmware that exposes the e-reader as an IPP-enabled printer.
+
+![crosspoint-printer.png](../images/2026-09/crosspoint-printer.png)
+
+It's not in MicroPython, but it's still a great example of learning problem-solving techniques – and it's a bit of fun.
+
+---
+
+### Pimoroni Galatic Unicorn Train Countdown Clock
+
+I guess software developers are always running late for the train? At least Matt Davison is, with his take on a live departures board – in his case using the UK National Rail API.
+
+![Galactic Unicorn train countdown](../images/2026-09/train-countdown.png)
+
+[Check it out here](https://github.com/davisonaudio/national-rail-countdown), it's all MicroPython
+
+---
+
 ## Quick bytes
 
 ### turbo
