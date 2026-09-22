@@ -13,11 +13,24 @@ Sean delivers the news roundup:
 
 ## Headlines
 
-### a
+### MicroPython Debugger
+
+[GHI Electronics](https://www.ghielectronics.com/) have created a real source-level hardware debugger for MicroPython, with breakpoints, call stack, and variables, just like you'd expect for debugging code in an IDE.
+
+The project consists of a [VSCode extension](https://github.com/ghi-electronics/micropython-vsc-extension) and some custom [MicroPython firmware](https://github.com/ghi-electronics/micropython-firmware-debugger), and supports RP2040, RP2350, ESP32-S2, and ESP32-S3.
+
+![MicroPython debugger](../images/2026-09/servo.gif)
+![VSCode screenshot](../images/2026-09/debugger.png)
+
+Their firmware changes are open source, so if you have a different board to the ones they provide builds for then maybe it won't be too hard to port.
+
+[Check our their announcement](https://forums.ghielectronics.com/t/micropython-and-source-code-debugging-in-vs-code/26361) to get started.
 
 ---
 
-### b
+### Incremental Garbage Collection
+
+Originally developed for the [Pocket Deck](https://shop.nunomo.net/products/pocket-deck), [raspy135](https://github.com/raspy135) has published their changes that introduce "incremental" garbage collection. 
 
 ---
 
