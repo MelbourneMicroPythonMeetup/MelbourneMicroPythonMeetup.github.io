@@ -190,20 +190,28 @@ Targets CircuitPython, but it also looks like it wouldn't be hard to get a versi
 
 [Check it out](https://github.com/mikeysklar/turbo)!
 
+---
+
 ### SPIDriver
 
-Lets you control any SPI device from a desktop computer. Great for debugging. Now with C firmware for the RP2040 (previously it used a Silabs EFM8BB10)
+Lets you control any SPI device from a desktop computer. Great for debugging. Now with C firmware for the RP2040 (previously it used a Silabs EFM8BB10).
 
 [See it here](https://github.com/hansfbaier/spidriver-pico)!
 
 ---
 
-## Matt's New Hardware
+### Claude forgets my ESP32 isn't a full computer
 
-### a
+Nick Lewis has some tips for using Claude to vibe-code MicroPython, he's using an ESP32 but it would apply equally to any other port. Claude is pretty good at writing MicroPython, but sometimes "forgets" that it's a microcontroller – but with some suitable prompting can be corralled into being better.
+
+[Read here](https://www.howtogeek.com/claude-forgets-that-my-esp32-isnt-a-full-computer-here-are-my-4-fixes/)!
 
 ---
 
-### Midjourney fun
+## Matt's New Hardware
+
+---
+
+## Midjourney fun
 
 ![Snake celebrating v1.29](../images/2026-08/midjourney_v129.png)
