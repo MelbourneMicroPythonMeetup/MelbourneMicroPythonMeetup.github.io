@@ -98,6 +98,18 @@ No specific word on MicroPython, but maybe someone will make a port!
 
 ---
 
+### ESP32 Wi-Fi WLED Digital LED Controller ([Altronics](https://www.altronics.com.au/product/x3331-esp32-wled-digital-led-controller))
+
+The Gledopto GL-C-016WL-D contains an ESP32 set up in a neat package for driving addressable LED strips, like the ones here in the makerspace
+
+![Gledopto GL-C-016WL-D](../images/2026-09/gledopto.png)
+
+Built to use the WLED app, it can also be reprogrammed to run whatever MicroPython code you like (hopefully we'll get to play with it this evening)
+
+**AU$39.50**
+
+--- 
+
 ## Software news
 
 ### PyBLE
@@ -208,10 +220,20 @@ Nick Lewis has some tips for using Claude to vibe-code MicroPython, he's using a
 
 ---
 
+### RE-BOUND
+
+> RE-BOUND is a feature-rich, high-speed brick-breaking arcade game engineered specifically for the 72x40 monochrome OLED display of the Thumby micro-console!
+
+![RE-BOUND](../images/2026-09/rebound.png)
+
+Name your own price, [get it here](https://lavachan.itch.io/re-bound)!
+
+---
+
 ## Matt's New Hardware
 
 ---
 
 ## Midjourney fun
 
-![Snake celebrating v1.29](../images/2026-08/midjourney_v129.png)
+![midjourney_snake_with_helmet.jpg](../images/2026-09/midjourney_snake_with_helmet.jpg)
