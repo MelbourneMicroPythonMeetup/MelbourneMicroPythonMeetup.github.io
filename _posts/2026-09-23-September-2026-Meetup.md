@@ -5,6 +5,10 @@ title: September 2026 Meetup
 
 _Sean_ delivers the news roundup, _Matt_ runs us through his latest hardware
 
+## Recordings
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/00AkViFNKFs" title="September 2026 Meetup: September 2026 meetup" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 # News Round-up
 
 Sean delivers the news roundup:

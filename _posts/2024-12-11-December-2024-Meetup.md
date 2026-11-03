@@ -5,11 +5,15 @@ title: December 2024 Meetup
 
 *Damien* covers the latest v1.24[.1] and upcoming v1.25 releases. *Matt* delivers the news roundup.
 
-## Videos
+## Recordings
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/vZ-nI9VuLzE?si=jEeOdQkpuBHLvi6b" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+### MicroPython release update
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/-DLXY9HgCkQ?si=D7g5lBrC6-5KLRM1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vZ-nI9VuLzE" title="December 2024 MicroPython Meetup — Release update" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+### Matt's news roundup
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/-DLXY9HgCkQ" title="December 2024 MicroPython Meetup — Matt's news roundup" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Release milestones
 

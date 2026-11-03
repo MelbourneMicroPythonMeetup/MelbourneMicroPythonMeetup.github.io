@@ -5,6 +5,16 @@ title: September 2024 Meetup
 
 *Volodymyr* explains how to embed any language (that compiles to wasm) into a native module, *Matt* gives the news round-up.
 
+## Recordings
+
+### Native modules in MicroPython
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Jy5TbxbEJpo" title="September 2024 MicroPython Meetup — Native modules in MicroPython" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+### Matt's news roundup
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Tuw6gp-ysI8" title="September 2024 MicroPython Meetup — Matt's news roundup" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Volodymyr's native module work
 
 [Compiling Rust, GoLang, Zig, WebAssembly to MicroPython

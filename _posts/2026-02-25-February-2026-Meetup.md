@@ -5,6 +5,10 @@ title: February 2026 Meetup
 
 *Matt* delivers the news roundup
 
+## Recordings
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/HFFvPxvXPys" title="February 2026 Meetup: February 2026 meetup" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 # News Round-up
 
 ## Headlines
