@@ -5,6 +5,10 @@ title: February 2024 Meetup
 
 To give Matt a bit of a break, **Sean** presented this month's news round-up
 
+## Recordings
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/8wugfmi8nHo" title="February 2024 MicroPython Meetup — News roundup" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## News Round-up
 
 ### MicroPython v1.22.2 Patch release for rp2 DMA, UART and BLE; esp32 BLE; renesas-ra I2C

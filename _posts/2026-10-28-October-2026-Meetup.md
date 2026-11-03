@@ -5,6 +5,10 @@ title: October 2026 Meetup
 
 _Matt_ delivers the news roundup.
 
+## Recordings
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/yAmw6g9vlo8" title="October 2026 Meetup: News and MicroPython v1.30 preview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Headlines
 
 ### ViperIDE adds firmware flasher
